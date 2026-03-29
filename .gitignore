@@ -1,0 +1,15 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Secrets
+.env

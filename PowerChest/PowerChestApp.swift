@@ -1,17 +1,18 @@
-//
-//  PowerChestApp.swift
-//  PowerChest
-//
-//  Created by Jan van Rensburg on 3/29/26.
-//
-
 import SwiftUI
 
 @main
 struct PowerChestApp: App {
+    @State private var appState = AppState()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainContentView()
+                .environment(appState)
+                .onAppear {
+                    appState.loadAllStates()
+                }
         }
+        .defaultSize(width: 920, height: 680)
+        .windowToolbarStyle(.unified)
     }
 }

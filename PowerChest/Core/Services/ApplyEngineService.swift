@@ -1,0 +1,240 @@
+import Foundation
+
+final class ApplyEngineService {
+    private let catalogService: SettingsCatalogService
+    private let readService: SettingsReadService
+    private let snapshotService: SnapshotService
+    private let changeLogService: ChangeLogService
+    private let restartService: RestartService
+    private let defaultsAdapter: DefaultsAdapter
+    private let commandAdapter: CommandAdapter
+    private let compatibility: CompatibilityService
+
+    init(
+        catalogService: SettingsCatalogService,
+        readService: SettingsReadService,
+        snapshotService: SnapshotService,
+        changeLogService: ChangeLogService,
+        restartService: RestartService,
+        compatibility: CompatibilityService
+    ) {
+        self.catalogService = catalogService
+        self.readService = readService
+        self.snapshotService = snapshotService
+        self.changeLogService = changeLogService
+        self.restartService = restartService
+        self.defaultsAdapter = DefaultsAdapter()
+        self.commandAdapter = CommandAdapter()
+        self.compatibility = compatibility
+    }
+
+    func apply(_ request: ApplyRequest) -> ApplyResult {
+        // Step 2: Validate
+        var outcomes: [ApplyOutcome] = []
+        var effectiveItems: [(ApplyItem, CodableValue?)] = [] // item + old value
+
+        for item in request.items {
+            // Check support
+            if let def = catalogService.definition(for: item.settingID),
+               !compatibility.isSupported(def) {
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .skippedUnsupported(reason: "Not supported on macOS \(compatibility.currentOSMajorVersion)"),
+                    verifiedValue: nil
+                ))
+                continue
+            }
+
+            // Step 3: Filter idempotent — read current value via appropriate adapter
+            let def = catalogService.definition(for: item.settingID)
+            let currentValue: CodableValue?
+            let currentExists: Bool
+
+            switch item.mechanism {
+            case .defaults:
+                guard let domain = item.domain, let key = item.keyPath else {
+                    outcomes.append(ApplyOutcome(
+                        settingID: item.settingID,
+                        result: .failed(error: "Missing domain or key path"),
+                        verifiedValue: nil
+                    ))
+                    continue
+                }
+                currentValue = defaultsAdapter.readParsed(domain: domain, key: key, valueType: def?.valueType ?? .string)
+                currentExists = defaultsAdapter.keyExists(domain: domain, key: key)
+            case .command:
+                currentValue = commandAdapter.read(settingID: item.settingID)
+                currentExists = commandAdapter.keyExists(settingID: item.settingID)
+            }
+
+            let isIdempotent: Bool
+            switch item.targetState {
+            case .systemDefault:
+                isIdempotent = !currentExists
+            case .explicitValue(let target):
+                isIdempotent = (currentValue == target)
+            }
+
+            if isIdempotent {
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .skippedIdempotent,
+                    verifiedValue: currentValue
+                ))
+                continue
+            }
+
+            effectiveItems.append((item, currentValue))
+        }
+
+        // Step 4: Nothing to apply
+        if effectiveItems.isEmpty {
+            return ApplyResult(
+                requestID: request.requestID,
+                snapshotID: nil,
+                outcomes: outcomes,
+                restartActions: [],
+                status: outcomes.allSatisfy({ if case .skippedIdempotent = $0.result { return true }; return false }) ? .nothingToApply : .allFailed
+            )
+        }
+
+        // Step 5: Snapshot
+        var snapshotID: UUID?
+        switch request.snapshotBehavior {
+        case .automatic:
+            let touchedIDs = effectiveItems.map { $0.0.settingID }
+            let trigger: SnapshotTrigger = {
+                switch request.source {
+                case .preset: return .beforePreset
+                case .restore: return .beforeRestore
+                case .profileImport: return .profileImport
+                default: return .beforeApply
+                }
+            }()
+            do {
+                snapshotID = try snapshotService.createAutomaticSnapshot(
+                    for: touchedIDs, trigger: trigger
+                )
+            } catch {
+                // Step 6: Abort if snapshot fails
+                for (item, _) in effectiveItems {
+                    outcomes.append(ApplyOutcome(
+                        settingID: item.settingID,
+                        result: .failed(error: "Snapshot failed: \(error.localizedDescription)"),
+                        verifiedValue: nil
+                    ))
+                }
+                return ApplyResult(
+                    requestID: request.requestID,
+                    snapshotID: nil,
+                    outcomes: outcomes,
+                    restartActions: [],
+                    status: .allFailed
+                )
+            }
+        case .useExisting(let id):
+            snapshotID = id
+        case .skip:
+            break
+        }
+
+        // Step 7-8: Execute and verify
+        var changeRecords: [ChangeRecord] = []
+        var restartRequirements: [RestartRequirement] = []
+
+        for (item, oldValue) in effectiveItems {
+            do {
+                let def = catalogService.definition(for: item.settingID)
+
+                switch item.mechanism {
+                case .defaults:
+                    guard let domain = item.domain, let key = item.keyPath else { continue }
+                    switch item.targetState {
+                    case .explicitValue(let value):
+                        try defaultsAdapter.write(domain: domain, key: key, value: value, valueType: def?.valueType ?? .string)
+                    case .systemDefault:
+                        try defaultsAdapter.delete(domain: domain, key: key)
+                    }
+                case .command:
+                    switch item.targetState {
+                    case .explicitValue(let value):
+                        try commandAdapter.write(settingID: item.settingID, value: value)
+                    case .systemDefault:
+                        try commandAdapter.reset(settingID: item.settingID)
+                    }
+                }
+
+                // Readback
+                let verified: CodableValue?
+                switch item.mechanism {
+                case .defaults:
+                    verified = defaultsAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: def?.valueType ?? .string)
+                case .command:
+                    verified = commandAdapter.read(settingID: item.settingID)
+                }
+
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .applied,
+                    verifiedValue: verified
+                ))
+
+                // Step 9: Log
+                let newValue: CodableValue?
+                if case .explicitValue(let v) = item.targetState { newValue = v } else { newValue = nil }
+                changeRecords.append(ChangeRecord(
+                    settingID: item.settingID,
+                    displayName: def?.displayName ?? item.settingID,
+                    oldValue: oldValue,
+                    newValue: newValue,
+                    source: request.source,
+                    snapshotID: snapshotID
+                ))
+
+                if item.restartRequirement.isRequired {
+                    restartRequirements.append(item.restartRequirement)
+                }
+            } catch {
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .failed(error: error.localizedDescription),
+                    verifiedValue: nil
+                ))
+            }
+        }
+
+        // Save change log
+        if !changeRecords.isEmpty {
+            changeLogService.log(changeRecords)
+        }
+
+        // Step 10-11: Restart
+        let restartActions = restartService.executeRestarts(restartRequirements)
+
+        // Step 12: Result
+        let applied = outcomes.filter { if case .applied = $0.result { return true }; return false }
+        let failed = outcomes.filter { if case .failed = $0.result { return true }; return false }
+
+        let status: ApplyStatus
+        if failed.isEmpty {
+            status = .allSucceeded
+        } else if applied.isEmpty {
+            status = .allFailed
+        } else {
+            status = .partialFailure
+        }
+
+        return ApplyResult(
+            requestID: request.requestID,
+            snapshotID: snapshotID,
+            outcomes: outcomes,
+            restartActions: restartActions,
+            status: status
+        )
+    }
+
+    func previewRestarts(for request: ApplyRequest) -> [RestartRequirement] {
+        let unique = Set(request.items.map { $0.restartRequirement }.filter { $0.isRequired })
+        return Array(unique)
+    }
+}
