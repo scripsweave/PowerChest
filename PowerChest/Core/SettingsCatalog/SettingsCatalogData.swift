@@ -367,7 +367,7 @@ enum SettingsCatalogData {
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .absentIsSystemDefault,
             supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .none,
+            restartRequirement: .finder,
             powerUserGrouping: nil,
             searchAliases: ["window animations"],
             notes: "Do not ship until confirmed to still matter."

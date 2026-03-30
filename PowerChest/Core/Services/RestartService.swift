@@ -42,19 +42,28 @@ final class RestartService {
             return RestartAction(target: .none, result: .completed, userMessage: "")
 
         case .systemUIServer:
-            return killProcess("SystemUIServer",
-                              target: .systemUIServer,
-                              message: "The menu bar will refresh shortly.")
+            return restartBundle(
+                bundleID: "com.apple.systemuiserver",
+                displayName: "Menu Bar",
+                requirement: .systemUIServer,
+                successMessage: "The menu bar will refresh shortly."
+            )
 
         case .dock:
-            return killProcess("Dock",
-                              target: .dock,
-                              message: "The Dock will refresh in a moment.")
+            return restartBundle(
+                bundleID: "com.apple.dock",
+                displayName: "Dock",
+                requirement: .dock,
+                successMessage: "The Dock will refresh in a moment."
+            )
 
         case .finder:
-            return killProcess("Finder",
-                              target: .finder,
-                              message: "Finder will briefly relaunch so the change sticks.")
+            return restartBundle(
+                bundleID: "com.apple.finder",
+                displayName: "Finder",
+                requirement: .finder,
+                successMessage: "Finder will briefly relaunch so the change sticks."
+            )
 
         case .safari:
             let running = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Safari")
@@ -73,8 +82,12 @@ final class RestartService {
             }
 
         case .app(let bundleID):
-            return killProcess(bundleID, target: requirement,
-                              message: "\(bundleID) will restart.")
+            return restartBundle(
+                bundleID: bundleID,
+                displayName: bundleID,
+                requirement: requirement,
+                successMessage: "\(bundleID) will restart."
+            )
 
         case .signOut:
             return RestartAction(
@@ -92,31 +105,36 @@ final class RestartService {
         }
     }
 
-    private func killProcess(_ name: String, target: RestartRequirement, message: String) -> RestartAction {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
-        process.arguments = [name]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
+    private func restartBundle(
+        bundleID: String,
+        displayName: String,
+        requirement: RestartRequirement,
+        successMessage: String
+    ) -> RestartAction {
+        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        var terminatedAny = false
 
-        do {
-            try process.run()
-            process.waitUntilExit()
-            if process.terminationStatus == 0 {
-                return RestartAction(target: target, result: .completed, userMessage: message)
-            } else {
-                return RestartAction(
-                    target: target,
-                    result: .failed(error: "killall exited with \(process.terminationStatus)"),
-                    userMessage: "Could not restart \(name). You may need to restart it manually."
-                )
+        for app in runningApps {
+            if app.forceTerminate() {
+                terminatedAny = true
             }
-        } catch {
+        }
+
+        if runningApps.isEmpty {
+            terminatedAny = true
+        }
+
+        if bundleID == "com.apple.finder" {
+            NSWorkspace.shared.launchApplication("Finder")
+        }
+
+        if terminatedAny {
+            return RestartAction(target: requirement, result: .completed, userMessage: successMessage)
+        } else {
             return RestartAction(
-                target: target,
-                result: .failed(error: error.localizedDescription),
-                userMessage: "Could not restart \(name). You may need to restart it manually."
+                target: requirement,
+                result: .failed(error: "Unable to terminate \(displayName)"),
+                userMessage: "Could not restart \(displayName). You may need to restart it manually."
             )
         }
     }

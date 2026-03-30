@@ -52,6 +52,7 @@ final class CategoryPaneViewModel {
         let result = appState.applyEngine.apply(request)
 
         appState.lastApplyResult = result
+        appState.enqueueRestartRequests(result.pendingRestarts)
         appState.refreshStates(for: category)
         stagedChanges.removeAll()
 
@@ -106,10 +107,14 @@ final class CategoryPaneViewModel {
         let result = appState.applyEngine.apply(request)
 
         appState.lastApplyResult = result
+        appState.enqueueRestartRequests(result.pendingRestarts)
         appState.refreshAllStates()
 
         let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
         applyResultMessage = "Preset \"\(preset.name)\" applied. \(applied) change\(applied == 1 ? "" : "s")."
+        appState.presentToast(title: "\(preset.name) applied",
+                              subtitle: "\(applied) change\(applied == 1 ? "" : "s")",
+                              icon: "sparkles")
 
         isApplying = false
     }

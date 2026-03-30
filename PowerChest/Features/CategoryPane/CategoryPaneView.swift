@@ -5,12 +5,27 @@ struct CategoryPaneView: View {
     let category: SettingCategory
     @Environment(AppState.self) private var appState
     @State private var viewModel: CategoryPaneViewModel?
+    @State private var showConfetti = false
 
     private var sidebarItem: SidebarItem? {
         SidebarItem.allCases.first { $0.settingCategory == category }
     }
 
     var body: some View {
+        ZStack(alignment: .top) {
+            paneContent
+
+            if showConfetti {
+                ConfettiOverlay()
+                    .frame(height: 150)
+                    .padding(.top, 10)
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var paneContent: some View {
         if let vm = viewModel {
             Form {
                 // Centered category header (like System Settings)
@@ -51,10 +66,26 @@ struct CategoryPaneView: View {
                 appState.refreshStates(for: category)
                 viewModel = CategoryPaneViewModel(category: category, appState: appState)
             }
+            .onChange(of: vm.applyResultMessage) { newValue in
+                if newValue != nil {
+                    triggerConfetti()
+                }
+            }
         } else {
             Color.clear.onAppear {
                 appState.refreshStates(for: category)
                 viewModel = CategoryPaneViewModel(category: category, appState: appState)
+            }
+        }
+    }
+
+    private func triggerConfetti() {
+        withAnimation(.easeIn(duration: 0.2)) {
+            showConfetti = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                showConfetti = false
             }
         }
     }
@@ -121,17 +152,21 @@ struct InteractiveGroupedControl: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        Section {
+        ControlCard(
+            title: groupedControl.title,
+            subtitle: groupedControl.subtitle,
+            iconSystemName: iconName,
+            accent: accentColor,
+            risk: worstRisk,
+            restartRequirement: restartRequirement
+        ) {
             controlBody
-        } header: {
-            HStack(spacing: 6) {
-                Text(groupedControl.title)
-                Spacer()
-                badges
-            }
-        } footer: {
-            Text(groupedControl.subtitle)
         }
+        .scaleEffect(isSpotlighted ? 1.02 : 1)
+        .shadow(color: isSpotlighted ? accentColor.opacity(0.35) : .clear, radius: isSpotlighted ? 18 : 0, y: 8)
+        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: isSpotlighted)
+        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+        .listRowBackground(Color.clear)
     }
 
     @ViewBuilder
@@ -258,23 +293,100 @@ struct InteractiveGroupedControl: View {
         return "Custom"
     }
 
-    private var badges: some View {
-        HStack(spacing: 4) {
-            let risks = groupedControl.backingSettingIDs.compactMap {
-                appState.catalogService.definition(for: $0)?.risk
-            }
-            let worst = risks.max(by: { riskOrder($0) < riskOrder($1) }) ?? .safe
-            if worst != .safe {
-                RiskBadgeView(risk: worst)
+    private var worstRisk: RiskLevel {
+        let risks = groupedControl.backingSettingIDs.compactMap {
+            appState.catalogService.definition(for: $0)?.risk
+        }
+        return risks.max(by: { riskOrder($0) < riskOrder($1) }) ?? .safe
+    }
+
+    private var restartRequirement: RestartRequirement? {
+        groupedControl.backingSettingIDs.compactMap {
+            appState.catalogService.definition(for: $0)?.restartRequirement
+        }.first { $0.isRequired }
+    }
+
+    private var accentColor: Color {
+        let palette: [Color] = [.pink, .indigo, .mint, .orange, .cyan, .purple]
+        if let number = Int(groupedControl.id.filter({ $0.isNumber })) {
+            return palette[number % palette.count]
+        }
+        return palette.randomElement() ?? .accentColor
+    }
+
+    private var iconName: String {
+        switch groupedControl.kind {
+        case .toggle: return "switch.2"
+        case .multiToggle: return "slider.horizontal.3"
+        case .multiControl: return "dial.low.fill"
+        case .discreteChoice: return "rectangle.inset.filled.and.person.filled"
+        default: return "wand.and.stars"
+        }
+    }
+
+    private var isSpotlighted: Bool {
+        guard let spotlight = appState.spotlightSettingID else { return false }
+        return groupedControl.backingSettingIDs.contains(spotlight)
+    }
+}
+
+// MARK: - Power User Card Shell
+
+private struct ControlCard<Content: View>: View {
+    let title: String
+    let subtitle: String?
+    let iconSystemName: String
+    let accent: Color
+    let risk: RiskLevel
+    let restartRequirement: RestartRequirement?
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: iconSystemName)
+                    .font(.title2)
+                    .padding(10)
+                    .background(accent.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 6) {
+                    if risk != .safe {
+                        RiskBadgeView(risk: risk)
+                    }
+                    if let restartRequirement, restartRequirement.isRequired {
+                        RestartBadgeView(requirement: restartRequirement)
+                    }
+                }
             }
 
-            let reqs = groupedControl.backingSettingIDs.compactMap {
-                appState.catalogService.definition(for: $0)?.restartRequirement
-            }.filter { $0.isRequired }
-            if let first = reqs.first {
-                RestartBadgeView(requirement: first)
-            }
+            Divider()
+
+            content
+
         }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(nsColor: .textBackgroundColor))
+                .shadow(color: .black.opacity(0.08), radius: 10, y: 6)
+                .overlay(alignment: .topLeading) {
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(accent.opacity(0.25), lineWidth: 1)
+                }
+        )
     }
 }
 
@@ -288,9 +400,11 @@ struct SettingValueRow: View {
 
     var body: some View {
         let currentValue = effectiveValue
+        let isSpotlight = appState.spotlightSettingID == definition.id
 
-        switch definition.valueType {
-        case .bool:
+        let row = Group {
+            switch definition.valueType {
+            case .bool:
             Toggle(definition.powerUserLabel ?? definition.displayName, isOn: Binding(
                 get: { currentValue?.asBool ?? false },
                 set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.bool($0))) }
@@ -366,7 +480,17 @@ struct SettingValueRow: View {
                     }
                 }
             }
+            }
         }
+        .padding(.horizontal, isSpotlight ? 6 : 0)
+        .padding(.vertical, isSpotlight ? 4 : 0)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.accentColor.opacity(isSpotlight ? 0.08 : 0))
+        )
+        .animation(.easeInOut(duration: 0.3), value: isSpotlight)
+
+        return row
     }
 
     private var effectiveValue: CodableValue? {
@@ -439,6 +563,8 @@ struct PropellerheadSettingRow: View {
     @State private var isExpanded = false
 
     var body: some View {
+        let isSpotlight = appState.spotlightSettingID == definition.id
+
         DisclosureGroup(isExpanded: $isExpanded) {
             // Expanded: control + meta
             valueControl
@@ -488,6 +614,14 @@ struct PropellerheadSettingRow: View {
                 }
             }
         }
+        .padding(.horizontal, isSpotlight ? 6 : 0)
+        .padding(.vertical, isSpotlight ? 4 : 0)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.accentColor.opacity(isSpotlight ? 0.07 : 0))
+        )
+        .shadow(color: isSpotlight ? Color.accentColor.opacity(0.2) : .clear, radius: isSpotlight ? 14 : 0, y: isSpotlight ? 4 : 0)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isSpotlight)
     }
 
     @ViewBuilder
@@ -611,31 +745,70 @@ private struct ApplyBar: View {
     @Bindable var viewModel: CategoryPaneViewModel
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "pencil.circle.fill")
-                .foregroundStyle(.blue)
-                .font(.title3)
+        HStack(spacing: 14) {
+            AvatarStack(settingIDs: Array(viewModel.stagedChanges.keys.prefix(4)))
 
-            Text("\(viewModel.pendingCount) pending change\(viewModel.pendingCount == 1 ? "" : "s")")
-                .font(.callout)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(viewModel.pendingCount) pending change\(viewModel.pendingCount == 1 ? "" : "s")")
+                    .font(.headline)
+                Text("We auto-snapshot and log everything for you.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Spacer()
 
-            Button("Discard") {
+            Button(role: .destructive) {
                 viewModel.discardAll()
+            } label: {
+                Label("Discard", systemImage: "trash")
             }
             .buttonStyle(.bordered)
 
-            Button("Apply Changes") {
+            Button {
                 viewModel.applyAll()
+            } label: {
+                Label(viewModel.isApplying ? "Applying…" : "Apply", systemImage: "checkmark.seal")
+                    .fontWeight(.semibold)
             }
             .buttonStyle(.borderedProminent)
             .disabled(viewModel.isApplying)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.15), radius: 10, y: -3)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .background(
+            Capsule()
+                .fill(LinearGradient(colors: [.blue.opacity(0.85), .purple.opacity(0.85)], startPoint: .leading, endPoint: .trailing))
+        )
+        .foregroundStyle(.white)
+        .shadow(color: .black.opacity(0.2), radius: 12, y: 4)
+    }
+
+    private struct AvatarStack: View {
+        let settingIDs: [String]
+
+        var body: some View {
+            HStack(spacing: -8) {
+                ForEach(Array(settingIDs.enumerated()), id: \.element) { index, id in
+                    Text(shortLabel(for: id))
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(8)
+                        .background(circleColors[index % circleColors.count], in: Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.6), lineWidth: 1))
+                }
+            }
+        }
+
+        private var circleColors: [Color] { [.yellow, .orange, .pink, .mint, .teal] }
+
+        private func shortLabel(for id: String) -> String {
+            let parts = id.split(separator: ".")
+            if let last = parts.last {
+                return last.prefix(2).uppercased()
+            }
+            return id.prefix(2).uppercased()
+        }
     }
 }
 
@@ -646,18 +819,35 @@ struct ApplyResultBanner: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-            Text(message)
-                .font(.callout)
+        HStack(spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.title3)
+                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Success")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.8))
+                Text(message)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
             Spacer()
             Button(action: onDismiss) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
+                Image(systemName: "xmark")
+                    .font(.caption)
+                    .padding(6)
+                    .background(.white.opacity(0.2), in: Circle())
             }
             .buttonStyle(.borderless)
+            .foregroundStyle(.white)
         }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(LinearGradient(colors: [.green, .mint], startPoint: .leading, endPoint: .trailing))
+        )
+        .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
     }
 }
 

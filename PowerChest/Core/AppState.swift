@@ -4,6 +4,10 @@ import SwiftUI
 final class AppState {
     var selectedSidebarItem: SidebarItem? = .home
     var userMode: UserMode = .powerUser
+    var spotlightSettingID: String?
+    var spotlightPresetID: String?
+    var toast: AppToast?
+    var pendingRestartRequests: [RestartRequirement] = []
 
     var settingStates: [String: SettingState] = [:]
     var isLoading = false
@@ -65,4 +69,32 @@ final class AppState {
     func state(for settingID: String) -> SettingState? {
         settingStates[settingID]
     }
+
+    func presentToast(title: String, subtitle: String? = nil, icon: String = "sparkles") {
+        toast = AppToast(title: title, subtitle: subtitle, icon: icon)
+    }
+
+    func enqueueRestartRequests(_ requirements: [RestartRequirement]) {
+        guard !requirements.isEmpty else { return }
+        for requirement in requirements {
+            if !pendingRestartRequests.contains(requirement) {
+                pendingRestartRequests.append(requirement)
+            }
+        }
+    }
+
+    func dequeueRestart(_ requirement: RestartRequirement) {
+        pendingRestartRequests.removeAll { $0 == requirement }
+    }
+
+    func performRestart(_ requirement: RestartRequirement) -> RestartAction? {
+        restartService.executeRestarts([requirement]).first
+    }
+}
+
+struct AppToast: Identifiable {
+    let id = UUID()
+    let title: String
+    let subtitle: String?
+    let icon: String
 }

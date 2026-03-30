@@ -52,6 +52,7 @@ struct ApplyResult: Sendable {
     let outcomes: [ApplyOutcome]
     let restartActions: [RestartAction]
     let status: ApplyStatus
+    let pendingRestarts: [RestartRequirement]
 }
 
 struct ApplyOutcome: Sendable {

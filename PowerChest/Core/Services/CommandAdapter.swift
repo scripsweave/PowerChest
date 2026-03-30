@@ -17,7 +17,8 @@ final class CommandAdapter: Sendable {
         // Command-based settings always "exist" — they have a readable state
         switch settingID {
         case "finder.showLibraryFolder":
-            return true
+            // Treat "visible" as customized, hidden as system default
+            return isLibraryFolderVisible()
         default:
             return false
         }
@@ -49,10 +50,14 @@ final class CommandAdapter: Sendable {
     }
 
     private func isLibraryFolderVisible() -> Bool {
-        let path = libraryPath()
-        let result = runCommand("/usr/bin/ls", arguments: ["-lOd", path])
-        // If the flags contain "hidden", it's invisible
-        return !result.output.contains("hidden")
+        let url = URL(fileURLWithPath: libraryPath())
+        if let values = try? url.resourceValues(forKeys: [.isHiddenKey]), let hidden = values.isHidden {
+            return !hidden
+        }
+
+        // Fallback to chflags inspection if resource values fail
+        let result = runCommand("/usr/bin/ls", arguments: ["-lOd", url.path])
+        return !result.output.contains(" hidden ")
     }
 
     private func setLibraryFolderVisible(_ visible: Bool) throws {

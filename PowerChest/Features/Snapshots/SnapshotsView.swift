@@ -9,46 +9,53 @@ struct SnapshotsView: View {
     @State private var message: String?
 
     var body: some View {
-        Form {
-            if let msg = message {
-                Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 26) {
+                if let msg = message {
                     ApplyResultBanner(message: msg) { message = nil }
                 }
-            }
 
-            Section {
-                Button {
+                SnapshotHeroCard(snapshotCount: snapshots.count) {
                     showingManualCapture = true
-                } label: {
-                    Label("Create Manual Snapshot", systemImage: "camera.fill")
                 }
-            } footer: {
-                Text("Snapshots capture every PowerChest-managed setting. Automatic ones are created before every change.")
-            }
 
-            if snapshots.isEmpty {
-                Section {
-                    ContentUnavailableView(
-                        "No Snapshots Yet",
-                        systemImage: "clock.arrow.circlepath",
-                        description: Text("Make a change or create one manually. Snapshots are your safety net.")
+                if snapshots.isEmpty {
+                    VStack(spacing: 16) {
+                        FloatingEmptyIcon(systemImage: "clock.arrow.circlepath", tint: .blue)
+                        ContentUnavailableView(
+                            "No Snapshots Yet",
+                            systemImage: "clock.arrow.circlepath",
+                            description: Text("Make a change or create one manually. Snapshots are your safety net.")
+                        )
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .fill(Color(nsColor: .textBackgroundColor))
                     )
-                }
-            } else {
-                Section("\(snapshots.count) snapshot\(snapshots.count == 1 ? "" : "s")") {
-                    ForEach(snapshots) { snapshot in
-                        SnapshotRow(snapshot: snapshot) {
-                            selectedSnapshot = snapshot
-                        } onRestore: {
-                            restoreSnapshot(snapshot)
-                        } onDelete: {
-                            deleteSnapshot(snapshot)
+                    .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+                } else {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("Timeline")
+                            .font(.title2).bold()
+                        LazyVStack(spacing: 16) {
+                            ForEach(snapshots) { snapshot in
+                                SnapshotCard(
+                                    snapshot: snapshot,
+                                    onCompare: { selectedSnapshot = snapshot },
+                                    onRestore: { restoreSnapshot(snapshot) },
+                                    onDelete: { deleteSnapshot(snapshot) }
+                                )
+                            }
                         }
                     }
                 }
             }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 32)
         }
-        .formStyle(.grouped)
+        .background(Color(nsColor: .controlBackgroundColor))
         .onAppear { refresh() }
         .sheet(isPresented: $showingManualCapture) {
             ManualSnapshotSheet(name: $manualSnapshotName) {
@@ -87,6 +94,7 @@ struct SnapshotsView: View {
         }
         let result = appState.applyEngine.apply(plan.applyRequest)
         appState.refreshAllStates()
+        appState.enqueueRestartRequests(result.pendingRestarts)
         let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
         message = "Restored \(applied) setting\(applied == 1 ? "" : "s") from \"\(snapshot.name)\"."
         refresh()
@@ -98,49 +106,97 @@ struct SnapshotsView: View {
     }
 }
 
-// MARK: - Snapshot Row
+// MARK: - Snapshot Cards
 
-private struct SnapshotRow: View {
+private struct SnapshotHeroCard: View {
+    let snapshotCount: Int
+    let onCreate: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Snapshots are your seatbelt")
+                .font(.largeTitle).bold()
+                .foregroundStyle(.white)
+            Text("Automatic ones happen before every change. Drop extras whenever the experiment feels spicy.")
+                .foregroundStyle(.white.opacity(0.85))
+
+            HStack(spacing: 16) {
+                Label("\(snapshotCount) saved", systemImage: "clock.arrow.circlepath")
+                    .foregroundStyle(.white)
+                Spacer()
+                Button(action: onCreate) {
+                    Label("Manual snapshot", systemImage: "camera.fill")
+                        .fontWeight(.semibold)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.white)
+                .foregroundStyle(.blue)
+                .background(RoundedRectangle(cornerRadius: 16).fill(.white))
+            }
+        }
+        .padding(28)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        )
+        .overlay(alignment: .bottomTrailing) {
+            Image(systemName: "lifepreserver")
+                .font(.system(size: 60))
+                .foregroundStyle(.white.opacity(0.25))
+                .padding(20)
+        }
+        .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+    }
+}
+
+private struct SnapshotCard: View {
     let snapshot: SnapshotRecord
     let onCompare: () -> Void
     let onRestore: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(snapshot.name)
-                    .fontWeight(.medium)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(snapshot.name)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    Text("\(snapshot.kind.rawValue.capitalized) · \(snapshot.createdAt, style: .relative) ago · \(snapshot.osVersion)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
                 Text(snapshot.kind.rawValue.capitalized)
                     .font(.caption2)
                     .fontWeight(.medium)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(kindColor.opacity(0.15), in: Capsule())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(kindColor.opacity(0.18), in: Capsule())
                     .foregroundStyle(kindColor)
             }
 
-            HStack(spacing: 12) {
-                Label("\(snapshot.settingRecords.count)", systemImage: "gearshape")
-                Label(snapshot.osVersion, systemImage: "desktopcomputer")
-                Text(snapshot.createdAt, style: .relative)
-                    .foregroundStyle(.tertiary)
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Label("\(snapshot.settingRecords.count) captured settings", systemImage: "gearshape")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
-            HStack(spacing: 16) {
-                Button("Compare") { onCompare() }
-                Button("Restore") { onRestore() }
+            HStack(spacing: 14) {
+                Button("Compare", action: onCompare)
+                Button("Restore", action: onRestore)
                 if snapshot.kind != .automatic {
-                    Button("Delete", role: .destructive) { onDelete() }
+                    Button("Delete", role: .destructive, action: onDelete)
                 }
             }
+            .buttonStyle(.bordered)
             .font(.caption)
-            .buttonStyle(.borderless)
         }
-        .padding(.vertical, 4)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(Color(nsColor: .textBackgroundColor))
+        )
+        .shadow(color: .black.opacity(0.08), radius: 14, y: 6)
     }
 
     private var kindColor: Color {
@@ -248,5 +304,23 @@ private struct SnapshotDetailSheet: View {
         }
         .padding(24)
         .frame(width: 580, height: 450)
+    }
+}
+
+private struct FloatingEmptyIcon: View {
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        TimelineView(.animation) { context in
+            let time = context.date.timeIntervalSinceReferenceDate
+            let offset = sin(time * 1.6) * 8
+            Image(systemName: systemImage)
+                .font(.system(size: 48, weight: .semibold))
+                .foregroundStyle(tint)
+                .shadow(color: tint.opacity(0.3), radius: 10, y: 6)
+                .offset(y: offset)
+        }
+        .frame(height: 70)
     }
 }

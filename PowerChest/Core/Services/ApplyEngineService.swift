@@ -94,7 +94,8 @@ final class ApplyEngineService {
                 snapshotID: nil,
                 outcomes: outcomes,
                 restartActions: [],
-                status: outcomes.allSatisfy({ if case .skippedIdempotent = $0.result { return true }; return false }) ? .nothingToApply : .allFailed
+                status: outcomes.allSatisfy({ if case .skippedIdempotent = $0.result { return true }; return false }) ? .nothingToApply : .allFailed,
+                pendingRestarts: []
             )
         }
 
@@ -129,7 +130,8 @@ final class ApplyEngineService {
                     snapshotID: nil,
                     outcomes: outcomes,
                     restartActions: [],
-                    status: .allFailed
+                    status: .allFailed,
+                    pendingRestarts: []
                 )
             }
         case .useExisting(let id):
@@ -209,7 +211,15 @@ final class ApplyEngineService {
         }
 
         // Step 10-11: Restart
-        let restartActions = restartService.executeRestarts(restartRequirements)
+        let (promptable, auto) = partitionRestartRequirements(restartRequirements)
+        let promptActions = promptable.map { requirement in
+            RestartAction(
+                target: requirement,
+                result: .deferred(reason: "userConfirmation"),
+                userMessage: restartPromptMessage(for: requirement)
+            )
+        }
+        let restartActions = promptActions + restartService.executeRestarts(auto)
 
         // Step 12: Result
         let applied = outcomes.filter { if case .applied = $0.result { return true }; return false }
@@ -229,12 +239,54 @@ final class ApplyEngineService {
             snapshotID: snapshotID,
             outcomes: outcomes,
             restartActions: restartActions,
-            status: status
+            status: status,
+            pendingRestarts: promptable
         )
     }
 
     func previewRestarts(for request: ApplyRequest) -> [RestartRequirement] {
         let unique = Set(request.items.map { $0.restartRequirement }.filter { $0.isRequired })
         return Array(unique)
+    }
+
+    private func partitionRestartRequirements(_ requirements: [RestartRequirement]) -> ([RestartRequirement], [RestartRequirement]) {
+        var prompt: [RestartRequirement] = []
+        var auto: [RestartRequirement] = []
+        var seenPrompt = Set<RestartRequirement>()
+        var seenAuto = Set<RestartRequirement>()
+
+        for requirement in requirements {
+            if shouldPromptForRestart(requirement) {
+                if seenPrompt.insert(requirement).inserted {
+                    prompt.append(requirement)
+                }
+            } else {
+                if seenAuto.insert(requirement).inserted {
+                    auto.append(requirement)
+                }
+            }
+        }
+
+        return (prompt, auto)
+    }
+
+    private func shouldPromptForRestart(_ requirement: RestartRequirement) -> Bool {
+        switch requirement {
+        case .dock, .finder:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func restartPromptMessage(for requirement: RestartRequirement) -> String {
+        switch requirement {
+        case .dock:
+            return "Dock restart available — we’ll ask before bouncing it."
+        case .finder:
+            return "Finder restart available — restart when you’re ready."
+        default:
+            return requirement.displayName
+        }
     }
 }
