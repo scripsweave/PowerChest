@@ -20,6 +20,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
     case visualsAndAccessibility
     case menuBar
     case safetyAndSecurity
+    case networkAndConnectivity
     case snapshots
     case changes
     case appSettings
@@ -38,7 +39,8 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .visualsAndAccessibility: return "Visuals & Accessibility"
         case .menuBar: return "Menu Bar"
         case .safetyAndSecurity: return "Safety & Security"
-        case .snapshots: return "Snapshots"
+        case .networkAndConnectivity: return "Network & Connectivity"
+        case .snapshots: return "Time Machine"
         case .changes: return "Changes"
         case .appSettings: return "PowerChest"
         }
@@ -56,6 +58,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .visualsAndAccessibility: return "eye.fill"
         case .menuBar: return "menubar.rectangle"
         case .safetyAndSecurity: return "shield.fill"
+        case .networkAndConnectivity: return "network"
         case .snapshots: return "clock.arrow.circlepath"
         case .changes: return "list.bullet.clipboard.fill"
         case .appSettings: return "gearshape.fill"
@@ -74,6 +77,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .visualsAndAccessibility: return .teal
         case .menuBar: return .mint
         case .safetyAndSecurity: return .red
+        case .networkAndConnectivity: return .blue
         case .snapshots: return .orange
         case .changes: return .yellow
         case .appSettings: return .gray
@@ -85,7 +89,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .home: return .home
         case .dockAndInterface, .finderAndFiles, .keyboardAndInput, .windowsAndSpaces,
              .screenshots, .browserAndDeveloper, .visualsAndAccessibility, .menuBar,
-             .safetyAndSecurity:
+             .safetyAndSecurity, .networkAndConnectivity:
             return .settings
         case .snapshots, .changes: return .utilities
         case .appSettings: return .app
@@ -103,6 +107,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .visualsAndAccessibility: return .accessibilityVisual
         case .menuBar: return .menuBarStatus
         case .safetyAndSecurity: return .securityPrivacy
+        case .networkAndConnectivity: return .networkConnectivity
         default: return nil
         }
     }
@@ -126,6 +131,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .visualsAndAccessibility: return "Transparency, contrast, motion, and pointer size."
         case .menuBar: return "Battery percentage, clock separators, and status items."
         case .safetyAndSecurity: return "Quarantine behavior and security prompts."
+        case .networkAndConnectivity: return "Firewall, DNS, AirDrop, .DS_Store, and network privacy."
         default: return nil
         }
     }

@@ -24,7 +24,12 @@ final class AppState {
     init() {
         let catalog = SettingsCatalogService()
         let compat = CompatibilityService()
-        let persistence = PersistenceController()
+        let persistence: PersistenceController
+        do {
+            persistence = try PersistenceController()
+        } catch {
+            fatalError("PowerChest: Failed to initialize persistence — \(error.localizedDescription)")
+        }
         let read = SettingsReadService(compatibility: compat)
         let snapshot = SnapshotService(persistence: persistence, readService: read, catalogService: catalog)
         let changeLog = ChangeLogService(persistence: persistence)
@@ -45,6 +50,8 @@ final class AppState {
         self.changeLogService = changeLog
         self.restartService = restart
         self.applyEngine = apply
+
+        loadAllStates()
     }
 
     func loadAllStates() {

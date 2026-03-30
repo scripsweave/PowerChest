@@ -29,3 +29,15 @@ struct RiskBadgeView: View {
         }
     }
 }
+
+struct AdminBadgeView: View {
+    var body: some View {
+        Label("Admin", systemImage: "lock.fill")
+            .font(.caption2)
+            .fontWeight(.medium)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.purple.opacity(0.15), in: Capsule())
+            .foregroundStyle(.purple)
+    }
+}

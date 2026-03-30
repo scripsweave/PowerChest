@@ -54,6 +54,9 @@ struct ChangesView: View {
         .onAppear {
             records = appState.changeLogService.allRecords()
         }
+        .onChange(of: appState.lastApplyResult?.requestID) {
+            records = appState.changeLogService.allRecords()
+        }
     }
 
     private var groupedRecords: [TimelineSection] {

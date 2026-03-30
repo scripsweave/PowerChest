@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerChest — The defaults write GUI that macOS should have shipped with</title>
+    <meta name="description" content="A native macOS utility that surfaces 80+ hidden system settings through a System Settings-style interface. No terminal required. Every change is reversible.">
+    <style>
+        :root {
+            --bg: #0c0c0e;
+            --bg-elevated: #161618;
+            --bg-card: #1c1c1f;
+            --border: #2a2a2d;
+            --text: #e8e8ed;
+            --text-secondary: #8e8e93;
+            --text-tertiary: #636366;
+            --accent: #a78bfa;
+            --accent-dim: rgba(167, 139, 250, 0.12);
+            --pink: #f472b6;
+            --green: #34d399;
+            --orange: #fb923c;
+            --blue: #60a5fa;
+            --red: #f87171;
+            --mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* -- Layout -- */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        /* -- Nav -- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(12, 12, 14, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-brand span {
+            background: linear-gradient(135deg, var(--accent), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--text);
+            color: var(--bg);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-download:hover { opacity: 0.85; }
+
+        /* -- Hero -- */
+        .hero {
+            padding-top: 160px;
+            padding-bottom: 80px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--accent), var(--pink), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--accent), var(--pink));
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: border-color 0.2s;
+        }
+
+        .btn-secondary:hover { border-color: var(--text-tertiary); }
+
+        .hero-screenshot {
+            margin-top: 60px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+            background: var(--bg-card);
+            padding: 2px;
+        }
+
+        .hero-screenshot img {
+            width: 100%;
+            border-radius: 14px;
+            display: block;
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            aspect-ratio: 16/10;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        /* -- Before/After -- */
+        .before-after {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .before-after h2 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 48px;
+            font-weight: 600;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .comparison-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-panel .panel-header {
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-before .panel-header {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.05);
+        }
+
+        .panel-after .panel-header {
+            color: var(--green);
+            background: rgba(52, 211, 153, 0.05);
+        }
+
+        .comparison-panel pre {
+            padding: 20px;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            overflow-x: auto;
+        }
+
+        .comparison-panel pre .cmd {
+            color: var(--green);
+        }
+
+        .comparison-arrow {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            color: var(--text-tertiary);
+            padding-top: 60px;
+        }
+
+        .comparison-visual {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .toggle-track {
+            width: 44px;
+            height: 26px;
+            background: var(--green);
+            border-radius: 13px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+        }
+
+        /* -- Features -- */
+        .features h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .features .section-sub {
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-size: 16px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* -- Hidden settings highlight -- */
+        .hidden-settings {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hidden-settings h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .hidden-settings .section-sub {
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-size: 16px;
+        }
+
+        .setting-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .setting-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .setting-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .setting-item h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .setting-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .setting-item code {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* -- Under the hood -- */
+        .under-hood h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .under-hood .section-sub {
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-size: 16px;
+        }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .arch-item {
+            padding: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .arch-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .arch-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* -- CTA bottom -- */
+        .bottom-cta {
+            text-align: center;
+            padding: 120px 0;
+        }
+
+        .bottom-cta h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .bottom-cta p {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .tech-badge {
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* -- Footer -- */
+        footer {
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        footer a:hover { color: var(--text); }
+
+        /* -- Responsive -- */
+        @media (max-width: 768px) {
+            .feature-grid { grid-template-columns: 1fr; }
+            .setting-list { grid-template-columns: 1fr; }
+            .arch-grid { grid-template-columns: 1fr; }
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            .comparison-arrow {
+                justify-content: center;
+                padding-top: 0;
+            }
+            .nav-links { display: none; }
+            section { padding: 60px 0; }
+        }
+
+        /* -- Animations -- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="container">
+        <a href="#" class="nav-brand">
+            <span>PowerChest</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#settings">Settings</a>
+            <a href="#how">How it works</a>
+            <a href="https://github.com/your-repo/powerchest" class="btn-download">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">Native macOS app. SwiftUI. No Electron.</div>
+        <h1>The <span class="gradient">defaults write</span> GUI<br>that macOS never shipped.</h1>
+        <p class="hero-sub">
+            80+ hidden macOS settings surfaced in a System Settings-style interface.
+            Firewall, Dock, Finder, screenshots, network, mouse acceleration &mdash;
+            all reversible, all logged, no terminal required.
+        </p>
+        <div class="hero-cta">
+            <a href="#" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download for macOS
+            </a>
+            <a href="https://github.com/your-repo/powerchest" class="btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                Source on GitHub
+            </a>
+        </div>
+
+        <div class="hero-screenshot fade-in">
+            <div class="screenshot-placeholder">
+                screenshot of PowerChest goes here &mdash; replace with actual app screenshot
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Before / After -->
+<section class="before-after" id="before-after">
+    <div class="container">
+        <h2 class="fade-in">You know this feeling.</h2>
+        <div class="comparison fade-in">
+            <div class="comparison-panel panel-before">
+                <div class="panel-header">The old way</div>
+                <pre><span class="cmd">$</span> defaults write com.apple.dock autohide-delay -float 0
+<span class="cmd">$</span> defaults write com.apple.dock autohide-time-modifier -float 0.4
+<span class="cmd">$</span> killall Dock
+<span class="cmd">$</span> # wait, which blog post was that from?
+<span class="cmd">$</span> # does this still work on Sequoia?
+<span class="cmd">$</span> # how do I undo it?</pre>
+            </div>
+            <div class="comparison-arrow">&rarr;</div>
+            <div class="comparison-panel panel-after">
+                <div class="panel-header">With PowerChest</div>
+                <div class="comparison-visual">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 12px;">Make the Dock feel faster</div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                            Remove the delay before the Dock appears, and speed up the slide-in animation.
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="toggle-track"></div>
+                            <span style="font-size: 14px; color: var(--green);">Snappy</span>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 11px; color: var(--text-tertiary);">
+                            Auto-snapshot created &middot; Dock will restart
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+    <div class="container">
+        <h2 class="fade-in">Built for people who read man pages for fun.</h2>
+        <p class="section-sub fade-in">Everything you need. Nothing you don't.</p>
+        <div class="feature-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(167,139,250,0.12); color: var(--accent);">&#9881;</div>
+                <h3>80+ curated settings</h3>
+                <p>Dock timing, Finder tweaks, firewall controls, screenshot behavior, mouse acceleration, network privacy, and more. Every setting is hand-verified on current macOS.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(52,211,153,0.12); color: var(--green);">&#8634;</div>
+                <h3>Time Machine for settings</h3>
+                <p>Auto-snapshot before every change. Browse by date, compare against current state, restore individual settings or entire snapshots. Never pruned.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(251,146,60,0.12); color: var(--orange);">&#9889;</div>
+                <h3>One-click presets</h3>
+                <p>Snappy Mac, Developer Desk, Clean Screenshots, Solid UI, Minimal Fuss. Apply a bundle of opinionated changes with one tap. Auto-snapshot first, obviously.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(244,114,182,0.12); color: var(--pink);">&#128274;</div>
+                <h3>Admin settings with a lock</h3>
+                <p>Firewall, stealth mode, SSH, captive portal, MAC spoofing. Uses the native macOS password prompt. Auth cached for ~5 minutes so bulk changes only ask once.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(96,165,250,0.12); color: var(--blue);">&#128203;</div>
+                <h3>Full audit trail</h3>
+                <p>Every change logged with old value, new value, source, and timestamp. Grouped by day. You'll never wonder "wait, what did I change last Thursday?"</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon" style="background: rgba(248,113,113,0.12); color: var(--red);">&#128230;</div>
+                <h3>Export / Import configs</h3>
+                <p>Save your setup as a <code>.powerchestprofile</code>. Import on another Mac with a diff preview showing exactly what will change. Portable tinkering.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hidden settings -->
+<section class="hidden-settings" id="settings">
+    <div class="container">
+        <h2 class="fade-in">Settings you won't find in System Settings.</h2>
+        <p class="section-sub fade-in">These are the ones that justify the app's existence.</p>
+        <div class="setting-list">
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--accent);"></div>
+                <div>
+                    <h4>Disable mouse acceleration</h4>
+                    <p>Set <code>com.apple.mouse.scaling</code> to -1 for raw, unaccelerated input. Gamers and designers, this one's for you.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--green);"></div>
+                <div>
+                    <h4>Firewall stealth mode</h4>
+                    <p>Makes your Mac invisible to pings and port scans. One toggle instead of digging through <code>socketfilterfw</code>.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--pink);"></div>
+                <div>
+                    <h4>Stop .DS_Store pollution</h4>
+                    <p>Prevent Finder from littering metadata files on every network share and USB drive you touch.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--orange);"></div>
+                <div>
+                    <h4>MAC address spoofing</h4>
+                    <p>Per-interface, with validation and one-click randomization. Reverts on reboot by design.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--blue);"></div>
+                <div>
+                    <h4>Captive portal detection</h4>
+                    <p>Stop macOS from phoning home to Apple every time you join a Wi-Fi network.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--red);"></div>
+                <div>
+                    <h4>Font smoothing for non-Retina</h4>
+                    <p>Apple removed the checkbox in Mojave. The setting still works. If text looks thin on your external monitor, this fixes it.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--accent);"></div>
+                <div>
+                    <h4>Bluetooth audio quality</h4>
+                    <p>The default bitpool minimum is absurdly low. Slide it up for noticeably better AirPods sound.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--green);"></div>
+                <div>
+                    <h4>Disable App Nap</h4>
+                    <p>Stop macOS from secretly pausing your background apps. Useful when tasks mysteriously stall.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Under the hood -->
+<section class="under-hood" id="how">
+    <div class="container">
+        <h2 class="fade-in">Under the hood</h2>
+        <p class="section-sub fade-in">For the people who read the architecture section of READMEs.</p>
+        <div class="arch-grid">
+            <div class="arch-item fade-in">
+                <h4>Apply Engine</h4>
+                <p>Single mutation pipeline with 12-step transaction lifecycle. All changes &mdash; manual edits, presets, restores, imports &mdash; go through the same path. Auto-snapshot before every mutation. If the snapshot fails, the change aborts.</p>
+            </div>
+            <div class="arch-item fade-in">
+                <h4>Four Adapters</h4>
+                <p><code>DefaultsAdapter</code> uses UserDefaults for fast reads, CLI for writes. <code>CommandAdapter</code> handles chflags. <code>PrivilegedAdapter</code> uses AppleScript for admin ops. <code>RestartService</code> does killall for Dock/Finder/SystemUIServer.</p>
+            </div>
+            <div class="arch-item fade-in">
+                <h4>Curated, not scraped</h4>
+                <p>Every setting is hand-picked, tested on current macOS, and bundled as Swift data. No runtime discovery, no parsing random plist files, no guessing what keys do.</p>
+            </div>
+            <div class="arch-item fade-in">
+                <h4>Native SwiftUI</h4>
+                <p>Built with SwiftUI and @Observable. No Electron, no web views, no Catalyst, no AppKit bridging hacks. System Settings-style layout because that's what your muscle memory expects.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+    <div class="container">
+        <h2 class="fade-in">Stop Googling <code style="background: var(--bg-card); padding: 4px 12px; border-radius: 6px; font-size: 28px;">defaults write</code></h2>
+        <p class="fade-in">macOS 14+ &middot; Free &middot; No account required &middot; No telemetry</p>
+        <div class="hero-cta fade-in">
+            <a href="#" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download for macOS
+            </a>
+            <a href="https://github.com/your-repo/powerchest" class="btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                Source on GitHub
+            </a>
+        </div>
+        <div class="tech-badges fade-in">
+            <span class="tech-badge">SwiftUI</span>
+            <span class="tech-badge">macOS 14+</span>
+            <span class="tech-badge">No Electron</span>
+            <span class="tech-badge">No telemetry</span>
+            <span class="tech-badge">No account</span>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>
+            PowerChest &middot;
+            <a href="https://github.com/your-repo/powerchest">GitHub</a> &middot;
+            Built with SwiftUI. No Electron was harmed in the making of this app.
+        </p>
+    </div>
+</footer>
+
+<!-- Scroll animations -->
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

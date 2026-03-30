@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SidebarView: View {
     @Bindable var appState: AppState
+    @Binding var searchQuery: String
 
     var body: some View {
         List(selection: $appState.selectedSidebarItem) {
@@ -26,6 +27,7 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
+        .searchable(text: $searchQuery, placement: .sidebar, prompt: "Search")
     }
 
     private func sidebarRow(_ item: SidebarItem) -> some View {

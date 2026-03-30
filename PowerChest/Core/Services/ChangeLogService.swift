@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "janvanrensburg.PowerChest", category: "ChangeLog")
 
 final class ChangeLogService {
     private let persistence: PersistenceController
@@ -8,7 +11,11 @@ final class ChangeLogService {
     }
 
     func log(_ records: [ChangeRecord]) {
-        try? persistence.saveChangeRecords(records)
+        do {
+            try persistence.saveChangeRecords(records)
+        } catch {
+            logger.error("Failed to save \(records.count) change record(s): \(error.localizedDescription)")
+        }
     }
 
     func allRecords() -> [ChangeRecord] {

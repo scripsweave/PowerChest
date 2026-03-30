@@ -1,11 +1,16 @@
 import Foundation
+import os.log
 
-final class PersistenceController: Sendable {
+private let logger = Logger(subsystem: "janvanrensburg.PowerChest", category: "Persistence")
+
+// @unchecked Sendable: encoder/decoder are configured once at init and never mutated after.
+// All file operations use atomic writes for crash safety.
+final class PersistenceController: @unchecked Sendable {
     let appSupportURL: URL
     let snapshotsURL: URL
     let changeLogURL: URL
 
-    init() {
+    init() throws {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("PowerChest", isDirectory: true)
         self.appSupportURL = base
@@ -13,8 +18,8 @@ final class PersistenceController: Sendable {
         self.changeLogURL = base.appendingPathComponent("ChangeLog", isDirectory: true)
 
         let fm = FileManager.default
-        try? fm.createDirectory(at: snapshotsURL, withIntermediateDirectories: true)
-        try? fm.createDirectory(at: changeLogURL, withIntermediateDirectories: true)
+        try fm.createDirectory(at: snapshotsURL, withIntermediateDirectories: true)
+        try fm.createDirectory(at: changeLogURL, withIntermediateDirectories: true)
     }
 
     private let encoder: JSONEncoder = {
@@ -53,8 +58,13 @@ final class PersistenceController: Sendable {
         return files
             .filter { $0.pathExtension == "json" }
             .compactMap { url in
-                guard let data = try? Data(contentsOf: url) else { return nil }
-                return try? decoder.decode(SnapshotRecord.self, from: data)
+                do {
+                    let data = try Data(contentsOf: url)
+                    return try decoder.decode(SnapshotRecord.self, from: data)
+                } catch {
+                    logger.error("Failed to load snapshot \(url.lastPathComponent): \(error.localizedDescription)")
+                    return nil
+                }
             }
             .sorted { $0.createdAt > $1.createdAt }
     }
@@ -78,7 +88,14 @@ final class PersistenceController: Sendable {
     }
 
     func loadAllChangeRecords() -> [ChangeRecord] {
-        guard let data = try? Data(contentsOf: changeLogFileURL) else { return [] }
-        return (try? decoder.decode([ChangeRecord].self, from: data)) ?? []
+        let url = changeLogFileURL
+        guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+        do {
+            let data = try Data(contentsOf: url)
+            return try decoder.decode([ChangeRecord].self, from: data)
+        } catch {
+            logger.error("Failed to load change log: \(error.localizedDescription)")
+            return []
+        }
     }
 }

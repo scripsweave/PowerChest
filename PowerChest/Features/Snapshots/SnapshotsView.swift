@@ -7,6 +7,7 @@ struct SnapshotsView: View {
     @State private var showingManualCapture = false
     @State private var manualSnapshotName = ""
     @State private var message: String?
+    @State private var collapsedDays: Set<String> = []
 
     var body: some View {
         ScrollView {
@@ -39,14 +40,12 @@ struct SnapshotsView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Timeline")
                             .font(.title2).bold()
-                        LazyVStack(spacing: 16) {
-                            ForEach(snapshots) { snapshot in
-                                SnapshotCard(
-                                    snapshot: snapshot,
-                                    onCompare: { selectedSnapshot = snapshot },
-                                    onRestore: { restoreSnapshot(snapshot) },
-                                    onDelete: { deleteSnapshot(snapshot) }
-                                )
+
+                        let grouped = groupedByDay(snapshots)
+
+                        LazyVStack(spacing: 20) {
+                            ForEach(grouped, id: \.dayLabel) { group in
+                                daySection(group)
                             }
                         }
                     }
@@ -57,6 +56,9 @@ struct SnapshotsView: View {
         }
         .background(Color(nsColor: .controlBackgroundColor))
         .onAppear { refresh() }
+        .onChange(of: appState.lastApplyResult?.requestID) {
+            refresh()
+        }
         .sheet(isPresented: $showingManualCapture) {
             ManualSnapshotSheet(name: $manualSnapshotName) {
                 createManualSnapshot()
@@ -68,6 +70,98 @@ struct SnapshotsView: View {
             }
         }
     }
+
+    // MARK: - Day Section
+
+    @ViewBuilder
+    private func daySection(_ group: DayGroup) -> some View {
+        let isCollapsed = collapsedDays.contains(group.dayLabel)
+
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    if isCollapsed {
+                        collapsedDays.remove(group.dayLabel)
+                    } else {
+                        collapsedDays.insert(group.dayLabel)
+                    }
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isCollapsed ? 0 : 90))
+
+                    Text(group.dayLabel)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    Text("\(group.snapshots.count)")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(Color.secondary.opacity(0.12), in: Capsule())
+
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if !isCollapsed {
+                LazyVStack(spacing: 16) {
+                    ForEach(group.snapshots) { snapshot in
+                        SnapshotCard(
+                            snapshot: snapshot,
+                            onCompare: { selectedSnapshot = snapshot },
+                            onRestore: { restoreSnapshot(snapshot) },
+                            onDelete: { deleteSnapshot(snapshot) }
+                        )
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+
+    // MARK: - Grouping
+
+    private struct DayGroup {
+        let dayLabel: String
+        let sortDate: Date
+        let snapshots: [SnapshotRecord]
+    }
+
+    private func groupedByDay(_ snapshots: [SnapshotRecord]) -> [DayGroup] {
+        let calendar = Calendar.current
+        let now = Date()
+
+        let dict = Dictionary(grouping: snapshots) { snapshot -> String in
+            dayLabel(for: snapshot.createdAt, calendar: calendar, now: now)
+        }
+
+        return dict.map { key, value in
+            let earliest = value.map(\.createdAt).min() ?? now
+            return DayGroup(dayLabel: key, sortDate: earliest, snapshots: value.sorted { $0.createdAt > $1.createdAt })
+        }
+        .sorted { $0.sortDate > $1.sortDate }
+    }
+
+    private func dayLabel(for date: Date, calendar: Calendar, now: Date) -> String {
+        if calendar.isDateInToday(date) {
+            return "Today"
+        } else if calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE d MMMM"
+            return formatter.string(from: date)
+        }
+    }
+
+    // MARK: - Actions
 
     private func refresh() {
         snapshots = appState.snapshotService.listSnapshots()
@@ -114,10 +208,10 @@ private struct SnapshotHeroCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Snapshots are your seatbelt")
+            Text("Time Machine")
                 .font(.largeTitle).bold()
                 .foregroundStyle(.white)
-            Text("Automatic ones happen before every change. Drop extras whenever the experiment feels spicy.")
+            Text("Every change creates a restore point. Go back to any moment.")
                 .foregroundStyle(.white.opacity(0.85))
 
             HStack(spacing: 16) {

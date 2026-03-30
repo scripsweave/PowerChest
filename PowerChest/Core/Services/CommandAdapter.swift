@@ -14,11 +14,10 @@ final class CommandAdapter: Sendable {
     }
 
     func keyExists(settingID: String) -> Bool {
-        // Command-based settings always "exist" — they have a readable state
+        // Command-based settings always have a readable state for known IDs
         switch settingID {
         case "finder.showLibraryFolder":
-            // Treat "visible" as customized, hidden as system default
-            return isLibraryFolderVisible()
+            return true
         default:
             return false
         }

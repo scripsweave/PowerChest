@@ -6,6 +6,7 @@ struct MainContentView: View {
     @Namespace private var searchNamespace
     @State private var toastDismissTask: DispatchWorkItem?
     @State private var presetSpotlightTask: DispatchWorkItem?
+    @State private var settingSpotlightTask: DispatchWorkItem?
     @State private var restartPromptRequirement: RestartRequirement?
     @State private var searchIndex = SearchIndex()
 
@@ -13,10 +14,11 @@ struct MainContentView: View {
         @Bindable var state = appState
 
         NavigationSplitView {
-            SidebarView(appState: state)
+            SidebarView(appState: state, searchQuery: $toolbarQuery)
         } detail: {
             ZStack(alignment: .top) {
                 detailView
+                    .textSelection(.enabled)
                     .blur(radius: isShowingSearchResults ? 12 : 0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.85), value: isShowingSearchResults)
 
@@ -34,16 +36,7 @@ struct MainContentView: View {
             .navigationSubtitle(navigationSubtitle)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    SearchField(query: $toolbarQuery, isActive: isShowingSearchResults)
-                }
-
-                ToolbarItem(placement: .automatic) {
                     ModePicker(userMode: $state.userMode)
-                }
-
-                ToolbarItem(placement: .primaryAction) {
-                    StatusCapsule(snapshotCount: appState.snapshotService.listSnapshots().count,
-                                   customizedCount: appState.settingStates.values.filter { $0.keyExists }.count)
                 }
             }
             .overlay(alignment: .topTrailing) {
@@ -159,11 +152,14 @@ struct MainContentView: View {
                 appState.selectedSidebarItem = item
             }
             appState.spotlightSettingID = definition.id
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            settingSpotlightTask?.cancel()
+            let task = DispatchWorkItem {
                 if appState.spotlightSettingID == definition.id {
                     appState.spotlightSettingID = nil
                 }
             }
+            settingSpotlightTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: task)
         case .preset(let preset):
             appState.selectedSidebarItem = .home
             appState.spotlightSettingID = nil
@@ -304,57 +300,6 @@ private struct ModePicker: View {
         .pickerStyle(.segmented)
         .frame(width: 220)
         .help("Switch between the playful grouping view and the raw settings list.")
-    }
-}
-
-private struct SearchField: View {
-    @Binding var query: String
-    var isActive: Bool
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "sparkle.magnifyingglass")
-                .foregroundStyle(isActive ? .primary : .secondary)
-            TextField("Search settings, presets, or jokes", text: $query)
-                .textFieldStyle(.plain)
-                .disableAutocorrection(true)
-            if !query.isEmpty {
-                Button {
-                    query = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(
-            Capsule().fill(isActive ? Color.accentColor.opacity(0.15) : Color(nsColor: .windowBackgroundColor).opacity(0.8))
-        )
-        .frame(minWidth: 260)
-    }
-}
-
-private struct StatusCapsule: View {
-    let snapshotCount: Int
-    let customizedCount: Int
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Label("\(snapshotCount) snaps", systemImage: "clock.arrow.circlepath")
-            Divider().frame(height: 16)
-            Label("\(customizedCount) tweaks", systemImage: "wand.and.stars")
-        }
-        .font(.caption)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background(
-            Capsule().fill(LinearGradient(colors: [.indigo.opacity(0.7), .pink.opacity(0.7)],
-                                          startPoint: .leading, endPoint: .trailing))
-        )
-        .foregroundStyle(.white)
     }
 }
 

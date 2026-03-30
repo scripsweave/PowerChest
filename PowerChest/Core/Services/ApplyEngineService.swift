@@ -8,6 +8,7 @@ final class ApplyEngineService {
     private let restartService: RestartService
     private let defaultsAdapter: DefaultsAdapter
     private let commandAdapter: CommandAdapter
+    private let privilegedAdapter: PrivilegedAdapter
     private let compatibility: CompatibilityService
 
     init(
@@ -23,8 +24,9 @@ final class ApplyEngineService {
         self.snapshotService = snapshotService
         self.changeLogService = changeLogService
         self.restartService = restartService
-        self.defaultsAdapter = DefaultsAdapter()
-        self.commandAdapter = CommandAdapter()
+        self.defaultsAdapter = readService.defaultsAdapter
+        self.commandAdapter = readService.commandAdapter
+        self.privilegedAdapter = readService.privilegedAdapter
         self.compatibility = compatibility
     }
 
@@ -47,6 +49,14 @@ final class ApplyEngineService {
 
             // Step 3: Filter idempotent — read current value via appropriate adapter
             let def = catalogService.definition(for: item.settingID)
+            guard let resolvedValueType = def?.valueType else {
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .failed(error: "Unknown setting: \(item.settingID)"),
+                    verifiedValue: nil
+                ))
+                continue
+            }
             let currentValue: CodableValue?
             let currentExists: Bool
 
@@ -60,11 +70,25 @@ final class ApplyEngineService {
                     ))
                     continue
                 }
-                currentValue = defaultsAdapter.readParsed(domain: domain, key: key, valueType: def?.valueType ?? .string)
+                currentValue = defaultsAdapter.readParsed(domain: domain, key: key, valueType: resolvedValueType)
                 currentExists = defaultsAdapter.keyExists(domain: domain, key: key)
             case .command:
                 currentValue = commandAdapter.read(settingID: item.settingID)
                 currentExists = commandAdapter.keyExists(settingID: item.settingID)
+            case .privilegedDefaults:
+                guard let domain = item.domain, let key = item.keyPath else {
+                    outcomes.append(ApplyOutcome(
+                        settingID: item.settingID,
+                        result: .failed(error: "Missing domain or key path"),
+                        verifiedValue: nil
+                    ))
+                    continue
+                }
+                currentValue = privilegedAdapter.readParsed(domain: domain, key: key, valueType: resolvedValueType)
+                currentExists = privilegedAdapter.keyExists(domain: domain, key: key)
+            case .privilegedCommand:
+                currentValue = privilegedAdapter.read(settingID: item.settingID)
+                currentExists = privilegedAdapter.commandKeyExists(settingID: item.settingID)
             }
 
             let isIdempotent: Bool
@@ -94,7 +118,12 @@ final class ApplyEngineService {
                 snapshotID: nil,
                 outcomes: outcomes,
                 restartActions: [],
-                status: outcomes.allSatisfy({ if case .skippedIdempotent = $0.result { return true }; return false }) ? .nothingToApply : .allFailed,
+                status: outcomes.allSatisfy({ outcome in
+                    switch outcome.result {
+                    case .skippedIdempotent, .skippedUnsupported: return true
+                    default: return false
+                    }
+                }) ? .nothingToApply : .allFailed,
                 pendingRestarts: []
             )
         }
@@ -147,13 +176,14 @@ final class ApplyEngineService {
         for (item, oldValue) in effectiveItems {
             do {
                 let def = catalogService.definition(for: item.settingID)
+                let vType = def?.valueType ?? .string
 
                 switch item.mechanism {
                 case .defaults:
                     guard let domain = item.domain, let key = item.keyPath else { continue }
                     switch item.targetState {
                     case .explicitValue(let value):
-                        try defaultsAdapter.write(domain: domain, key: key, value: value, valueType: def?.valueType ?? .string)
+                        try defaultsAdapter.write(domain: domain, key: key, value: value, valueType: vType)
                     case .systemDefault:
                         try defaultsAdapter.delete(domain: domain, key: key)
                     }
@@ -164,15 +194,34 @@ final class ApplyEngineService {
                     case .systemDefault:
                         try commandAdapter.reset(settingID: item.settingID)
                     }
+                case .privilegedDefaults:
+                    guard let domain = item.domain, let key = item.keyPath else { continue }
+                    switch item.targetState {
+                    case .explicitValue(let value):
+                        try privilegedAdapter.writeDefaults(domain: domain, key: key, value: value, valueType: vType)
+                    case .systemDefault:
+                        try privilegedAdapter.deleteDefaults(domain: domain, key: key)
+                    }
+                case .privilegedCommand:
+                    switch item.targetState {
+                    case .explicitValue(let value):
+                        try privilegedAdapter.writeCommand(settingID: item.settingID, value: value)
+                    case .systemDefault:
+                        try privilegedAdapter.resetCommand(settingID: item.settingID)
+                    }
                 }
 
                 // Readback
                 let verified: CodableValue?
                 switch item.mechanism {
                 case .defaults:
-                    verified = defaultsAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: def?.valueType ?? .string)
+                    verified = defaultsAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: vType)
                 case .command:
                     verified = commandAdapter.read(settingID: item.settingID)
+                case .privilegedDefaults:
+                    verified = privilegedAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: vType)
+                case .privilegedCommand:
+                    verified = privilegedAdapter.read(settingID: item.settingID)
                 }
 
                 outcomes.append(ApplyOutcome(

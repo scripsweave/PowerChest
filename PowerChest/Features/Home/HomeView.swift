@@ -1,9 +1,13 @@
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
 
 struct HomeView: View {
     @Environment(AppState.self) private var appState
     @State private var statusMessage: String?
     @State private var showConfetti = false
+    @State private var showingResetConfirmation = false
+    @State private var pendingImport: ImportPreview?
 
     var body: some View {
         let metrics = currentMetrics
@@ -35,6 +39,23 @@ struct HomeView: View {
             }
         }
         .animation(.spring(duration: 0.35, bounce: 0.3), value: statusMessage)
+        .confirmationDialog(
+            "Reset all settings to macOS defaults?",
+            isPresented: $showingResetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Reset everything", role: .destructive) {
+                resetToMacOSDefaults()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will delete every customized setting and return your Mac to factory behavior. A snapshot will be created first so you can undo this.")
+        }
+        .sheet(item: $pendingImport) { preview in
+            ImportPreviewSheet(preview: preview) {
+                applyImport(preview)
+            }
+        }
     }
 
     private func heroCard(metrics: HomeMetrics) -> some View {
@@ -60,7 +81,7 @@ struct HomeView: View {
                     Button {
                         createHeroSnapshot()
                     } label: {
-                        Label("Panic snapshot", systemImage: "camera.fill")
+                        Label("Create snapshot", systemImage: "camera.fill")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.white.opacity(0.2))
@@ -68,7 +89,31 @@ struct HomeView: View {
                     Button {
                         appState.selectedSidebarItem = .snapshots
                     } label: {
-                        Text("Open safety center")
+                        Text("Restore")
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(.white)
+
+                    Button {
+                        showingResetConfirmation = true
+                    } label: {
+                        Label("Reset to defaults", systemImage: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(.white)
+
+                    Button {
+                        exportConfig()
+                    } label: {
+                        Label("Export config", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundStyle(.white)
+
+                    Button {
+                        importConfig()
+                    } label: {
+                        Label("Import config", systemImage: "square.and.arrow.down")
                     }
                     .buttonStyle(.bordered)
                     .foregroundStyle(.white)
@@ -85,14 +130,6 @@ struct HomeView: View {
                     .padding(24)
             }
 
-            Text("Day \(Calendar.current.component(.day, from: .now)) energy")
-                .font(.caption)
-                .fontWeight(.medium)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-                .background(.ultraThinMaterial, in: Capsule())
-                .foregroundStyle(.white)
-                .padding(20)
         }
     }
 
@@ -214,6 +251,113 @@ struct HomeView: View {
         } catch {
             statusMessage = "Snapshot failed: \(error.localizedDescription)"
         }
+    }
+
+    private func resetToMacOSDefaults() {
+        let definitions = appState.catalogService.shippingDefinitions()
+        let items: [ApplyItem] = definitions.map { def in
+            ApplyItem(
+                settingID: def.id,
+                targetState: .systemDefault,
+                mechanism: def.mechanism,
+                domain: def.domain,
+                keyPath: def.keyPath,
+                restartRequirement: def.restartRequirement
+            )
+        }
+
+        let request = ApplyRequest(source: .restore, items: items)
+        let result = appState.applyEngine.apply(request)
+        appState.refreshAllStates()
+        appState.enqueueRestartRequests(result.pendingRestarts)
+
+        let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
+        statusMessage = "Reset complete. \(applied) setting\(applied == 1 ? "" : "s") returned to macOS defaults."
+        appState.presentToast(title: "Reset to defaults", subtitle: "\(applied) setting\(applied == 1 ? "" : "s") restored", icon: "arrow.counterclockwise")
+        triggerConfetti()
+    }
+
+    private func exportConfig() {
+        do {
+            let stamp = DateFormatter.localizedString(from: .now, dateStyle: .short, timeStyle: .short)
+            let snapshotID = try appState.snapshotService.createManualSnapshot(name: "Export @ \(stamp)", notes: "Captured for profile export")
+            guard let snapshot = appState.snapshotService.listSnapshots().first(where: { $0.id == snapshotID }) else {
+                statusMessage = "Export failed: could not locate snapshot."
+                return
+            }
+
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(snapshot)
+
+            let panel = NSSavePanel()
+            panel.title = "Export PowerChest Profile"
+            panel.nameFieldStringValue = "PowerChest Profile.powerchestprofile"
+            panel.allowedContentTypes = [.init(filenameExtension: "powerchestprofile") ?? .json]
+            panel.canCreateDirectories = true
+
+            if panel.runModal() == .OK, let url = panel.url {
+                try data.write(to: url, options: .atomic)
+                statusMessage = "Profile exported."
+                appState.presentToast(title: "Profile exported", subtitle: url.lastPathComponent, icon: "square.and.arrow.up")
+            }
+        } catch {
+            statusMessage = "Export failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func importConfig() {
+        let panel = NSOpenPanel()
+        panel.title = "Import PowerChest Profile"
+        panel.allowedContentTypes = [
+            .init(filenameExtension: "powerchestprofile") ?? .json,
+            .json
+        ]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let snapshot = try decoder.decode(SnapshotRecord.self, from: data)
+
+            let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
+            let changes = diff.filter { $0.classification == .changed }
+
+            guard !changes.isEmpty else {
+                statusMessage = "Nothing to import — your settings already match this profile."
+                return
+            }
+
+            guard let plan = appState.snapshotService.buildRestorePlan(snapshot: snapshot, selectedSettingIDs: nil) else {
+                statusMessage = "Nothing to import — your settings already match this profile."
+                return
+            }
+
+            pendingImport = ImportPreview(
+                fileName: url.lastPathComponent,
+                snapshot: snapshot,
+                changes: changes,
+                plan: plan
+            )
+        } catch {
+            statusMessage = "Import failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func applyImport(_ preview: ImportPreview) {
+        let result = appState.applyEngine.apply(preview.plan.applyRequest)
+        appState.refreshAllStates()
+        appState.enqueueRestartRequests(result.pendingRestarts)
+
+        let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
+        statusMessage = "Profile imported. \(applied) setting\(applied == 1 ? "" : "s") applied."
+        appState.presentToast(title: "Profile imported", subtitle: "\(applied) change\(applied == 1 ? "" : "s")", icon: "square.and.arrow.down")
+        triggerConfetti()
     }
 
     private var heroTitle: String {
@@ -455,4 +599,70 @@ private struct HomeMetrics {
     let customizedSettings: Int
     let snapshotCount: Int
     let presetCount: Int
+}
+
+// MARK: - Import Preview
+
+struct ImportPreview: Identifiable {
+    let id = UUID()
+    let fileName: String
+    let snapshot: SnapshotRecord
+    let changes: [SnapshotDiffItem]
+    let plan: RestorePlan
+}
+
+private struct ImportPreviewSheet: View {
+    let preview: ImportPreview
+    let onApply: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Import \"\(preview.fileName)\"")
+                        .font(.headline)
+                    Text("\(preview.changes.count) setting\(preview.changes.count == 1 ? "" : "s") will change")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(.bordered)
+                    .keyboardShortcut(.cancelAction)
+                Button("Apply \(preview.changes.count) change\(preview.changes.count == 1 ? "" : "s")") {
+                    onApply()
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+            }
+
+            List(preview.changes) { item in
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.displayName)
+                            .fontWeight(.medium)
+                        Text(item.settingID)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .fontDesign(.monospaced)
+                    }
+                    Spacer()
+                    Text(item.currentValue?.displayString ?? "default")
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "arrow.right")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                    Text(item.snapshotValue?.displayString ?? "default")
+                        .foregroundStyle(.blue)
+                        .fontWeight(.medium)
+                }
+                .font(.callout)
+            }
+            .listStyle(.bordered)
+        }
+        .padding(24)
+        .frame(width: 620, height: 480)
+    }
 }

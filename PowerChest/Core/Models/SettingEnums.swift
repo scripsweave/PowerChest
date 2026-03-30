@@ -20,6 +20,8 @@ enum SupportLevel: String, Codable, Sendable {
 enum SettingMechanism: String, Codable, Sendable {
     case defaults
     case command
+    case privilegedDefaults   // defaults write to system domains (needs admin)
+    case privilegedCommand    // shell commands that need admin (networksetup, etc.)
 }
 
 enum SettingValueType: String, Codable, Sendable {
@@ -48,9 +50,10 @@ enum SettingCategory: String, Codable, CaseIterable, Sendable {
     case menuBarStatus
     case accessibilityVisual
     case securityPrivacy
+    case networkConnectivity
 }
 
-enum RestartRequirement: Codable, Equatable, Hashable, Sendable {
+enum RestartRequirement: Equatable, Hashable, Sendable {
     case none
     case finder
     case dock
@@ -75,6 +78,47 @@ enum RestartRequirement: Codable, Equatable, Hashable, Sendable {
 
     var isRequired: Bool {
         self != .none
+    }
+}
+
+extension RestartRequirement: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case type, bundleID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "none": self = .none
+        case "finder": self = .finder
+        case "dock": self = .dock
+        case "systemUIServer": self = .systemUIServer
+        case "safari": self = .safari
+        case "signOut": self = .signOut
+        case "reboot": self = .reboot
+        case "app":
+            let bundleID = try container.decode(String.self, forKey: .bundleID)
+            self = .app(bundleID: bundleID)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown RestartRequirement type: \(type)")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .none: try container.encode("none", forKey: .type)
+        case .finder: try container.encode("finder", forKey: .type)
+        case .dock: try container.encode("dock", forKey: .type)
+        case .systemUIServer: try container.encode("systemUIServer", forKey: .type)
+        case .safari: try container.encode("safari", forKey: .type)
+        case .signOut: try container.encode("signOut", forKey: .type)
+        case .reboot: try container.encode("reboot", forKey: .type)
+        case .app(let bundleID):
+            try container.encode("app", forKey: .type)
+            try container.encode(bundleID, forKey: .bundleID)
+        }
     }
 }
 

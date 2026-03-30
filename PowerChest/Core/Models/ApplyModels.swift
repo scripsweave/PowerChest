@@ -33,9 +33,40 @@ struct ApplyItem: Sendable {
     let restartRequirement: RestartRequirement
 }
 
-enum TargetState: Codable, Equatable, Hashable, Sendable {
+enum TargetState: Equatable, Hashable, Sendable {
     case explicitValue(CodableValue)
     case systemDefault
+}
+
+extension TargetState: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case type, value
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "systemDefault":
+            self = .systemDefault
+        case "explicitValue":
+            let value = try container.decode(CodableValue.self, forKey: .value)
+            self = .explicitValue(value)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown TargetState type: \(type)")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .systemDefault:
+            try container.encode("systemDefault", forKey: .type)
+        case .explicitValue(let value):
+            try container.encode("explicitValue", forKey: .type)
+            try container.encode(value, forKey: .value)
+        }
+    }
 }
 
 enum SnapshotBehavior: Sendable {

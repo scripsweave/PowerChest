@@ -4,7 +4,6 @@ final class SnapshotService {
     private let persistence: PersistenceController
     private let readService: SettingsReadService
     private let catalogService: SettingsCatalogService
-    private let maxAutoSnapshots = 100
 
     init(persistence: PersistenceController, readService: SettingsReadService, catalogService: SettingsCatalogService) {
         self.persistence = persistence
@@ -34,7 +33,6 @@ final class SnapshotService {
         )
 
         try persistence.saveSnapshot(snapshot)
-        pruneAutoSnapshots()
         return snapshot.id
     }
 
@@ -44,7 +42,7 @@ final class SnapshotService {
 
         let snapshot = SnapshotRecord(
             id: UUID(),
-            name: name ?? "Manual snapshot — \(dateFormatter.string(from: Date()))",
+            name: name ?? "Manual snapshot — \(Date().formatted(date: .abbreviated, time: .shortened))",
             kind: .manual,
             createdAt: Date(),
             trigger: .manualCapture,
@@ -174,25 +172,9 @@ final class SnapshotService {
         }
     }
 
-    private func pruneAutoSnapshots() {
-        let all = persistence.loadAllSnapshots()
-        let autos = all.filter { $0.kind == .automatic }.sorted { $0.createdAt > $1.createdAt }
-        if autos.count > maxAutoSnapshots {
-            for snapshot in autos.dropFirst(maxAutoSnapshots) {
-                persistence.deleteSnapshot(id: snapshot.id)
-            }
-        }
-    }
-
     private func osVersionString() -> String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
-    private let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f
-    }()
 }

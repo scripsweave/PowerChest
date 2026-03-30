@@ -158,7 +158,8 @@ struct InteractiveGroupedControl: View {
             iconSystemName: iconName,
             accent: accentColor,
             risk: worstRisk,
-            restartRequirement: restartRequirement
+            restartRequirement: restartRequirement,
+            requiresAdmin: hasAdminSettings
         ) {
             controlBody
         }
@@ -261,18 +262,7 @@ struct InteractiveGroupedControl: View {
     }
 
     private func isInvertedToggle(def: SettingDefinition) -> Bool {
-        // These settings have raw values that mean the opposite of the Power User label
-        [
-            "global.pressAndHoldEnabled",   // true = accent popup, PU wants key repeat
-            "dock.mruSpaces",               // true = auto rearrange, PU wants fixed order
-            "global.saveToLocalDisk",       // true = iCloud, PU wants local disk
-            "finder.disableExtensionChangeWarning", // true = warning on, PU wants skip
-            "dock.showRecents",             // true = recents shown, PU wants hidden
-            "textEdit.plainTextDefault",    // true = rich text, PU wants plain text
-            "finder.warnOnEmptyTrash",      // true = warning on, PU wants skip
-            "safari.autoOpenSafeDownloads", // true = auto-open, PU wants stop
-            "spaces.spansDisplays",         // true = shared spaces, PU wants separate
-        ].contains(def.id)
+        def.isInvertedInPowerUserMode
     }
 
     private func derivedOptionLabel(options: [MappingOption]) -> String {
@@ -304,6 +294,12 @@ struct InteractiveGroupedControl: View {
         groupedControl.backingSettingIDs.compactMap {
             appState.catalogService.definition(for: $0)?.restartRequirement
         }.first { $0.isRequired }
+    }
+
+    private var hasAdminSettings: Bool {
+        groupedControl.backingSettingIDs.contains {
+            appState.catalogService.definition(for: $0)?.requiresAdmin == true
+        }
     }
 
     private var accentColor: Color {
@@ -339,6 +335,7 @@ private struct ControlCard<Content: View>: View {
     let accent: Color
     let risk: RiskLevel
     let restartRequirement: RestartRequirement?
+    var requiresAdmin: Bool = false
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -363,6 +360,9 @@ private struct ControlCard<Content: View>: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 6) {
+                    if requiresAdmin {
+                        AdminBadgeView()
+                    }
                     if risk != .safe {
                         RiskBadgeView(risk: risk)
                     }
@@ -411,25 +411,71 @@ struct SettingValueRow: View {
             ))
 
         case .int:
-            LabeledContent(definition.powerUserLabel ?? definition.displayName) {
-                TextField("", value: Binding(
-                    get: { currentValue?.asInt ?? 0 },
-                    set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
-                ), format: .number)
-                .frame(width: 60)
-                .textFieldStyle(.roundedBorder)
-                .multilineTextAlignment(.trailing)
+            if let range = intSliderRange(for: definition) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(definition.powerUserLabel ?? definition.displayName)
+                    HStack(spacing: 8) {
+                        Text("\(range.lowerBound)")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                        Slider(
+                            value: Binding(
+                                get: { Double(currentValue?.asInt ?? range.lowerBound) },
+                                set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int(Int($0)))) }
+                            ),
+                            in: Double(range.lowerBound)...Double(range.upperBound),
+                            step: 1
+                        )
+                        Text("\(range.upperBound)")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                        Text("\(currentValue?.asInt ?? range.lowerBound)")
+                            .frame(width: 32, alignment: .trailing)
+                            .fontDesign(.monospaced)
+                            .fontWeight(.medium)
+                    }
+                }
+            } else {
+                LabeledContent(definition.powerUserLabel ?? definition.displayName) {
+                    TextField("", value: Binding(
+                        get: { currentValue?.asInt ?? 0 },
+                        set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
+                    ), format: .number)
+                    .frame(width: 60)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                }
             }
 
         case .double:
-            LabeledContent(definition.powerUserLabel ?? definition.displayName) {
-                TextField("", value: Binding(
-                    get: { currentValue?.asDouble ?? 0.0 },
-                    set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.double($0))) }
-                ), format: .number.precision(.fractionLength(2)))
-                .frame(width: 60)
-                .textFieldStyle(.roundedBorder)
-                .multilineTextAlignment(.trailing)
+            if let range = doubleSliderRange(for: definition) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(definition.powerUserLabel ?? definition.displayName)
+                    HStack(spacing: 8) {
+                        Slider(
+                            value: Binding(
+                                get: { currentValue?.asDouble ?? range.lowerBound },
+                                set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.double($0))) }
+                            ),
+                            in: range,
+                            step: (range.upperBound - range.lowerBound) > 10 ? 0.1 : 0.01
+                        )
+                        Text(String(format: "%.2f", currentValue?.asDouble ?? range.lowerBound))
+                            .frame(width: 36, alignment: .trailing)
+                            .fontDesign(.monospaced)
+                            .fontWeight(.medium)
+                    }
+                }
+            } else {
+                LabeledContent(definition.powerUserLabel ?? definition.displayName) {
+                    TextField("", value: Binding(
+                        get: { currentValue?.asDouble ?? 0.0 },
+                        set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.double($0))) }
+                    ), format: .number.precision(.fractionLength(2)))
+                    .frame(width: 60)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                }
             }
 
         case .path:
@@ -460,13 +506,17 @@ struct SettingValueRow: View {
             }
 
         case .string:
-            LabeledContent(definition.powerUserLabel ?? definition.displayName) {
-                TextField("", text: Binding(
-                    get: { currentValue?.asString ?? "" },
-                    set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.string($0))) }
-                ))
-                .frame(width: 140)
-                .textFieldStyle(.roundedBorder)
+            if definition.id.contains("macAddress") {
+                MACAddressRow(definition: definition, viewModel: viewModel, currentValue: currentValue)
+            } else {
+                LabeledContent(definition.powerUserLabel ?? definition.displayName) {
+                    TextField("", text: Binding(
+                        get: { currentValue?.asString ?? "" },
+                        set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.string($0))) }
+                    ))
+                    .frame(width: 140)
+                    .textFieldStyle(.roundedBorder)
+                }
             }
 
         case .enum:
@@ -501,10 +551,165 @@ struct SettingValueRow: View {
         return appState.state(for: definition.id)?.currentValue
     }
 
+    private func intSliderRange(for def: SettingDefinition) -> ClosedRange<Int>? {
+        guard let allowed = def.allowedValues else { return nil }
+        let ints = allowed.compactMap(\.asInt)
+        guard let lo = ints.min(), let hi = ints.max(), lo < hi else { return nil }
+        return lo...hi
+    }
+
+    private func doubleSliderRange(for def: SettingDefinition) -> ClosedRange<Double>? {
+        guard let allowed = def.allowedValues else { return nil }
+        let doubles = allowed.compactMap(\.asDouble)
+        guard let lo = doubles.min(), let hi = doubles.max(), lo < hi else { return nil }
+        return lo...hi
+    }
+
     private func shortPath(_ path: String?) -> String {
         guard let path else { return "System default" }
         return path
             .replacingOccurrences(of: NSHomeDirectory(), with: "~")
+    }
+}
+
+// MARK: - MAC Address Row
+
+private struct MACAddressRow: View {
+    let definition: SettingDefinition
+    @Bindable var viewModel: CategoryPaneViewModel
+    let currentValue: CodableValue?
+    @Environment(AppState.self) private var appState
+
+    @State private var interfaces: [InterfaceState] = []
+
+    struct InterfaceState: Identifiable {
+        let id: String       // e.g. "en0"
+        let name: String     // e.g. "Wi-Fi"
+        var currentMAC: String
+        var editText: String = ""
+        var statusMessage: String?
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if interfaces.isEmpty {
+                Text("No network interfaces detected")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach($interfaces) { $iface in
+                    InterfaceRow(iface: $iface, adapter: appState.readService.privilegedAdapter)
+                    if iface.id != interfaces.last?.id {
+                        Divider()
+                    }
+                }
+            }
+
+            Text("Changes revert on reboot.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .onAppear {
+            let detected = appState.readService.privilegedAdapter.listInterfaces()
+            interfaces = detected.map { iface in
+                InterfaceState(id: iface.id, name: iface.name, currentMAC: iface.mac)
+            }
+        }
+    }
+}
+
+private struct InterfaceRow: View {
+    @Binding var iface: MACAddressRow.InterfaceState
+    let adapter: PrivilegedAdapter
+
+    private var isValid: Bool {
+        iface.editText.isEmpty || validateMAC(iface.editText)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label(iface.name, systemImage: iface.name.contains("Wi-Fi") ? "wifi" : "cable.connector.horizontal")
+                    .font(.callout)
+                    .fontWeight(.medium)
+                Text(iface.id)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .fontDesign(.monospaced)
+            }
+
+            HStack(spacing: 8) {
+                TextField("", text: $iface.editText)
+                    .frame(minWidth: 180, idealWidth: 200)
+                    .textFieldStyle(.roundedBorder)
+                    .fontDesign(.monospaced)
+                    .font(.callout)
+                    .foregroundColor(isValid ? .primary : .red)
+                    .onAppear {
+                        if iface.editText.isEmpty {
+                            iface.editText = iface.currentMAC
+                        }
+                    }
+                    .onChange(of: iface.editText) {
+                        let filtered = iface.editText.filter { $0.isHexDigit || $0 == ":" }
+                        if filtered != iface.editText {
+                            iface.editText = filtered
+                        }
+                    }
+
+                Button {
+                    iface.editText = PrivilegedAdapter.generateRandomMAC()
+                } label: {
+                    Label("Random", systemImage: "dice")
+                }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
+
+                Button {
+                    applyMAC()
+                } label: {
+                    Label("Apply", systemImage: "checkmark.circle")
+                }
+                .controlSize(.small)
+                .buttonStyle(.borderedProminent)
+                .disabled(!isValid || iface.editText.isEmpty)
+            }
+
+            if !isValid {
+                Text("Enter a valid MAC: XX:XX:XX:XX:XX:XX (hex only)")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+            }
+
+            if let msg = iface.statusMessage {
+                Text(msg)
+                    .font(.caption)
+                    .foregroundStyle(msg.hasPrefix("Changed") ? .green : .red)
+            }
+        }
+    }
+
+    private func applyMAC() {
+        let mac = iface.editText.lowercased()
+        do {
+            try adapter.spoofMAC(interface: iface.id, mac: mac)
+            if let updated = adapter.readMAC(interface: iface.id) {
+                iface.currentMAC = updated
+            }
+            iface.statusMessage = "Changed to \(mac)"
+            iface.editText = ""
+        } catch {
+            let msg = error.localizedDescription
+            if msg.contains("SIOCAIFADDR") || msg.contains("Can't assign") {
+                iface.statusMessage = "This interface doesn't support MAC spoofing"
+            } else {
+                iface.statusMessage = "Failed: \(msg)"
+            }
+        }
+    }
+
+    private func validateMAC(_ mac: String) -> Bool {
+        let pattern = /^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/
+        return mac.wholeMatch(of: pattern) != nil
     }
 }
 
@@ -577,14 +782,12 @@ struct PropellerheadSettingRow: View {
                         .font(.caption)
                         .fontDesign(.monospaced)
                         .foregroundStyle(.tertiary)
-                        .textSelection(.enabled)
                 }
                 LabeledContent("Key") {
                     Text(tech)
                         .font(.caption)
                         .fontDesign(.monospaced)
                         .foregroundStyle(.tertiary)
-                        .textSelection(.enabled)
                 }
             }
 
@@ -609,6 +812,9 @@ struct PropellerheadSettingRow: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
+                if definition.requiresAdmin {
+                    AdminBadgeView()
+                }
                 if definition.risk != .safe {
                     RiskBadgeView(risk: definition.risk)
                 }
@@ -636,17 +842,18 @@ struct PropellerheadSettingRow: View {
             ))
 
         case .int:
+            let intRange = intSliderRange(for: definition)
             LabeledContent(definition.displayName) {
                 HStack(spacing: 8) {
                     Slider(
                         value: Binding(
-                            get: { Double(currentValue?.asInt ?? 0) },
+                            get: { Double(currentValue?.asInt ?? intRange.lowerBound) },
                             set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int(Int($0)))) }
                         ),
-                        in: 0...120,
+                        in: Double(intRange.lowerBound)...Double(intRange.upperBound),
                         step: 1
                     )
-                    Text("\(currentValue?.asInt ?? 0)")
+                    Text("\(currentValue?.asInt ?? intRange.lowerBound)")
                         .frame(width: 32, alignment: .trailing)
                         .fontDesign(.monospaced)
                         .foregroundStyle(.secondary)
@@ -654,17 +861,18 @@ struct PropellerheadSettingRow: View {
             }
 
         case .double:
+            let dblRange = doubleSliderRange(for: definition)
             LabeledContent(definition.displayName) {
                 HStack(spacing: 8) {
                     Slider(
                         value: Binding(
-                            get: { currentValue?.asDouble ?? 0.0 },
+                            get: { currentValue?.asDouble ?? dblRange.lowerBound },
                             set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.double($0))) }
                         ),
-                        in: 0...1.0,
-                        step: 0.01
+                        in: dblRange,
+                        step: (dblRange.upperBound - dblRange.lowerBound) > 10 ? 0.1 : 0.01
                     )
-                    Text(String(format: "%.2f", currentValue?.asDouble ?? 0.0))
+                    Text(String(format: "%.2f", currentValue?.asDouble ?? dblRange.lowerBound))
                         .frame(width: 36, alignment: .trailing)
                         .fontDesign(.monospaced)
                         .foregroundStyle(.secondary)
@@ -731,6 +939,26 @@ struct PropellerheadSettingRow: View {
 
     private var currentDisplayValue: String {
         effectiveValue?.displayString ?? "default"
+    }
+
+    private func intSliderRange(for def: SettingDefinition) -> ClosedRange<Int> {
+        if let allowed = def.allowedValues {
+            let ints = allowed.compactMap(\.asInt)
+            if let lo = ints.min(), let hi = ints.max(), lo < hi {
+                return lo...hi
+            }
+        }
+        return 0...128
+    }
+
+    private func doubleSliderRange(for def: SettingDefinition) -> ClosedRange<Double> {
+        if let allowed = def.allowedValues {
+            let doubles = allowed.compactMap(\.asDouble)
+            if let lo = doubles.min(), let hi = doubles.max(), lo < hi {
+                return lo...hi
+            }
+        }
+        return 0...5.0
     }
 
     private func shortPath(_ path: String?) -> String {

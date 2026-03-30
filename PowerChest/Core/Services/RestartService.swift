@@ -105,27 +105,39 @@ final class RestartService {
         }
     }
 
+    // System processes (Dock, Finder, SystemUIServer) ignore NSRunningApplication.forceTerminate()
+    // and killall is blocked by App Sandbox. Use AppleScript which routes through Apple Events.
+    private static let systemProcessNames: [String: String] = [
+        "com.apple.dock": "Dock",
+        "com.apple.finder": "Finder",
+        "com.apple.systemuiserver": "SystemUIServer",
+    ]
+
     private func restartBundle(
         bundleID: String,
         displayName: String,
         requirement: RestartRequirement,
         successMessage: String
     ) -> RestartAction {
-        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
-        var terminatedAny = false
+        if let processName = Self.systemProcessNames[bundleID] {
+            return restartViaKillall(
+                processName: processName,
+                requirement: requirement,
+                successMessage: successMessage,
+                displayName: displayName
+            )
+        }
 
+        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        if runningApps.isEmpty {
+            return RestartAction(target: requirement, result: .completed, userMessage: successMessage)
+        }
+
+        var terminatedAny = false
         for app in runningApps {
             if app.forceTerminate() {
                 terminatedAny = true
             }
-        }
-
-        if runningApps.isEmpty {
-            terminatedAny = true
-        }
-
-        if bundleID == "com.apple.finder" {
-            NSWorkspace.shared.launchApplication("Finder")
         }
 
         if terminatedAny {
@@ -134,6 +146,39 @@ final class RestartService {
             return RestartAction(
                 target: requirement,
                 result: .failed(error: "Unable to terminate \(displayName)"),
+                userMessage: "Could not restart \(displayName). You may need to restart it manually."
+            )
+        }
+    }
+
+    private func restartViaKillall(
+        processName: String,
+        requirement: RestartRequirement,
+        successMessage: String,
+        displayName: String
+    ) -> RestartAction {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
+        process.arguments = [processName]
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return RestartAction(
+                target: requirement,
+                result: .failed(error: error.localizedDescription),
+                userMessage: "Could not restart \(displayName). You may need to restart it manually."
+            )
+        }
+
+        // exit 0 = killed, exit 1 = no matching process (not running — fine)
+        if process.terminationStatus <= 1 {
+            return RestartAction(target: requirement, result: .completed, userMessage: successMessage)
+        } else {
+            return RestartAction(
+                target: requirement,
+                result: .failed(error: "killall exited with \(process.terminationStatus)"),
                 userMessage: "Could not restart \(displayName). You may need to restart it manually."
             )
         }

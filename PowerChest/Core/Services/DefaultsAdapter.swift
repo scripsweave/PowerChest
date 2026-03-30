@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "janvanrensburg.PowerChest", category: "DefaultsAdapter")
 
 enum DefaultsAdapterError: Error, LocalizedError {
     case writeFailed(domain: String, key: String, detail: String)
@@ -20,6 +23,15 @@ enum DefaultsAdapterError: Error, LocalizedError {
 final class DefaultsAdapter: Sendable {
 
     func read(domain: String, key: String) -> (value: String?, exists: Bool) {
+        // Use UserDefaults for fast in-memory reads instead of spawning a process
+        if let defaults = UserDefaults(suiteName: domain) {
+            let obj = defaults.object(forKey: key)
+            if let obj {
+                return ("\(obj)", true)
+            }
+            return (nil, false)
+        }
+        // Fallback to CLI for domains UserDefaults can't open
         let result = runDefaults(["read", domain, key])
         if result.exitCode == 0 {
             return (result.output.trimmingCharacters(in: .whitespacesAndNewlines), true)
@@ -64,21 +76,61 @@ final class DefaultsAdapter: Sendable {
     }
 
     func readParsed(domain: String, key: String, valueType: SettingValueType) -> CodableValue? {
+        // Fast path: read native types directly via UserDefaults (no process spawn)
+        if let defaults = UserDefaults(suiteName: domain) {
+            let obj = defaults.object(forKey: key)
+            guard let obj else { return nil }
+
+            switch valueType {
+            case .bool:
+                if let b = obj as? Bool { return .bool(b) }
+                if let n = obj as? NSNumber { return .bool(n.boolValue) }
+                if let s = obj as? String {
+                    let lower = s.lowercased()
+                    if lower == "true" || lower == "1" { return .bool(true) }
+                    if lower == "false" || lower == "0" { return .bool(false) }
+                }
+                logger.warning("Cannot parse bool for \(domain)/\(key): \(String(describing: obj))")
+                return nil
+            case .int:
+                if let n = obj as? NSNumber { return .int(n.intValue) }
+                if let s = obj as? String, let v = Int(s) { return .int(v) }
+                logger.warning("Cannot parse int for \(domain)/\(key): \(String(describing: obj))")
+                return nil
+            case .double:
+                if let n = obj as? NSNumber { return .double(n.doubleValue) }
+                if let s = obj as? String, let v = Double(s) { return .double(v) }
+                logger.warning("Cannot parse double for \(domain)/\(key): \(String(describing: obj))")
+                return nil
+            case .string, .enum:
+                if let s = obj as? String { return .string(s) }
+                return .string("\(obj)")
+            case .path:
+                if let s = obj as? String { return .path(s) }
+                return .path("\(obj)")
+            }
+        }
+
+        // Fallback: parse from CLI output
         let (raw, exists) = read(domain: domain, key: key)
         guard exists, let raw else { return nil }
 
         switch valueType {
         case .bool:
-            // defaults read returns "1"/"0" or "true"/"false"
             let lower = raw.lowercased()
             if lower == "1" || lower == "true" { return .bool(true) }
             if lower == "0" || lower == "false" { return .bool(false) }
+            if let intVal = Int(raw) { return .bool(intVal != 0) }
+            logger.warning("Cannot parse bool from '\(raw)' for \(domain)/\(key)")
             return nil
         case .int:
             if let v = Int(raw) { return .int(v) }
+            if let v = Double(raw) { return .int(Int(v)) }
+            logger.warning("Cannot parse int from '\(raw)' for \(domain)/\(key)")
             return nil
         case .double:
             if let v = Double(raw) { return .double(v) }
+            logger.warning("Cannot parse double from '\(raw)' for \(domain)/\(key)")
             return nil
         case .string, .enum:
             return .string(raw)
@@ -88,7 +140,10 @@ final class DefaultsAdapter: Sendable {
     }
 
     func keyExists(domain: String, key: String) -> Bool {
-        read(domain: domain, key: key).exists
+        if let defaults = UserDefaults(suiteName: domain) {
+            return defaults.object(forKey: key) != nil
+        }
+        return read(domain: domain, key: key).exists
     }
 
     private func runDefaults(_ arguments: [String]) -> (output: String, exitCode: Int32) {

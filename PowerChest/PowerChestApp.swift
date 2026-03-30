@@ -8,9 +8,6 @@ struct PowerChestApp: App {
         WindowGroup {
             MainContentView()
                 .environment(appState)
-                .onAppear {
-                    appState.loadAllStates()
-                }
         }
         .defaultSize(width: 920, height: 680)
         .windowToolbarStyle(.unified)
