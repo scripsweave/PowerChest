@@ -12,7 +12,7 @@ final class RestartService {
         var result: [RestartRequirement] = []
 
         // Order: SystemUIServer, Dock, Finder (lightweight first)
-        let ordered: [RestartRequirement] = [.systemUIServer, .dock, .finder, .safari, .signOut, .reboot]
+        let ordered: [RestartRequirement] = [.systemUIServer, .controlCenter, .dock, .finder, .safari, .signOut, .reboot]
 
         for req in ordered {
             let key = "\(req)"
@@ -46,6 +46,14 @@ final class RestartService {
                 bundleID: "com.apple.systemuiserver",
                 displayName: "Menu Bar",
                 requirement: .systemUIServer,
+                successMessage: "The menu bar will refresh shortly."
+            )
+
+        case .controlCenter:
+            return restartBundle(
+                bundleID: "com.apple.controlcenter",
+                displayName: "Control Center",
+                requirement: .controlCenter,
                 successMessage: "The menu bar will refresh shortly."
             )
 
@@ -111,6 +119,7 @@ final class RestartService {
         "com.apple.dock": "Dock",
         "com.apple.finder": "Finder",
         "com.apple.systemuiserver": "SystemUIServer",
+        "com.apple.controlcenter": "ControlCenter",
     ]
 
     private func restartBundle(

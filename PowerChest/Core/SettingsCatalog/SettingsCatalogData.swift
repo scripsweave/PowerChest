@@ -1398,7 +1398,7 @@ enum SettingsCatalogData {
             category: .safariDeveloper,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "ShowFullURLInSmartSearchField",
@@ -1409,7 +1409,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G015",
             searchAliases: ["safari full url", "full address"],
-            notes: "Sandbox warning: com.apple.Safari may require special handling on recent macOS."
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS."
         ),
 
         // S032
@@ -1423,7 +1423,7 @@ enum SettingsCatalogData {
             category: .safariDeveloper,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "IncludeDevelopMenu",
@@ -1434,7 +1434,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G015",
             searchAliases: ["safari develop menu", "web inspector"],
-            notes: "High-value for technical users. Same sandbox warning as S031."
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS."
         ),
 
         // S061
@@ -1448,7 +1448,7 @@ enum SettingsCatalogData {
             category: .safariDeveloper,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "AutoOpenSafeDownloads",
@@ -1459,7 +1459,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G037",
             searchAliases: ["auto open downloads", "safe downloads", "safari downloads", "open after download"],
-            notes: "Raw true = auto-open on. Power User toggle is inverted: ON = stop auto-opening = write false. Same Safari sandbox caveat as S031/S032.",
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS.",
             isInvertedInPowerUserMode: true
         ),
 
@@ -1474,7 +1474,7 @@ enum SettingsCatalogData {
             category: .safariDeveloper,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "ShowOverlayStatusBar",
@@ -1485,7 +1485,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G038",
             searchAliases: ["status bar safari", "link preview", "hover url", "safari status"],
-            notes: "Same Safari sandbox caveat as S031/S032."
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS."
         ),
 
         // S033
@@ -1667,7 +1667,7 @@ enum SettingsCatalogData {
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .systemUIServer,
+            restartRequirement: .controlCenter,
             powerUserGrouping: "G039",
             searchAliases: ["24 hour", "military time", "clock format", "time format"],
             notes: nil
@@ -1692,7 +1692,7 @@ enum SettingsCatalogData {
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .systemUIServer,
+            restartRequirement: .controlCenter,
             powerUserGrouping: "G017",
             searchAliases: ["battery percent"],
             notes: "Valuable, but keep behind compatibility adapter."
@@ -1717,7 +1717,7 @@ enum SettingsCatalogData {
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .systemUIServer,
+            restartRequirement: .controlCenter,
             powerUserGrouping: "G017",
             searchAliases: ["blinking clock", "flashing colon"],
             notes: "Geeky but harmless."
@@ -1742,7 +1742,7 @@ enum SettingsCatalogData {
             allowedValues: [.int(0), .int(1), .int(2)],
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .systemUIServer,
+            restartRequirement: .controlCenter,
             powerUserGrouping: "G042",
             searchAliases: ["show date", "menu bar date", "clock date"],
             notes: "0 = when space allows, 1 = always, 2 = never. Group with 24-hour clock in G039."
@@ -1948,7 +1948,7 @@ enum SettingsCatalogData {
             category: .networkConnectivity,
             risk: .safe,
             interest: .obscure,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "WebKitDNSPrefetchingEnabled",
@@ -1959,7 +1959,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G045",
             searchAliases: ["dns", "prefetch", "safari speed", "privacy"],
-            notes: nil
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS."
         ),
 
         // S071
@@ -1973,7 +1973,7 @@ enum SettingsCatalogData {
             category: .networkConnectivity,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "PreloadTopHit",
@@ -1984,7 +1984,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G045",
             searchAliases: ["preload", "top hit", "safari background", "privacy"],
-            notes: nil,
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS.",
             isInvertedInPowerUserMode: true
         ),
 
@@ -1999,7 +1999,7 @@ enum SettingsCatalogData {
             category: .networkConnectivity,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.Safari",
             keyPath: "SendDoNotTrackHTTPHeader",
@@ -2010,7 +2010,7 @@ enum SettingsCatalogData {
             restartRequirement: .safari,
             powerUserGrouping: "G045",
             searchAliases: ["do not track", "dnt", "privacy", "tracking"],
-            notes: nil
+            notes: "Safari's preferences are sandboxed — defaults write com.apple.Safari is blocked by macOS."
         ),
 
         // S074
@@ -3140,8 +3140,6 @@ enum SettingsCatalogData {
                 PresetItem(settingID: "global.smartDashes", targetState: .explicitValue(.bool(false))),
                 PresetItem(settingID: "global.autoCapitalization", targetState: .explicitValue(.bool(false))),
                 PresetItem(settingID: "global.autoSpellingCorrection", targetState: .explicitValue(.bool(false))),
-                PresetItem(settingID: "safari.showFullURL", targetState: .explicitValue(.bool(true))),
-                PresetItem(settingID: "safari.includeDevelopMenu", targetState: .explicitValue(.bool(true))),
                 PresetItem(settingID: "finder.showLibraryFolder", targetState: .explicitValue(.bool(true))),
                 PresetItem(settingID: "global.saveToLocalDisk", targetState: .explicitValue(.bool(false))),
                 PresetItem(settingID: "finder.disableExtensionChangeWarning", targetState: .explicitValue(.bool(false))),

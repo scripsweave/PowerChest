@@ -287,6 +287,7 @@ struct MainContentView: View {
         case .dock: return "Dock restarted"
         case .finder: return "Finder restarted"
         case .systemUIServer: return "Menu bar refreshed"
+        case .controlCenter: return "Menu bar refreshed"
         case .safari: return "Safari restart"
         case .app(let id): return "\(id) restarted"
         case .signOut: return "Sign out pending"
@@ -300,6 +301,7 @@ struct MainContentView: View {
         case .dock: return "Restart Dock"
         case .finder: return "Restart Finder"
         case .systemUIServer: return "Restart Menu Bar"
+        case .controlCenter: return "Restart Menu Bar"
         case .safari: return "Relaunch Safari"
         case .app(let id): return "Restart \(id)"
         case .signOut: return "Sign Out Later"
@@ -316,6 +318,8 @@ struct MainContentView: View {
             return "Finder relaunch applies file browser changes."
         case .systemUIServer:
             return "Refreshing the menu bar applies status-item tweaks."
+        case .controlCenter:
+            return "Refreshing the menu bar applies clock and status-item tweaks."
         case .safari:
             return "Safari needs a relaunch for this setting to take effect."
         case .app(let id):

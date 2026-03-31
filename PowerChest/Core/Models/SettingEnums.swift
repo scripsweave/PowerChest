@@ -58,6 +58,7 @@ enum RestartRequirement: Equatable, Hashable, Sendable {
     case finder
     case dock
     case systemUIServer
+    case controlCenter
     case app(bundleID: String)
     case safari
     case signOut
@@ -69,6 +70,7 @@ enum RestartRequirement: Equatable, Hashable, Sendable {
         case .finder: return "Needs Finder restart"
         case .dock: return "Needs Dock restart"
         case .systemUIServer: return "Needs menu bar refresh"
+        case .controlCenter: return "Needs menu bar refresh"
         case .app(let id): return "Needs \(id) restart"
         case .safari: return "Needs Safari relaunch"
         case .signOut: return "Needs sign out"
@@ -94,6 +96,7 @@ extension RestartRequirement: Codable {
         case "finder": self = .finder
         case "dock": self = .dock
         case "systemUIServer": self = .systemUIServer
+        case "controlCenter": self = .controlCenter
         case "safari": self = .safari
         case "signOut": self = .signOut
         case "reboot": self = .reboot
@@ -112,6 +115,7 @@ extension RestartRequirement: Codable {
         case .finder: try container.encode("finder", forKey: .type)
         case .dock: try container.encode("dock", forKey: .type)
         case .systemUIServer: try container.encode("systemUIServer", forKey: .type)
+        case .controlCenter: try container.encode("controlCenter", forKey: .type)
         case .safari: try container.encode("safari", forKey: .type)
         case .signOut: try container.encode("signOut", forKey: .type)
         case .reboot: try container.encode("reboot", forKey: .type)

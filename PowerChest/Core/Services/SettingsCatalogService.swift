@@ -44,7 +44,9 @@ final class SettingsCatalogService: Sendable {
     }
 
     func groupedControls(for category: SettingCategory) -> [GroupedControlDefinition] {
-        groupedControlsByCategory[category] ?? []
+        (groupedControlsByCategory[category] ?? []).filter { gc in
+            gc.backingSettingIDs.contains { definitionsByID[$0]?.supportLevel == .shipping }
+        }
     }
 
     func settingsForGroupedControl(_ gc: GroupedControlDefinition) -> [SettingDefinition] {

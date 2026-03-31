@@ -19,6 +19,7 @@ struct RestartBadgeView: View {
         case .finder: return "Finder"
         case .dock: return "Dock"
         case .systemUIServer: return "Menu bar"
+        case .controlCenter: return "Menu bar"
         case .safari: return "Safari"
         case .app(let id): return id
         case .signOut: return "Sign out"
