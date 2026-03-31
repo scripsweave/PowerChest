@@ -66,6 +66,40 @@ struct MainContentView: View {
         .onChange(of: appState.pendingRestartRequests) { _ in
             restartPromptRequirement = appState.pendingRestartRequests.first
         }
+        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { _ in
+            appState.selectedSidebarItem = .home
+            // Forward to HomeView after navigation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .menuCreateSnapshot, object: "forwarded")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { _ in
+            appState.selectedSidebarItem = .home
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .menuExportConfig, object: "forwarded")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { _ in
+            appState.selectedSidebarItem = .home
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .menuImportConfig, object: "forwarded")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { _ in
+            appState.selectedSidebarItem = .home
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .menuSavePreset, object: "forwarded")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { _ in
+            appState.selectedSidebarItem = .home
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: .menuResetToDefaults, object: "forwarded")
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuRestoreSnapshot)) { _ in
+            appState.selectedSidebarItem = .snapshots
+        }
         .confirmationDialog("Restart required",
                             isPresented: Binding(
                                 get: { restartPromptRequirement != nil },

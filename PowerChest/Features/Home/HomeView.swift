@@ -58,22 +58,24 @@ struct HomeView: View {
                 applyImport(preview)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { note in
+            guard note.object as? String == "forwarded" else { return }
             createHeroSnapshot()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuRestoreSnapshot)) { _ in
-            appState.selectedSidebarItem = .snapshots
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { note in
+            guard note.object as? String == "forwarded" else { return }
             exportConfig()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { note in
+            guard note.object as? String == "forwarded" else { return }
             importConfig()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { note in
+            guard note.object as? String == "forwarded" else { return }
             showingSavePresetSheet = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { note in
+            guard note.object as? String == "forwarded" else { return }
             showingResetConfirmation = true
         }
     }
