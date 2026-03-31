@@ -11,6 +11,7 @@ final class AppState {
 
     var settingStates: [String: SettingState] = [:]
     var isLoading = false
+    var isApplying = false
     var lastApplyResult: ApplyResult?
     var applyProgress: ApplyProgress?
 
@@ -105,12 +106,20 @@ final class AppState {
 
     func saveCustomPreset(_ preset: PresetDefinition) {
         customPresets.insert(preset, at: 0)
-        try? persistenceController.saveCustomPresets(customPresets)
+        do {
+            try persistenceController.saveCustomPresets(customPresets)
+        } catch {
+            presentToast(title: "Failed to save preset", subtitle: error.localizedDescription, icon: "exclamationmark.triangle")
+        }
     }
 
     func deleteCustomPreset(id: String) {
         customPresets.removeAll { $0.id == id }
-        try? persistenceController.saveCustomPresets(customPresets)
+        do {
+            try persistenceController.saveCustomPresets(customPresets)
+        } catch {
+            presentToast(title: "Failed to update presets", subtitle: error.localizedDescription, icon: "exclamationmark.triangle")
+        }
     }
 
     var customPresetIDs: Set<String> {

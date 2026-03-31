@@ -199,10 +199,15 @@ final class ApplyEngineService {
             privilegedAdapter.beginBatch()
         }
 
+        // Track batched items separately — their outcome depends on executeBatch()
+        var batchedItems: [(ApplyItem, CodableValue?)] = []
+
         for (index, (item, oldValue)) in effectiveItems.enumerated() {
             do {
                 let def = catalogService.definition(for: item.settingID)
                 let vType = def?.valueType ?? .string
+                let isBatched = hasPrivileged &&
+                    (item.mechanism == .privilegedDefaults || item.mechanism == .privilegedCommand)
 
                 // Report progress
                 onProgress?(ApplyProgress(
@@ -244,17 +249,23 @@ final class ApplyEngineService {
                     }
                 }
 
-                // Readback
+                // Batched items: defer outcome until executeBatch() completes
+                if isBatched {
+                    batchedItems.append((item, oldValue))
+                    continue
+                }
+
+                // Non-batched items: readback and record immediately
                 let verified: CodableValue?
                 switch item.mechanism {
                 case .defaults:
-                    verified = defaultsAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: vType)
+                    if let domain = item.domain, let key = item.keyPath {
+                        verified = defaultsAdapter.readParsed(domain: domain, key: key, valueType: vType)
+                    } else { verified = nil }
                 case .command:
                     verified = commandAdapter.read(settingID: item.settingID)
-                case .privilegedDefaults:
-                    verified = privilegedAdapter.readParsed(domain: item.domain!, key: item.keyPath!, valueType: vType)
-                case .privilegedCommand:
-                    verified = privilegedAdapter.read(settingID: item.settingID)
+                case .privilegedDefaults, .privilegedCommand:
+                    verified = nil // unreachable for non-batched
                 }
 
                 outcomes.append(ApplyOutcome(
@@ -263,7 +274,6 @@ final class ApplyEngineService {
                     verifiedValue: verified
                 ))
 
-                // Step 9: Log
                 let newValue: CodableValue?
                 if case .explicitValue(let v) = item.targetState { newValue = v } else { newValue = nil }
                 changeRecords.append(ChangeRecord(
@@ -287,21 +297,56 @@ final class ApplyEngineService {
             }
         }
 
-        // Execute batched privileged commands in one auth prompt
+        // Execute batched privileged commands in one auth prompt, then verify
         if hasPrivileged {
             do {
                 try privilegedAdapter.executeBatch()
-            } catch {
-                // If batch fails, mark remaining privileged items as failed
-                for (item, _) in effectiveItems where
-                    (item.mechanism == .privilegedDefaults || item.mechanism == .privilegedCommand) {
-                    if !outcomes.contains(where: { $0.settingID == item.settingID }) {
-                        outcomes.append(ApplyOutcome(
-                            settingID: item.settingID,
-                            result: .failed(error: error.localizedDescription),
-                            verifiedValue: nil
-                        ))
+                // Batch succeeded — record outcomes for all batched items
+                for (item, oldValue) in batchedItems {
+                    let def = catalogService.definition(for: item.settingID)
+                    let vType = def?.valueType ?? .string
+
+                    let verified: CodableValue?
+                    switch item.mechanism {
+                    case .privilegedDefaults:
+                        if let domain = item.domain, let key = item.keyPath {
+                            verified = privilegedAdapter.readParsed(domain: domain, key: key, valueType: vType)
+                        } else { verified = nil }
+                    case .privilegedCommand:
+                        verified = privilegedAdapter.read(settingID: item.settingID)
+                    default:
+                        verified = nil
                     }
+
+                    outcomes.append(ApplyOutcome(
+                        settingID: item.settingID,
+                        result: .applied,
+                        verifiedValue: verified
+                    ))
+
+                    let newValue: CodableValue?
+                    if case .explicitValue(let v) = item.targetState { newValue = v } else { newValue = nil }
+                    changeRecords.append(ChangeRecord(
+                        settingID: item.settingID,
+                        displayName: def?.displayName ?? item.settingID,
+                        oldValue: oldValue,
+                        newValue: newValue,
+                        source: request.source,
+                        snapshotID: snapshotID
+                    ))
+
+                    if item.restartRequirement.isRequired {
+                        restartRequirements.append(item.restartRequirement)
+                    }
+                }
+            } catch {
+                privilegedAdapter.cancelBatch()
+                for (item, _) in batchedItems {
+                    outcomes.append(ApplyOutcome(
+                        settingID: item.settingID,
+                        result: .failed(error: error.localizedDescription),
+                        verifiedValue: nil
+                    ))
                 }
             }
         }

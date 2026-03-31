@@ -42,8 +42,13 @@ final class PrivilegedAdapter: Sendable {
         return result.exitCode == 0
     }
 
+    /// Shell-safe single-quote escaping: wraps in single quotes, escapes any embedded single quotes.
+    private func shellQuote(_ s: String) -> String {
+        "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
     func writeDefaults(domain: String, key: String, value: CodableValue, valueType: SettingValueType) throws {
-        var args = "defaults write '\(domain)' '\(key)'"
+        var args = "defaults write \(shellQuote(domain)) \(shellQuote(key))"
         switch value {
         case .bool(let v):
             args += " -bool \(v ? "true" : "false")"
@@ -52,13 +57,13 @@ final class PrivilegedAdapter: Sendable {
         case .double(let v):
             args += " -float \(v)"
         case .string(let v), .path(let v):
-            args += " -string '\(v.replacingOccurrences(of: "'", with: "'\\''"))'"
+            args += " -string \(shellQuote(v))"
         }
         try runPrivileged(args)
     }
 
     func deleteDefaults(domain: String, key: String) throws {
-        try runPrivileged("defaults delete '\(domain)' '\(key)'")
+        try runPrivileged("defaults delete \(shellQuote(domain)) \(shellQuote(key))")
     }
 
     // MARK: - Privileged commands
@@ -349,11 +354,11 @@ final class PrivilegedAdapter: Sendable {
 
         if completed.wait(timeout: deadline) == .timedOut {
             process.terminate()
-            // Give it a moment to die, then force kill
-            DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                if process.isRunning { process.interrupt() }
-            }
-            group.wait()
+            // Close pipes so async readers get EOF and unblock
+            try? stdoutPipe.fileHandleForWriting.close()
+            try? stderrPipe.fileHandleForWriting.close()
+            // Wait for readers with a timeout to avoid permanent hang
+            _ = group.wait(timeout: .now() + .seconds(5))
             throw PrivilegedAdapterError.commandFailed(detail: "Command timed out after 30 seconds")
         }
 

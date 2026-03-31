@@ -90,17 +90,17 @@ final class DefaultsAdapter: Sendable {
                     if lower == "true" || lower == "1" { return .bool(true) }
                     if lower == "false" || lower == "0" { return .bool(false) }
                 }
-                logger.warning("Cannot parse bool for \(domain)/\(key): \(String(describing: obj))")
+                logger.warning("Parse failed (bool) for \(domain)/\(key) — key exists but value \(String(describing: obj)) could not be parsed. Will show as 'System default'.")
                 return nil
             case .int:
                 if let n = obj as? NSNumber { return .int(n.intValue) }
                 if let s = obj as? String, let v = Int(s) { return .int(v) }
-                logger.warning("Cannot parse int for \(domain)/\(key): \(String(describing: obj))")
+                logger.warning("Parse failed (int) for \(domain)/\(key) — key exists but value \(String(describing: obj)) could not be parsed. Will show as 'System default'.")
                 return nil
             case .double:
                 if let n = obj as? NSNumber { return .double(n.doubleValue) }
                 if let s = obj as? String, let v = Double(s) { return .double(v) }
-                logger.warning("Cannot parse double for \(domain)/\(key): \(String(describing: obj))")
+                logger.warning("Parse failed (double) for \(domain)/\(key) — key exists but value \(String(describing: obj)) could not be parsed. Will show as 'System default'.")
                 return nil
             case .string, .enum:
                 if let s = obj as? String { return .string(s) }

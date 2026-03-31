@@ -127,7 +127,9 @@ struct OSRange: Codable, Sendable {
     let max: Int?
 
     func isSupported(on version: Int) -> Bool {
-        version >= min && (max == nil || version <= max!)
+        guard version >= min else { return false }
+        guard let max else { return true }
+        return version <= max
     }
 }
 

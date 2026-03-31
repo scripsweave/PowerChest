@@ -255,6 +255,9 @@ struct HomeView: View {
     }
 
     private func applyPreset(_ preset: PresetDefinition) {
+        guard !appState.isApplying else { return }
+        appState.isApplying = true
+        defer { appState.isApplying = false }
         let items: [ApplyItem] = preset.items.compactMap { presetItem in
             guard let def = appState.catalogService.definition(for: presetItem.settingID) else { return nil }
             return ApplyItem(
@@ -318,6 +321,8 @@ struct HomeView: View {
     }
 
     private func resetToMacOSDefaults() {
+        guard !appState.isApplying else { return }
+        appState.isApplying = true
         let definitions = appState.catalogService.shippingDefinitions()
         let items: [ApplyItem] = definitions.map { def in
             ApplyItem(
@@ -339,6 +344,7 @@ struct HomeView: View {
                 }
             }
             DispatchQueue.main.async {
+                appState.isApplying = false
                 appState.applyProgress = nil
                 appState.refreshAllStates()
                 appState.lastApplyResult = result
@@ -425,6 +431,8 @@ struct HomeView: View {
     }
 
     private func applyImport(_ preview: ImportPreview) {
+        guard !appState.isApplying else { return }
+        appState.isApplying = true
         let request = preview.plan.applyRequest
 
         DispatchQueue.global(qos: .userInitiated).async {
@@ -434,6 +442,7 @@ struct HomeView: View {
                 }
             }
             DispatchQueue.main.async {
+                appState.isApplying = false
                 appState.applyProgress = nil
                 appState.refreshAllStates()
                 appState.lastApplyResult = result

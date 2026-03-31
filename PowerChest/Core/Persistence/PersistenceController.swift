@@ -11,8 +11,10 @@ final class PersistenceController: @unchecked Sendable {
     let changeLogURL: URL
 
     init() throws {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("PowerChest", isDirectory: true)
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            throw CocoaError(.fileNoSuchFile, userInfo: [NSLocalizedDescriptionKey: "Could not locate Application Support directory"])
+        }
+        let base = appSupport.appendingPathComponent("PowerChest", isDirectory: true)
         self.appSupportURL = base
         self.snapshotsURL = base.appendingPathComponent("Snapshots", isDirectory: true)
         self.changeLogURL = base.appendingPathComponent("ChangeLog", isDirectory: true)

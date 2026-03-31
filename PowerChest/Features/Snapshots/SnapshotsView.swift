@@ -182,10 +182,12 @@ struct SnapshotsView: View {
     }
 
     private func restoreSnapshot(_ snapshot: SnapshotRecord) {
+        guard !appState.isApplying else { return }
         guard let plan = appState.snapshotService.buildRestorePlan(snapshot: snapshot, selectedSettingIDs: nil) else {
             message = "Nothing to restore — everything already matches."
             return
         }
+        appState.isApplying = true
         let request = plan.applyRequest
         let snapshotName = snapshot.name
 
@@ -196,6 +198,7 @@ struct SnapshotsView: View {
                 }
             }
             DispatchQueue.main.async {
+                appState.isApplying = false
                 appState.applyProgress = nil
                 appState.refreshAllStates()
                 appState.lastApplyResult = result
