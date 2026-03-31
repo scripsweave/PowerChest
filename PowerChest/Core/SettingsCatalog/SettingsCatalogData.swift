@@ -1683,7 +1683,7 @@ enum SettingsCatalogData {
             category: .menuBarStatus,
             risk: .safe,
             interest: .common,
-            supportLevel: .verify,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.menuextra.battery",
             keyPath: "ShowPercent",
@@ -2922,7 +2922,6 @@ enum SettingsCatalogData {
             category: .menuBarStatus,
             kind: .multiToggle,
             backingSettingIDs: [
-                "menu.batteryShowPercent",
                 "menu.clockFlashDateSeparators",
             ],
             options: nil
