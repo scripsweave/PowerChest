@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerChest — Privacy Policy</title>
+    <style>
+        :root {
+            --bg: #0c0c0e;
+            --bg-card: #1c1c1f;
+            --border: #2a2a2d;
+            --text: #e8e8ed;
+            --text-secondary: #8e8e93;
+            --text-tertiary: #636366;
+            --accent: #a78bfa;
+            --pink: #f472b6;
+            --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { -webkit-font-smoothing: antialiased; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover { text-decoration: underline; }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .updated {
+            color: var(--text-tertiary);
+            font-size: 14px;
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 12px;
+        }
+
+        p, ul {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .highlight p {
+            margin-bottom: 0;
+            color: var(--text);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 48px 0;
+        }
+
+        footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back">&larr; Back to PowerChest</a>
+
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated: 31 March 2026</p>
+
+        <div class="highlight">
+            <p><strong>The short version:</strong> PowerChest does not collect, transmit, or sell your data. The app runs entirely on your Mac. There is no analytics, no telemetry, no tracking, and no account system.</p>
+        </div>
+
+        <h2>The App</h2>
+        <p>PowerChest is a native macOS application that modifies system settings on your local machine. All operations happen locally. The app does not connect to any server, API, or cloud service during normal operation.</p>
+        <p>Specifically, PowerChest:</p>
+        <ul>
+            <li>Does <strong>not</strong> collect usage analytics or telemetry</li>
+            <li>Does <strong>not</strong> transmit any data over the network</li>
+            <li>Does <strong>not</strong> require an account, login, or registration</li>
+            <li>Does <strong>not</strong> include any third-party SDKs, frameworks, or tracking libraries</li>
+            <li>Does <strong>not</strong> use crash reporting services</li>
+        </ul>
+
+        <h2>Data Stored Locally</h2>
+        <p>PowerChest stores the following data on your Mac in <code>~/Library/Application Support/PowerChest/</code>:</p>
+        <ul>
+            <li><strong>Snapshots</strong> — JSON files recording the state of your settings at a point in time. These are used for the Time Machine / restore feature.</li>
+            <li><strong>Change log</strong> — a JSON file recording what settings were changed, when, and from which mode. This is your local audit trail.</li>
+        </ul>
+        <p>This data never leaves your machine. You can delete it at any time by removing the <code>~/Library/Application Support/PowerChest/</code> directory.</p>
+
+        <h2>Exported Profiles</h2>
+        <p>When you use the Export Config feature, PowerChest saves a <code>.powerchestprofile</code> file to a location you choose. This file contains a snapshot of your settings. What you do with that file (share it, upload it, delete it) is entirely up to you. PowerChest does not upload it anywhere.</p>
+
+        <h2>Admin Privileges</h2>
+        <p>Some settings (firewall, SSH, captive portal, MAC address) require administrator privileges. When you apply these settings, macOS shows its standard password dialog. PowerChest does not store, cache, or have access to your admin password — authentication is handled entirely by macOS.</p>
+
+        <h2>Apple Notarization</h2>
+        <p>The distributed DMG is signed and notarized through Apple's notarization service. When you first open the app, macOS may check the notarization ticket with Apple. This is a standard macOS behavior and is not controlled by PowerChest.</p>
+
+        <h2>This Website</h2>
+        <p>This website is a static HTML page hosted on GitHub Pages (or your chosen hosting provider). It does not use any analytics, tracking pixels, or advertising networks.</p>
+        <p>However, like any website:</p>
+        <ul>
+            <li>The hosting provider may collect standard <strong>server access logs</strong> (IP address, timestamp, page requested, browser user agent). This is a standard function of web servers and is not controlled by PowerChest.</li>
+            <li>The website does not set any <strong>cookies</strong> itself. Your browser may store standard caching headers.</li>
+            <li>GitHub Pages, if used as the hosting provider, has its own <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">privacy statement</a>.</li>
+        </ul>
+
+        <h2>Third-Party Links</h2>
+        <p>This website links to GitHub (for source code and downloads). GitHub has its own privacy policy. PowerChest is not responsible for the privacy practices of third-party websites.</p>
+
+        <h2>Children</h2>
+        <p>PowerChest is a system utility for macOS. It is not directed at children under 13 and does not knowingly collect information from children.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>If this policy changes, the updated version will be posted here with a new "last updated" date. Since PowerChest collects no data, significant changes are unlikely.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about this policy can be directed to the project's <a href="https://github.com/scripsweave/PowerChest/issues">GitHub Issues</a> page.</p>
+
+        <hr>
+
+        <h1 style="margin-top: 0;">Copyright Notice</h1>
+
+        <p>Copyright &copy; 2026 Jan van Rensburg. All rights reserved.</p>
+
+        <p>PowerChest is released under the <a href="https://github.com/scripsweave/PowerChest/blob/main/LICENSE">MIT License</a>. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the conditions of the MIT License.</p>
+
+        <p>The PowerChest name and icon are trademarks of Jan van Rensburg. The MIT License grants rights to the software code, not to the trademarks.</p>
+
+        <p>Apple, macOS, Finder, Dock, Safari, AirDrop, and System Settings are trademarks of Apple Inc. PowerChest is not affiliated with or endorsed by Apple Inc.</p>
+
+        <footer>
+            <p>&copy; 2026 Jan van Rensburg &middot; <a href="index.html">PowerChest</a> &middot; <a href="https://github.com/scripsweave/PowerChest">GitHub</a></p>
+        </footer>
+    </div>
+</body>
+</html>
