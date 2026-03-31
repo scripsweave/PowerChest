@@ -21,7 +21,7 @@ final class SnapshotService {
 
         let snapshot = SnapshotRecord(
             id: UUID(),
-            name: name ?? autoSnapshotName(trigger: trigger),
+            name: name ?? descriptiveSnapshotName(trigger: trigger, definitions: definitions),
             kind: .automatic,
             createdAt: Date(),
             trigger: trigger,
@@ -162,13 +162,44 @@ final class SnapshotService {
         }
     }
 
-    private func autoSnapshotName(trigger: SnapshotTrigger) -> String {
+    private func descriptiveSnapshotName(trigger: SnapshotTrigger, definitions: [SettingDefinition]) -> String {
+        let prefix: String
         switch trigger {
-        case .beforeApply: return "Before changes"
-        case .beforePreset: return "Before preset"
-        case .beforeRestore: return "Before restore"
+        case .beforeApply: prefix = "Before"
+        case .beforePreset: prefix = "Before preset"
+        case .beforeRestore: prefix = "Before restore"
         case .manualCapture: return "Manual snapshot"
         case .profileImport: return "Before import"
+        }
+
+        // Summarize what's being changed by category
+        let categories = Set(definitions.map(\.category))
+        if categories.count == 1, let cat = categories.first {
+            let catName = categoryDisplayName(cat)
+            if definitions.count == 1 {
+                return "\(prefix) — \(definitions[0].displayName)"
+            }
+            return "\(prefix) — \(definitions.count) \(catName) settings"
+        } else if categories.count <= 3 {
+            let names = categories.map { categoryDisplayName($0) }.sorted().joined(separator: ", ")
+            return "\(prefix) — \(names)"
+        } else {
+            return "\(prefix) — \(definitions.count) settings across \(categories.count) categories"
+        }
+    }
+
+    private func categoryDisplayName(_ category: SettingCategory) -> String {
+        switch category {
+        case .interface: return "Dock & Interface"
+        case .finder: return "Finder"
+        case .keyboardInput: return "Keyboard"
+        case .windowsSpaces: return "Windows & Spaces"
+        case .screenshots: return "Screenshots"
+        case .safariDeveloper: return "Safari"
+        case .menuBarStatus: return "Menu Bar"
+        case .accessibilityVisual: return "Accessibility"
+        case .securityPrivacy: return "Security"
+        case .networkConnectivity: return "Network"
         }
     }
 

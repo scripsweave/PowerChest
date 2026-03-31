@@ -249,8 +249,12 @@ private struct SnapshotCard: View {
     let onCompare: () -> Void
     let onRestore: () -> Void
     let onDelete: () -> Void
+    @Environment(AppState.self) private var appState
 
     var body: some View {
+        let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
+        let changed = diff.filter { $0.classification == .changed }
+
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -271,12 +275,49 @@ private struct SnapshotCard: View {
                     .foregroundStyle(kindColor)
             }
 
-            Label("\(snapshot.settingRecords.count) captured settings", systemImage: "gearshape")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            // Inline diff
+            if changed.isEmpty {
+                Label("Everything matches current state", systemImage: "checkmark.circle")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(changed.prefix(5)) { item in
+                        HStack(spacing: 8) {
+                            Text(item.displayName)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer()
+                            Text(item.snapshotValue?.displayString ?? "default")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "arrow.right")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                            Text(item.currentValue?.displayString ?? "default")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                        }
+                        .padding(.vertical, 4)
+                        if item.id != changed.prefix(5).last?.id {
+                            Divider()
+                        }
+                    }
+                    if changed.count > 5 {
+                        Text("+ \(changed.count - 5) more change\(changed.count - 5 == 1 ? "" : "s")")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .padding(.top, 4)
+                    }
+                }
+                .padding(12)
+                .background(Color(nsColor: .controlBackgroundColor).opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+            }
 
             HStack(spacing: 14) {
-                Button("Compare", action: onCompare)
+                if !changed.isEmpty {
+                    Button("Full diff", action: onCompare)
+                }
                 Button("Restore", action: onRestore)
                 if snapshot.kind != .automatic {
                     Button("Delete", role: .destructive, action: onDelete)
