@@ -413,12 +413,10 @@ private struct SnapshotDetailSheet: View {
     let snapshot: SnapshotRecord
     let appState: AppState
     let onDismiss: () -> Void
+    @State private var changed: [SnapshotDiffItem]?
+    @State private var unchangedCount = 0
 
     var body: some View {
-        let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
-        let changed = diff.filter { $0.classification == .changed }
-        let unchanged = diff.filter { $0.classification == .unchanged }
-
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading) {
@@ -434,37 +432,53 @@ private struct SnapshotDetailSheet: View {
                     .keyboardShortcut(.defaultAction)
             }
 
-            if changed.isEmpty {
-                ContentUnavailableView(
-                    "Everything Matches",
-                    systemImage: "checkmark.circle",
-                    description: Text("The current state matches this snapshot exactly.")
-                )
-            } else {
-                Text("\(changed.count) difference\(changed.count == 1 ? "" : "s"), \(unchanged.count) unchanged")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+            if let changed {
+                if changed.isEmpty {
+                    ContentUnavailableView(
+                        "Everything Matches",
+                        systemImage: "checkmark.circle",
+                        description: Text("The current state matches this snapshot exactly.")
+                    )
+                } else {
+                    Text("\(changed.count) difference\(changed.count == 1 ? "" : "s"), \(unchangedCount) unchanged")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
 
-                List(changed) { item in
-                    HStack {
-                        Text(item.displayName)
-                        Spacer()
-                        Text(item.currentValue?.displayString ?? "default")
-                            .foregroundStyle(.secondary)
-                        Image(systemName: "arrow.right")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                        Text(item.snapshotValue?.displayString ?? "default")
-                            .foregroundStyle(.blue)
-                            .fontWeight(.medium)
+                    List(changed) { item in
+                        HStack {
+                            Text(item.displayName)
+                            Spacer()
+                            Text(item.currentValue?.displayString ?? "default")
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "arrow.right")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                            Text(item.snapshotValue?.displayString ?? "default")
+                                .foregroundStyle(.blue)
+                                .fontWeight(.medium)
+                        }
+                        .font(.callout)
                     }
-                    .font(.callout)
+                    .listStyle(.bordered)
                 }
-                .listStyle(.bordered)
+            } else {
+                Spacer()
+                ProgressView("Computing diff...")
+                    .frame(maxWidth: .infinity)
+                Spacer()
             }
         }
         .padding(24)
         .frame(width: 580, height: 450)
+        .task {
+            let service = appState.snapshotService
+            let snap = snapshot
+            let diff = await Task.detached {
+                service.diffSnapshotToCurrent(snapshot: snap)
+            }.value
+            changed = diff.filter { $0.classification == .changed }
+            unchangedCount = diff.filter { $0.classification == .unchanged }.count
+        }
     }
 }
 
