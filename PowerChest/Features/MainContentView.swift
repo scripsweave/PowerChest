@@ -48,6 +48,11 @@ struct MainContentView: View {
                 }
             }
         }
+        .overlay {
+            if let progress = appState.applyProgress {
+                ApplyProgressOverlay(progress: progress)
+            }
+        }
         .navigationSplitViewColumnWidth(min: 200, ideal: 230, max: 280)
         .animation(.spring(response: 0.28, dampingFraction: 0.9), value: searchResults.count)
         .onAppear {
@@ -546,6 +551,38 @@ private struct RestartPromptView: View {
 }
 
 // MARK: - Search Index
+
+// MARK: - Apply Progress Overlay
+
+private struct ApplyProgressOverlay: View {
+    let progress: ApplyProgress
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                ProgressView(value: progress.fraction) {
+                    Text("Applying changes\u{2026}")
+                        .font(.headline)
+                } currentValueLabel: {
+                    Text("\(progress.completed) of \(progress.total) — \(progress.currentSettingName)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .progressViewStyle(.linear)
+            }
+            .padding(32)
+            .frame(width: 380)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.regularMaterial)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+        }
+    }
+}
 
 private struct SearchIndex {
     var categoryEntries: [(item: SidebarItem, searchable: String)] = []

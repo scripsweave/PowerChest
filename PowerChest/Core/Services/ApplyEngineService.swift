@@ -30,7 +30,7 @@ final class ApplyEngineService {
         self.compatibility = compatibility
     }
 
-    func apply(_ request: ApplyRequest) -> ApplyResult {
+    func apply(_ request: ApplyRequest, onProgress: ((ApplyProgress) -> Void)? = nil) -> ApplyResult {
         // Step 2: Validate
         var outcomes: [ApplyOutcome] = []
         var effectiveItems: [(ApplyItem, CodableValue?)] = [] // item + old value
@@ -173,10 +173,25 @@ final class ApplyEngineService {
         var changeRecords: [ChangeRecord] = []
         var restartRequirements: [RestartRequirement] = []
 
-        for (item, oldValue) in effectiveItems {
+        // Batch all privileged commands into a single auth prompt
+        let hasPrivileged = effectiveItems.contains { item, _ in
+            item.mechanism == .privilegedDefaults || item.mechanism == .privilegedCommand
+        }
+        if hasPrivileged {
+            privilegedAdapter.beginBatch()
+        }
+
+        for (index, (item, oldValue)) in effectiveItems.enumerated() {
             do {
                 let def = catalogService.definition(for: item.settingID)
                 let vType = def?.valueType ?? .string
+
+                // Report progress
+                onProgress?(ApplyProgress(
+                    total: effectiveItems.count,
+                    completed: index,
+                    currentSettingName: def?.displayName ?? item.settingID
+                ))
 
                 switch item.mechanism {
                 case .defaults:
@@ -253,6 +268,32 @@ final class ApplyEngineService {
                 ))
             }
         }
+
+        // Execute batched privileged commands in one auth prompt
+        if hasPrivileged {
+            do {
+                try privilegedAdapter.executeBatch()
+            } catch {
+                // If batch fails, mark remaining privileged items as failed
+                for (item, _) in effectiveItems where
+                    (item.mechanism == .privilegedDefaults || item.mechanism == .privilegedCommand) {
+                    if !outcomes.contains(where: { $0.settingID == item.settingID }) {
+                        outcomes.append(ApplyOutcome(
+                            settingID: item.settingID,
+                            result: .failed(error: error.localizedDescription),
+                            verifiedValue: nil
+                        ))
+                    }
+                }
+            }
+        }
+
+        // Final progress
+        onProgress?(ApplyProgress(
+            total: effectiveItems.count,
+            completed: effectiveItems.count,
+            currentSettingName: "Done"
+        ))
 
         // Save change log
         if !changeRecords.isEmpty {

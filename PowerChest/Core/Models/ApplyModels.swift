@@ -132,3 +132,16 @@ enum ValidationIssueKind: Sendable {
     case permissionDenied
     case unknownSetting
 }
+
+// MARK: - Progress
+
+struct ApplyProgress {
+    let total: Int
+    var completed: Int
+    var currentSettingName: String
+
+    var fraction: Double {
+        guard total > 0 else { return 0 }
+        return Double(completed) / Double(total)
+    }
+}

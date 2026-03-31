@@ -12,6 +12,7 @@ final class AppState {
     var settingStates: [String: SettingState] = [:]
     var isLoading = false
     var lastApplyResult: ApplyResult?
+    var applyProgress: ApplyProgress?
 
     let catalogService: SettingsCatalogService
     let compatibilityService: CompatibilityService

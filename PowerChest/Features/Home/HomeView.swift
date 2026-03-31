@@ -267,14 +267,25 @@ struct HomeView: View {
         }
 
         let request = ApplyRequest(source: .restore, items: items)
-        let result = appState.applyEngine.apply(request)
-        appState.refreshAllStates()
-        appState.enqueueRestartRequests(result.pendingRestarts)
 
-        let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
-        statusMessage = "Reset complete. \(applied) setting\(applied == 1 ? "" : "s") returned to macOS defaults."
-        appState.presentToast(title: "Reset to defaults", subtitle: "\(applied) setting\(applied == 1 ? "" : "s") restored", icon: "arrow.counterclockwise")
-        triggerConfetti()
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = appState.applyEngine.apply(request) { progress in
+                DispatchQueue.main.async {
+                    appState.applyProgress = progress
+                }
+            }
+            DispatchQueue.main.async {
+                appState.applyProgress = nil
+                appState.refreshAllStates()
+                appState.lastApplyResult = result
+                appState.enqueueRestartRequests(result.pendingRestarts)
+
+                let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
+                statusMessage = "Reset complete. \(applied) setting\(applied == 1 ? "" : "s") returned to macOS defaults."
+                appState.presentToast(title: "Reset to defaults", subtitle: "\(applied) setting\(applied == 1 ? "" : "s") restored", icon: "arrow.counterclockwise")
+                triggerConfetti()
+            }
+        }
     }
 
     private func exportConfig() {

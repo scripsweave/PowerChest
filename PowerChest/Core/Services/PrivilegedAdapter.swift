@@ -263,9 +263,42 @@ final class PrivilegedAdapter: Sendable {
         return bytes.map { String(format: "%02x", $0) }.joined(separator: ":")
     }
 
+    // MARK: - Batch execution (single password prompt for multiple commands)
+
+    /// Collects commands to be executed in a single privileged batch.
+    /// Call `addToBatch` for each command, then `executeBatch` once.
+    private var batchCommands: [String] = []
+    private var batchActive = false
+
+    func beginBatch() {
+        batchCommands = []
+        batchActive = true
+    }
+
+    func executeBatch() throws {
+        batchActive = false
+        guard !batchCommands.isEmpty else { return }
+        let joined = batchCommands.joined(separator: "; ")
+        batchCommands = []
+        try runPrivilegedDirect(joined)
+    }
+
+    func cancelBatch() {
+        batchActive = false
+        batchCommands = []
+    }
+
     // MARK: - Execution
 
     private func runPrivileged(_ command: String) throws {
+        if batchActive {
+            batchCommands.append(command)
+            return
+        }
+        try runPrivilegedDirect(command)
+    }
+
+    private func runPrivilegedDirect(_ command: String) throws {
         let escaped = command.replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
         let source = "do shell script \"\(escaped)\" with administrator privileges"
@@ -275,7 +308,6 @@ final class PrivilegedAdapter: Sendable {
 
         if let error = errorDict {
             let message = error[NSAppleScript.errorMessage] as? String ?? "Unknown error"
-            // User cancelled the auth dialog
             if let code = error[NSAppleScript.errorNumber] as? Int, code == -128 {
                 throw PrivilegedAdapterError.userCancelled
             }
