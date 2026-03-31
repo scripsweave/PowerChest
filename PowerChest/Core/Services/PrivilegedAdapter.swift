@@ -181,11 +181,8 @@ final class PrivilegedAdapter: Sendable {
         case "network.ipv6Wi-Fi":
             try runPrivileged("networksetup -setv6automatic Wi-Fi")
         case "network.macAddressEthernet":
-            // Reset means randomize — there's no "original" to restore (it reverts on reboot)
-            guard let iface = listInterfaces().first else {
-                throw PrivilegedAdapterError.commandFailed(detail: "No network interface found")
-            }
-            try spoofMAC(interface: iface.id, mac: Self.generateRandomMAC())
+            // MAC address is temporary (reverts on reboot) — skip in bulk resets
+            break
         default:
             throw PrivilegedAdapterError.unknownSetting(settingID)
         }
@@ -299,20 +296,33 @@ final class PrivilegedAdapter: Sendable {
     }
 
     private func runPrivilegedDirect(_ command: String) throws {
+        // Use osascript process instead of NSAppleScript to avoid memory leaks
         let escaped = command.replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
-        let source = "do shell script \"\(escaped)\" with administrator privileges"
-        let script = NSAppleScript(source: source)
-        var errorDict: NSDictionary?
-        script?.executeAndReturnError(&errorDict)
+        let script = "do shell script \"\(escaped)\" with administrator privileges"
 
-        if let error = errorDict {
-            let message = error[NSAppleScript.errorMessage] as? String ?? "Unknown error"
-            if let code = error[NSAppleScript.errorNumber] as? Int, code == -128 {
+        let process = Process()
+        let pipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", script]
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            throw PrivilegedAdapterError.commandFailed(detail: error.localizedDescription)
+        }
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8) ?? ""
+            if output.contains("-128") || output.contains("User canceled") {
                 throw PrivilegedAdapterError.userCancelled
             }
-            logger.error("Privileged command failed: \(message)")
-            throw PrivilegedAdapterError.commandFailed(detail: message)
+            logger.error("Privileged command failed: \(output)")
+            throw PrivilegedAdapterError.commandFailed(detail: output.isEmpty ? "Exit code \(process.terminationStatus)" : output)
         }
     }
 
