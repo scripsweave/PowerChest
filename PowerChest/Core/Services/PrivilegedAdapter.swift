@@ -141,16 +141,16 @@ final class PrivilegedAdapter: Sendable {
             try runPrivileged("/usr/libexec/ApplicationFirewall/socketfilterfw --setblockall \(enabled ? "on" : "off")")
 
         case "network.remoteLogin":
+            // systemsetup can hang — always run outside batch with timeout
             let enabled = value.asBool ?? false
-            try runPrivileged("systemsetup -setremotelogin \(enabled ? "on" : "off")")
+            try runPrivilegedDirect("systemsetup -setremotelogin \(enabled ? "on" : "off")")
 
         case "network.ipv6Wi-Fi":
+            // networksetup can hang indefinitely — always run outside batch
+            // with a shell-level timeout so it doesn't block other commands
             let enabled = value.asBool ?? false
-            if enabled {
-                try runPrivileged("networksetup -setv6automatic Wi-Fi")
-            } else {
-                try runPrivileged("networksetup -setv6off Wi-Fi")
-            }
+            let cmd = enabled ? "networksetup -setv6automatic Wi-Fi" : "networksetup -setv6off Wi-Fi"
+            try runPrivilegedDirect(cmd)
 
         case "network.macAddressEthernet":
             guard let mac = value.asString else {
@@ -177,9 +177,11 @@ final class PrivilegedAdapter: Sendable {
         case "network.firewallBlockAll":
             try runPrivileged("/usr/libexec/ApplicationFirewall/socketfilterfw --setblockall off")
         case "network.remoteLogin":
-            try runPrivileged("systemsetup -setremotelogin off")
+            // systemsetup can hang — always run outside batch with timeout
+            try runPrivilegedDirect("systemsetup -setremotelogin off")
         case "network.ipv6Wi-Fi":
-            try runPrivileged("networksetup -setv6automatic Wi-Fi")
+            // networksetup can hang — always run outside batch with timeout
+            try runPrivilegedDirect("networksetup -setv6automatic Wi-Fi")
         case "network.macAddressEthernet":
             // MAC address is temporary (reverts on reboot) — skip in bulk resets
             break
@@ -302,22 +304,64 @@ final class PrivilegedAdapter: Sendable {
         let script = "do shell script \"\(escaped)\" with administrator privileges"
 
         let process = Process()
-        let pipe = Pipe()
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
         process.arguments = ["-e", script]
-        process.standardOutput = pipe
-        process.standardError = pipe
+        process.standardOutput = stdoutPipe
+        process.standardError = stderrPipe
+
+        // Read output asynchronously to prevent pipe buffer deadlock.
+        // If the process writes enough to fill the ~64KB pipe buffer before we
+        // read, it blocks — while we block on waitUntilExit(). Deadlock.
+        var stdoutData = Data()
+        var stderrData = Data()
+        let stdoutHandle = stdoutPipe.fileHandleForReading
+        let stderrHandle = stderrPipe.fileHandleForReading
+        let group = DispatchGroup()
+
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            stdoutData = stdoutHandle.readDataToEndOfFile()
+            group.leave()
+        }
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            stderrData = stderrHandle.readDataToEndOfFile()
+            group.leave()
+        }
 
         do {
             try process.run()
-            process.waitUntilExit()
         } catch {
+            group.wait()
             throw PrivilegedAdapterError.commandFailed(detail: error.localizedDescription)
         }
 
+        // Timeout after 30 seconds — networksetup commands can hang indefinitely
+        let deadline = DispatchTime.now() + .seconds(30)
+        let completed = DispatchSemaphore(value: 0)
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            process.waitUntilExit()
+            completed.signal()
+        }
+
+        if completed.wait(timeout: deadline) == .timedOut {
+            process.terminate()
+            // Give it a moment to die, then force kill
+            DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                if process.isRunning { process.interrupt() }
+            }
+            group.wait()
+            throw PrivilegedAdapterError.commandFailed(detail: "Command timed out after 30 seconds")
+        }
+
+        group.wait()
+
         if process.terminationStatus != 0 {
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let output = String(data: data, encoding: .utf8) ?? ""
+            let output = String(data: stderrData, encoding: .utf8)
+                ?? String(data: stdoutData, encoding: .utf8) ?? ""
             if output.contains("-128") || output.contains("User canceled") {
                 throw PrivilegedAdapterError.userCancelled
             }
@@ -328,21 +372,42 @@ final class PrivilegedAdapter: Sendable {
 
     private func runUnprivileged(_ path: String, arguments: [String]) -> (output: String, exitCode: Int32) {
         let process = Process()
-        let pipe = Pipe()
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = arguments
-        process.standardOutput = pipe
-        process.standardError = pipe
+        process.standardOutput = stdoutPipe
+        process.standardError = stderrPipe
+
+        // Read output asynchronously to prevent pipe buffer deadlock
+        var stdoutData = Data()
+        let stdoutHandle = stdoutPipe.fileHandleForReading
+        let group = DispatchGroup()
+
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            stdoutData = stdoutHandle.readDataToEndOfFile()
+            group.leave()
+        }
+
+        // Drain stderr so the pipe doesn't fill up
+        let stderrHandle = stderrPipe.fileHandleForReading
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            _ = stderrHandle.readDataToEndOfFile()
+            group.leave()
+        }
 
         do {
             try process.run()
             process.waitUntilExit()
         } catch {
+            group.wait()
             return (error.localizedDescription, -1)
         }
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8) ?? ""
+        group.wait()
+        let output = String(data: stdoutData, encoding: .utf8) ?? ""
         return (output, process.terminationStatus)
     }
 }

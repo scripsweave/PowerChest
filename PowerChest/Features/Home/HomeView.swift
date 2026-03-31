@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var showConfetti = false
     @State private var showingResetConfirmation = false
     @State private var pendingImport: ImportPreview?
+    @State private var showingCustomizedPopover = false
 
     var body: some View {
         let metrics = currentMetrics
@@ -145,9 +146,17 @@ struct HomeView: View {
 
             StatCard(title: "Customized",
                      value: "\(metrics.customizedSettings)",
-                     caption: "That's \(Int(Double(metrics.customizedSettings) / Double(max(metrics.totalSettings, 1)) * 100))% of the catalog",
+                     caption: metrics.customizedSettings == 0 ? "Stock macOS — untouched" : "That's \(Int(Double(metrics.customizedSettings) / Double(max(metrics.totalSettings, 1)) * 100))% of the catalog",
                      accent: .orange,
                      progress: Double(metrics.customizedSettings) / Double(max(metrics.totalSettings, 1)))
+            .onTapGesture {
+                if metrics.customizedSettings > 0 {
+                    showingCustomizedPopover = true
+                }
+            }
+            .popover(isPresented: $showingCustomizedPopover, arrowEdge: .bottom) {
+                customizedListPopover
+            }
 
             StatCard(title: "Snapshots",
                      value: "\(metrics.snapshotCount)",
@@ -440,9 +449,62 @@ struct HomeView: View {
         return trimmed.prefix(29) + "…"
     }
 
+    private var customizedListPopover: some View {
+        let ids = customizedSettingIDs
+        let defs = ids.compactMap { appState.catalogService.definition(for: $0) }
+            .sorted { $0.displayName < $1.displayName }
+
+        return VStack(alignment: .leading, spacing: 0) {
+            Text("Customized settings")
+                .font(.headline)
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 8)
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(defs) { def in
+                        let state = appState.settingStates[def.id]
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(def.displayName)
+                                    .font(.body)
+                                Text(def.category.rawValue.capitalized)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text(state?.effectiveDisplayValue ?? "—")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+
+                        if def.id != defs.last?.id {
+                            Divider().padding(.leading, 16)
+                        }
+                    }
+                }
+            }
+            .frame(maxHeight: 320)
+        }
+        .frame(width: 360)
+        .padding(.bottom, 10)
+    }
+
+    private var customizedSettingIDs: [String] {
+        appState.settingStates.compactMap { id, state in
+            guard let def = appState.catalogService.definition(for: id) else { return nil }
+            return state.isCustomized(definition: def) ? id : nil
+        }
+    }
+
     private var currentMetrics: HomeMetrics {
         let total = appState.catalogService.shippingDefinitions().count
-        let customized = appState.settingStates.values.filter { $0.keyExists }.count
+        let customized = customizedSettingIDs.count
         let snapshots = appState.snapshotService.listSnapshots().count
         let presets = appState.catalogService.presets.count
         return HomeMetrics(totalSettings: total,

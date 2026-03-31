@@ -23,6 +23,9 @@ struct SettingDefinition: Codable, Identifiable, Sendable {
     let searchAliases: [String]
     let notes: String?
     let isInvertedInPowerUserMode: Bool
+    /// The stock macOS value for command-based settings where the key always exists.
+    /// Used to determine whether the setting is "customized" vs at its factory state.
+    let macOSDefaultValue: CodableValue?
 
     init(id: String, displayName: String, technicalName: String?, powerUserLabel: String?,
          powerUserDescription: String, propellerheadDescription: String, category: SettingCategory,
@@ -31,7 +34,8 @@ struct SettingDefinition: Codable, Identifiable, Sendable {
          valueType: SettingValueType, allowedValues: [CodableValue]?,
          defaultValueStrategy: DefaultValueStrategy, supportedOS: OSRange,
          restartRequirement: RestartRequirement, powerUserGrouping: String?,
-         searchAliases: [String], notes: String?, isInvertedInPowerUserMode: Bool = false) {
+         searchAliases: [String], notes: String?, isInvertedInPowerUserMode: Bool = false,
+         macOSDefaultValue: CodableValue? = nil) {
         self.id = id
         self.displayName = displayName
         self.technicalName = technicalName
@@ -54,6 +58,7 @@ struct SettingDefinition: Codable, Identifiable, Sendable {
         self.searchAliases = searchAliases
         self.notes = notes
         self.isInvertedInPowerUserMode = isInvertedInPowerUserMode
+        self.macOSDefaultValue = macOSDefaultValue
     }
 
     var requiresAdmin: Bool {

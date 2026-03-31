@@ -245,7 +245,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: nil,
             searchAliases: ["library folder", "~/Library", "user library", "app support"],
-            notes: "Uses chflags nohidden ~/Library to show and chflags hidden ~/Library to hide. First command-mechanism setting."
+            notes: "Uses chflags nohidden ~/Library to show and chflags hidden ~/Library to hide. First command-mechanism setting.",
+            macOSDefaultValue: .bool(false)
         ),
 
         // S052
@@ -1830,7 +1831,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G048",
             searchAliases: ["firewall", "security", "incoming connections", "block"],
-            notes: "Requires admin."
+            notes: "Requires admin.",
+            macOSDefaultValue: .bool(false)
         ),
 
         // S076
@@ -1855,7 +1857,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G048",
             searchAliases: ["stealth", "ping", "port scan", "invisible", "firewall stealth"],
-            notes: "Requires admin. Firewall must be enabled for this to take effect."
+            notes: "Requires admin. Firewall must be enabled for this to take effect.",
+            macOSDefaultValue: .bool(false)
         ),
 
         // S077
@@ -1880,7 +1883,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G048",
             searchAliases: ["block all", "incoming connections", "lockdown", "firewall block"],
-            notes: "Requires admin. Very restrictive — may break file sharing, AirDrop, etc."
+            notes: "Requires admin. Very restrictive — may break file sharing, AirDrop, etc.",
+            macOSDefaultValue: .bool(false)
         ),
 
         // S067
@@ -2032,7 +2036,8 @@ enum SettingsCatalogData {
             powerUserGrouping: "G047",
             searchAliases: ["captive portal", "hotel wifi", "airport wifi", "login popup", "captive"],
             notes: "Requires admin. Disabling stops the automatic popup on captive networks.",
-            isInvertedInPowerUserMode: true
+            isInvertedInPowerUserMode: true,
+            macOSDefaultValue: .bool(true)
         ),
 
         // S069
@@ -2108,7 +2113,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G049",
             searchAliases: ["ssh", "remote login", "terminal access", "remote access"],
-            notes: "Requires admin."
+            notes: "Requires admin.",
+            macOSDefaultValue: .bool(false)
         ),
 
         // S079
@@ -2133,7 +2139,8 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G049",
             searchAliases: ["ipv6", "wifi", "ip version 6", "network protocol"],
-            notes: "Requires admin. Only affects Wi-Fi interface."
+            notes: "Requires admin. Only affects Wi-Fi interface.",
+            macOSDefaultValue: .bool(true)
         ),
 
         // S080

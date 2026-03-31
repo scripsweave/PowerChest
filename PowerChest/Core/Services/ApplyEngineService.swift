@@ -107,7 +107,12 @@ final class ApplyEngineService {
             let isIdempotent: Bool
             switch item.targetState {
             case .systemDefault:
-                isIdempotent = !currentExists
+                if let macDefault = def?.macOSDefaultValue {
+                    // Command-based settings always "exist" — compare against known default
+                    isIdempotent = (currentValue == macDefault)
+                } else {
+                    isIdempotent = !currentExists
+                }
             case .explicitValue(let target):
                 isIdempotent = (currentValue == target)
             }
