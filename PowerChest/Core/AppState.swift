@@ -64,6 +64,7 @@ final class AppState {
 
         self.customPresets = persistence.loadCustomPresets()
         loadAllStates()
+        refreshLastChangeDescription()
     }
 
     func loadAllStates() {
@@ -83,6 +84,7 @@ final class AppState {
 
     func refreshAllStates() {
         loadAllStates()
+        refreshLastChangeDescription()
     }
 
     func state(for settingID: String) -> SettingState? {
@@ -151,8 +153,11 @@ final class AppState {
     }
 
     /// The display name of the most recent change, for the Undo menu item.
-    var lastChangeDescription: String? {
-        changeLogService.recentRecords(limit: 1).first?.displayName
+    /// Stored so SwiftUI observes changes and updates the menu.
+    var lastChangeDescription: String?
+
+    func refreshLastChangeDescription() {
+        lastChangeDescription = changeLogService.recentRecords(limit: 1).first?.displayName
     }
 
     // MARK: - Update Check

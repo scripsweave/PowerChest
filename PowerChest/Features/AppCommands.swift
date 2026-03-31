@@ -55,17 +55,16 @@ struct EditCommands: Commands {
     @Bindable var appState: AppState
 
     var body: some Commands {
-        CommandGroup(after: .undoRedo) {
-            let lastChange = appState.lastChangeDescription
-
-            Button("Undo \(lastChange ?? "Last Change")") {
+        CommandGroup(replacing: .undoRedo) {
+            Button("Undo \(appState.lastChangeDescription ?? "Last Change")") {
+                let desc = appState.lastChangeDescription
                 let success = appState.undoLastChange()
                 if success {
-                    appState.presentToast(title: "Undone", subtitle: lastChange, icon: "arrow.uturn.backward")
+                    appState.presentToast(title: "Undone", subtitle: desc, icon: "arrow.uturn.backward")
                 }
             }
             .keyboardShortcut("z", modifiers: .command)
-            .disabled(lastChange == nil)
+            .disabled(appState.lastChangeDescription == nil)
 
             Divider()
 
