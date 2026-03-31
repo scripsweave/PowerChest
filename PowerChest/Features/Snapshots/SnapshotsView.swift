@@ -186,12 +186,25 @@ struct SnapshotsView: View {
             message = "Nothing to restore — everything already matches."
             return
         }
-        let result = appState.applyEngine.apply(plan.applyRequest)
-        appState.refreshAllStates()
-        appState.enqueueRestartRequests(result.pendingRestarts)
-        let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
-        message = "Restored \(applied) setting\(applied == 1 ? "" : "s") from \"\(snapshot.name)\"."
-        refresh()
+        let request = plan.applyRequest
+        let snapshotName = snapshot.name
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = appState.applyEngine.apply(request) { progress in
+                DispatchQueue.main.async {
+                    appState.applyProgress = progress
+                }
+            }
+            DispatchQueue.main.async {
+                appState.applyProgress = nil
+                appState.refreshAllStates()
+                appState.lastApplyResult = result
+                appState.enqueueRestartRequests(result.pendingRestarts)
+                let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
+                message = "Restored \(applied) setting\(applied == 1 ? "" : "s") from \"\(snapshotName)\"."
+                refresh()
+            }
+        }
     }
 
     private func deleteSnapshot(_ snapshot: SnapshotRecord) {

@@ -361,14 +361,26 @@ struct HomeView: View {
     }
 
     private func applyImport(_ preview: ImportPreview) {
-        let result = appState.applyEngine.apply(preview.plan.applyRequest)
-        appState.refreshAllStates()
-        appState.enqueueRestartRequests(result.pendingRestarts)
+        let request = preview.plan.applyRequest
 
-        let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
-        statusMessage = "Profile imported. \(applied) setting\(applied == 1 ? "" : "s") applied."
-        appState.presentToast(title: "Profile imported", subtitle: "\(applied) change\(applied == 1 ? "" : "s")", icon: "square.and.arrow.down")
-        triggerConfetti()
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = appState.applyEngine.apply(request) { progress in
+                DispatchQueue.main.async {
+                    appState.applyProgress = progress
+                }
+            }
+            DispatchQueue.main.async {
+                appState.applyProgress = nil
+                appState.refreshAllStates()
+                appState.lastApplyResult = result
+                appState.enqueueRestartRequests(result.pendingRestarts)
+
+                let applied = result.outcomes.filter { if case .applied = $0.result { return true }; return false }.count
+                statusMessage = "Profile imported. \(applied) setting\(applied == 1 ? "" : "s") applied."
+                appState.presentToast(title: "Profile imported", subtitle: "\(applied) change\(applied == 1 ? "" : "s")", icon: "square.and.arrow.down")
+                triggerConfetti()
+            }
+        }
     }
 
     private var heroTitle: String {
