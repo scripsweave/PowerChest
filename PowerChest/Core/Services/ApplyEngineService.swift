@@ -35,7 +35,20 @@ final class ApplyEngineService {
         var outcomes: [ApplyOutcome] = []
         var effectiveItems: [(ApplyItem, CodableValue?)] = [] // item + old value
 
+        // Settings that are managed by their own UI and shouldn't be bulk-applied
+        let excludeFromBulk: Set<String> = ["network.macAddressEthernet"]
+
         for item in request.items {
+            // Skip MAC address — it's temporary (reverts on reboot) and managed by its own UI
+            if excludeFromBulk.contains(item.settingID) {
+                outcomes.append(ApplyOutcome(
+                    settingID: item.settingID,
+                    result: .skippedUnsupported(reason: "MAC address resets on reboot — no action needed"),
+                    verifiedValue: nil
+                ))
+                continue
+            }
+
             // Check support
             if let def = catalogService.definition(for: item.settingID),
                !compatibility.isSupported(def) {
