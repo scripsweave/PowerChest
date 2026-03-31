@@ -6,6 +6,16 @@
     <title>PowerChest — The defaults write GUI that macOS should have shipped with</title>
     <meta name="description" content="A native macOS utility that surfaces 80+ hidden system settings through a System Settings-style interface. No terminal required. Every change is reversible.">
     <link rel="icon" type="image/png" href="pics/icon.png">
+    <meta property="og:title" content="PowerChest — Hidden macOS Settings GUI">
+    <meta property="og:description" content="80+ hidden macOS settings in a native System Settings-style app. Firewall, Dock, Finder, network, mouse acceleration — all reversible. No terminal required.">
+    <meta property="og:image" content="https://powerchest.app/pics/Snapshots.png">
+    <meta property="og:url" content="https://powerchest.app">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PowerChest — Hidden macOS Settings GUI">
+    <meta name="twitter:description" content="80+ hidden macOS settings in a native System Settings-style app. No terminal required.">
+    <meta name="twitter:image" content="https://powerchest.app/pics/Snapshots.png">
+    <meta name="keywords" content="macOS settings, defaults write, macOS tweaks, mac hidden settings, dock speed, finder hidden files, firewall stealth mode, mac customization, system preferences, macos utility, power user, ds_store, mouse acceleration, mac app, swiftui">
     <style>
         :root {
             --bg: #0c0c0e;
@@ -539,6 +549,75 @@
             line-height: 1.6;
         }
 
+        /* -- Full catalog -- */
+        .full-catalog {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .full-catalog h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .full-catalog .section-sub {
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-size: 16px;
+        }
+
+        .catalog-category {
+            margin-bottom: 40px;
+        }
+
+        .catalog-category h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .catalog-category h3 .cat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .catalog-category > p {
+            color: var(--text-tertiary);
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .catalog-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .catalog-tag {
+            padding: 5px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .catalog-tag.admin::after {
+            content: ' \1F512';
+            font-size: 11px;
+        }
+
         /* -- CTA bottom -- */
         .bottom-cta {
             text-align: center;
@@ -630,6 +709,7 @@
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#settings">Settings</a>
+            <a href="#catalog">Catalog</a>
             <a href="#how">How it works</a>
             <a href="https://github.com/scripsweave/PowerChest/releases/latest" class="btn-download">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
@@ -867,6 +947,166 @@
             <div class="arch-item fade-in">
                 <h4>Native SwiftUI</h4>
                 <p>Built with SwiftUI and @Observable. No Electron, no web views, no Catalyst, no AppKit bridging hacks. System Settings-style layout because that's what your muscle memory expects.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Full settings catalog for SEO -->
+<section class="full-catalog" id="catalog">
+    <div class="container">
+        <h2 class="fade-in">Every setting in the catalog.</h2>
+        <p class="section-sub fade-in">80+ macOS settings across 10 categories. Every one tested on current macOS, documented, and reversible.</p>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(96,165,250,0.15); color: var(--blue);">&#128269;</span> Finder & Files</h3>
+            <p>Control how Finder displays files, handles extensions, and manages folders.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Show hidden files</span>
+                <span class="catalog-tag">Always show file extensions</span>
+                <span class="catalog-tag">Show path bar</span>
+                <span class="catalog-tag">Show status bar</span>
+                <span class="catalog-tag">Keep folders on top</span>
+                <span class="catalog-tag">Full POSIX path in title bar</span>
+                <span class="catalog-tag">New Finder window location</span>
+                <span class="catalog-tag">Show ~/Library folder</span>
+                <span class="catalog-tag">Skip extension change warning</span>
+                <span class="catalog-tag">Skip empty Trash warning</span>
+                <span class="catalog-tag">Allow quitting Finder</span>
+                <span class="catalog-tag">Save to local disk by default</span>
+                <span class="catalog-tag">Folder spring-loading delay</span>
+                <span class="catalog-tag">Disable .DS_Store on network volumes</span>
+                <span class="catalog-tag">Disable .DS_Store on USB drives</span>
+                <span class="catalog-tag">Default search scope</span>
+                <span class="catalog-tag">Preferred view style</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(129,140,248,0.15); color: #818cf8;">&#9635;</span> Dock & Interface</h3>
+            <p>Dock speed, size, position, window behavior, scroll bars, and app behavior.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Dock icon size</span>
+                <span class="catalog-tag">Dock position (left/bottom/right)</span>
+                <span class="catalog-tag">Dock auto-hide delay</span>
+                <span class="catalog-tag">Dock auto-hide animation speed</span>
+                <span class="catalog-tag">Hide recent apps from Dock</span>
+                <span class="catalog-tag">Show only open apps in Dock</span>
+                <span class="catalog-tag">Minimize windows into app icon</span>
+                <span class="catalog-tag">Minimize animation (genie/scale)</span>
+                <span class="catalog-tag">Title bar double-click action</span>
+                <span class="catalog-tag">Scroll bar visibility</span>
+                <span class="catalog-tag">Expand Save dialogs by default</span>
+                <span class="catalog-tag">Expand Print dialogs by default</span>
+                <span class="catalog-tag">Plain text TextEdit by default</span>
+                <span class="catalog-tag">Stop Help windows from floating</span>
+                <span class="catalog-tag">Disable App Nap</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(156,163,175,0.15); color: #9ca3af;">&#9000;</span> Keyboard & Input</h3>
+            <p>Key repeat, accent popup, autocorrect, smart punctuation, and mouse acceleration.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Key repeat instead of accent popup</span>
+                <span class="catalog-tag">Key repeat rate</span>
+                <span class="catalog-tag">Initial key repeat delay</span>
+                <span class="catalog-tag">Disable smart quotes</span>
+                <span class="catalog-tag">Disable smart dashes</span>
+                <span class="catalog-tag">Disable auto-capitalization</span>
+                <span class="catalog-tag">Disable auto-correct</span>
+                <span class="catalog-tag">Disable double-space period</span>
+                <span class="catalog-tag">Tab through all UI controls</span>
+                <span class="catalog-tag">Disable mouse acceleration</span>
+                <span class="catalog-tag">Mouse acceleration curve (-1 to 3)</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(192,132,252,0.15); color: #c084fc;">&#9638;</span> Windows & Spaces</h3>
+            <p>Mission Control, Spaces ordering, window grouping, and multi-display behavior.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Keep Spaces in fixed order</span>
+                <span class="catalog-tag">Group windows by app in Mission Control</span>
+                <span class="catalog-tag">Mission Control animation speed</span>
+                <span class="catalog-tag">Separate Spaces per display</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(244,114,182,0.15); color: var(--pink);">&#128247;</span> Screenshots</h3>
+            <p>Where screenshots go, what format they use, and how they look.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Screenshot save location</span>
+                <span class="catalog-tag">Screenshot format (PNG/JPG/TIFF/PDF)</span>
+                <span class="catalog-tag">Disable window shadow in screenshots</span>
+                <span class="catalog-tag">Disable floating thumbnail</span>
+                <span class="catalog-tag">Custom filename prefix</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;">&#127760;</span> Safari & Developer</h3>
+            <p>Safari address bar, developer tools, download behavior, and status bar.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Show full URL in address bar</span>
+                <span class="catalog-tag">Enable Develop menu</span>
+                <span class="catalog-tag">WebKit developer extras</span>
+                <span class="catalog-tag">Stop auto-opening downloads</span>
+                <span class="catalog-tag">Show status bar with link URLs</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(45,212,191,0.15); color: #2dd4bf;">&#128065;</span> Visuals & Accessibility</h3>
+            <p>Transparency, contrast, motion, cursor size, and font rendering.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Reduce transparency</span>
+                <span class="catalog-tag">Increase contrast</span>
+                <span class="catalog-tag">Reduce motion</span>
+                <span class="catalog-tag">Cursor size</span>
+                <span class="catalog-tag">Font smoothing for non-Retina displays</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(52,211,153,0.15); color: var(--green);">&#128340;</span> Menu Bar</h3>
+            <p>Clock format, battery percentage, and status item visibility.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">24-hour clock</span>
+                <span class="catalog-tag">Show battery percentage</span>
+                <span class="catalog-tag">Flash time separators</span>
+                <span class="catalog-tag">Show/hide date in menu bar</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(248,113,113,0.15); color: var(--red);">&#128737;</span> Safety & Security</h3>
+            <p>Gatekeeper, quarantine behavior, and crash reporting.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Skip Gatekeeper quarantine prompts</span>
+                <span class="catalog-tag">Crash reporter detail level</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(96,165,250,0.15); color: var(--blue);">&#127760;</span> Network & Connectivity</h3>
+            <p>Firewall, DNS privacy, AirDrop, Bluetooth, MAC addresses, and remote access. Some settings require admin.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag admin">Application firewall</span>
+                <span class="catalog-tag admin">Firewall stealth mode</span>
+                <span class="catalog-tag admin">Block all incoming connections</span>
+                <span class="catalog-tag">Disable .DS_Store on network volumes</span>
+                <span class="catalog-tag">Disable .DS_Store on USB drives</span>
+                <span class="catalog-tag">Safari DNS prefetching</span>
+                <span class="catalog-tag">Safari preload top hit</span>
+                <span class="catalog-tag">Send Do Not Track header</span>
+                <span class="catalog-tag admin">Captive portal detection</span>
+                <span class="catalog-tag">Disable AirDrop</span>
+                <span class="catalog-tag">Bluetooth audio bitpool quality</span>
+                <span class="catalog-tag admin">Remote Login (SSH)</span>
+                <span class="catalog-tag admin">IPv6 on Wi-Fi</span>
+                <span class="catalog-tag admin">MAC address spoofing</span>
             </div>
         </div>
     </div>
