@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PowerChest — The defaults write GUI that macOS should have shipped with</title>
     <meta name="description" content="A native macOS utility that surfaces 80+ hidden system settings through a System Settings-style interface. No terminal required. Every change is reversible.">
+    <link rel="icon" type="image/png" href="pics/icon.png">
     <style>
         :root {
             --bg: #0c0c0e;
@@ -381,6 +382,61 @@
             line-height: 1.6;
         }
 
+        /* -- Screenshot showcase -- */
+        .showcase {
+            padding: 80px 0;
+        }
+
+        .showcase h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .showcase-item {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: var(--bg-card);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .showcase-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .showcase-item img {
+            width: 100%;
+            display: block;
+        }
+
+        .showcase-caption {
+            padding: 16px 20px;
+        }
+
+        .showcase-caption h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .showcase-caption p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .showcase-grid { grid-template-columns: 1fr; }
+        }
+
         /* -- Hidden settings highlight -- */
         .hidden-settings {
             background: var(--bg-elevated);
@@ -568,6 +624,7 @@
 <nav>
     <div class="container">
         <a href="#" class="nav-brand">
+            <img src="pics/icon.png" alt="PowerChest" width="28" height="28" style="border-radius: 6px;">
             <span>PowerChest</span>
         </a>
         <div class="nav-links">
@@ -604,9 +661,7 @@
         </div>
 
         <div class="hero-screenshot fade-in">
-            <div class="screenshot-placeholder">
-                screenshot of PowerChest goes here &mdash; replace with actual app screenshot
-            </div>
+            <img src="pics/Snapshots.png" alt="PowerChest home screen showing 78 managed settings, presets, and snapshot count">
         </div>
     </div>
 </section>
@@ -683,6 +738,43 @@
                 <div class="feature-icon" style="background: rgba(248,113,113,0.12); color: var(--red);">&#128230;</div>
                 <h3>Export / Import configs</h3>
                 <p>Save your setup as a <code>.powerchestprofile</code>. Import on another Mac with a diff preview showing exactly what will change. Portable tinkering.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Screenshot showcase -->
+<section class="showcase" id="showcase">
+    <div class="container">
+        <h2 class="fade-in">See it in action.</h2>
+        <div class="showcase-grid">
+            <div class="showcase-item fade-in">
+                <img src="pics/Presets.png" alt="One-click presets and recent change timeline">
+                <div class="showcase-caption">
+                    <h4>Presets & Activity</h4>
+                    <p>One-click preset bundles and a timeline of every change you've made.</p>
+                </div>
+            </div>
+            <div class="showcase-item fade-in">
+                <img src="pics/Config_Change.png" alt="Network settings with MAC address spoofing">
+                <div class="showcase-caption">
+                    <h4>Network & Connectivity</h4>
+                    <p>Firewall, MAC spoofing, SSH, IPv6 — with admin badge and per-interface controls.</p>
+                </div>
+            </div>
+            <div class="showcase-item fade-in">
+                <img src="pics/Time_Machine.png" alt="Time Machine view with snapshots grouped by date">
+                <div class="showcase-caption">
+                    <h4>Time Machine</h4>
+                    <p>Every change auto-creates a restore point. Browse by date, compare, and roll back.</p>
+                </div>
+            </div>
+            <div class="showcase-item fade-in">
+                <img src="pics/Snapshots.png" alt="Home dashboard with stats and quick actions">
+                <div class="showcase-caption">
+                    <h4>Dashboard</h4>
+                    <p>Stats at a glance — managed settings, customizations, snapshots, and quick actions.</p>
+                </div>
             </div>
         </div>
     </div>
