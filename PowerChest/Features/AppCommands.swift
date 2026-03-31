@@ -15,8 +15,6 @@ extension Notification.Name {
 // MARK: - File Menu
 
 struct FileCommands: Commands {
-    @Environment(AppState.self) private var appState
-
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Button("Create Snapshot") {
@@ -54,7 +52,7 @@ struct FileCommands: Commands {
 // MARK: - Edit Menu (Undo + Reset)
 
 struct EditCommands: Commands {
-    @Environment(AppState.self) private var appState
+    @Bindable var appState: AppState
 
     var body: some Commands {
         CommandGroup(after: .undoRedo) {
@@ -81,7 +79,7 @@ struct EditCommands: Commands {
 // MARK: - View Menu
 
 struct ViewCommands: Commands {
-    @Environment(AppState.self) private var appState
+    @Bindable var appState: AppState
 
     var body: some Commands {
         CommandGroup(after: .toolbar) {
@@ -118,8 +116,6 @@ struct ViewCommands: Commands {
 // MARK: - Help Menu
 
 struct HelpCommands: Commands {
-    @Environment(AppState.self) private var appState
-
     var body: some Commands {
         CommandGroup(replacing: .help) {
             Button("PowerChest Website") {
@@ -143,13 +139,12 @@ struct HelpCommands: Commands {
 // MARK: - App Menu (About + Update)
 
 struct AppMenuCommands: Commands {
-    @Environment(AppState.self) private var appState
+    @Bindable var appState: AppState
 
     var body: some Commands {
         CommandGroup(after: .appInfo) {
             Button("Check for Updates...") {
                 appState.checkForUpdate()
-                // Show result after a short delay to let the async check complete
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     if let update = appState.availableUpdate {
                         let alert = NSAlert()
