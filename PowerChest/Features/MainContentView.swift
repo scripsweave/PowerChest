@@ -220,7 +220,7 @@ struct MainContentView: View {
             return (definition: def, searchable: searchable)
         }
 
-        let presets = appState.catalogService.presets
+        let presets = appState.allPresets
         index.presetEntries = presets.map { preset in
             let tokens = [preset.name, preset.description]
             let searchable = tokens.joined(separator: " ").lowercased()

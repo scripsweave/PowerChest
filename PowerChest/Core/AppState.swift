@@ -21,6 +21,14 @@ final class AppState {
     let changeLogService: ChangeLogService
     let applyEngine: ApplyEngineService
     let restartService: RestartService
+    let persistenceController: PersistenceController
+
+    var customPresets: [PresetDefinition] = []
+
+    /// All presets: custom first, then built-in.
+    var allPresets: [PresetDefinition] {
+        customPresets + catalogService.presets
+    }
 
     init() {
         let catalog = SettingsCatalogService()
@@ -51,7 +59,9 @@ final class AppState {
         self.changeLogService = changeLog
         self.restartService = restart
         self.applyEngine = apply
+        self.persistenceController = persistence
 
+        self.customPresets = persistence.loadCustomPresets()
         loadAllStates()
     }
 
@@ -89,6 +99,22 @@ final class AppState {
                 pendingRestartRequests.append(requirement)
             }
         }
+    }
+
+    // MARK: - Custom Presets
+
+    func saveCustomPreset(_ preset: PresetDefinition) {
+        customPresets.insert(preset, at: 0)
+        try? persistenceController.saveCustomPresets(customPresets)
+    }
+
+    func deleteCustomPreset(id: String) {
+        customPresets.removeAll { $0.id == id }
+        try? persistenceController.saveCustomPresets(customPresets)
+    }
+
+    var customPresetIDs: Set<String> {
+        Set(customPresets.map(\.id))
     }
 
     func dequeueRestart(_ requirement: RestartRequirement) {

@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var showingResetConfirmation = false
     @State private var pendingImport: ImportPreview?
     @State private var showingCustomizedPopover = false
+    @State private var showingSavePresetSheet = false
 
     var body: some View {
         let metrics = currentMetrics
@@ -171,7 +172,7 @@ struct HomeView: View {
     }
 
     private var presetCarousel: some View {
-        let presets = appState.catalogService.presets
+        let presets = appState.allPresets
         return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Preset decks")
@@ -184,15 +185,26 @@ struct HomeView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 18) {
+                    SavePresetCard {
+                        showingSavePresetSheet = true
+                    }
+
                     ForEach(presets) { preset in
+                        let isCustom = appState.customPresetIDs.contains(preset.id)
                         PresetCard(preset: preset,
                                    highlights: presetHighlights(for: preset),
-                                   isHighlighted: appState.spotlightPresetID == preset.id) {
-                            applyPreset(preset)
-                        }
+                                   isHighlighted: appState.spotlightPresetID == preset.id,
+                                   isCustom: isCustom,
+                                   onApply: { applyPreset(preset) },
+                                   onDelete: isCustom ? { appState.deleteCustomPreset(id: preset.id) } : nil)
                     }
                 }
                 .padding(.vertical, 4)
+            }
+        }
+        .sheet(isPresented: $showingSavePresetSheet) {
+            SavePresetSheet { name, description in
+                saveCurrentAsPreset(name: name, description: description)
             }
         }
     }
@@ -249,6 +261,31 @@ struct HomeView: View {
                               subtitle: "\(applied) change\(applied == 1 ? "" : "s")",
                               icon: "sparkles")
         triggerConfetti()
+    }
+
+    private func saveCurrentAsPreset(name: String, description: String) {
+        let ids = customizedSettingIDs
+        let items: [PresetItem] = ids.compactMap { id in
+            guard let state = appState.settingStates[id],
+                  let value = state.currentValue else { return nil }
+            return PresetItem(settingID: id, targetState: .explicitValue(value))
+        }
+
+        guard !items.isEmpty else {
+            statusMessage = "Nothing to save — no customized settings."
+            return
+        }
+
+        let preset = PresetDefinition(
+            id: "custom-\(UUID().uuidString.prefix(8))",
+            name: name,
+            description: description,
+            items: items,
+            riskSummary: .safe
+        )
+        appState.saveCustomPreset(preset)
+        statusMessage = "Preset \"\(name)\" saved with \(items.count) setting\(items.count == 1 ? "" : "s")."
+        appState.presentToast(title: "Preset saved", subtitle: "\(items.count) setting\(items.count == 1 ? "" : "s")", icon: "tray.and.arrow.down.fill")
     }
 
     private func createHeroSnapshot() {
@@ -506,7 +543,7 @@ struct HomeView: View {
         let total = appState.catalogService.shippingDefinitions().count
         let customized = customizedSettingIDs.count
         let snapshots = appState.snapshotService.listSnapshots().count
-        let presets = appState.catalogService.presets.count
+        let presets = appState.allPresets.count
         return HomeMetrics(totalSettings: total,
                            customizedSettings: customized,
                            snapshotCount: snapshots,
@@ -549,11 +586,43 @@ private struct StatCard: View {
     }
 }
 
+private struct SavePresetCard: View {
+    let onTap: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 32))
+                .foregroundStyle(.secondary)
+            Text("Save preset")
+                .font(.title3).bold()
+            Text("Capture your current customizations as a reusable preset.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(20)
+        .frame(width: 200, height: 210)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(hovering ? Color.accentColor.opacity(0.08) : Color(nsColor: .textBackgroundColor))
+                .strokeBorder(Color.secondary.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [8, 5]))
+                .shadow(color: .black.opacity(hovering ? 0.12 : 0.06), radius: hovering ? 12 : 6, y: 4)
+        )
+        .scaleEffect(hovering ? 1.01 : 1)
+        .onHover { hovering = $0 }
+        .onTapGesture { onTap() }
+    }
+}
+
 private struct PresetCard: View {
     let preset: PresetDefinition
     let highlights: [String]
     let isHighlighted: Bool
+    var isCustom: Bool = false
     let onApply: () -> Void
+    var onDelete: (() -> Void)? = nil
     @State private var hovering = false
 
     var body: some View {
@@ -565,6 +634,17 @@ private struct PresetCard: View {
                     .padding(10)
                     .background(Color.accentColor.opacity(0.2), in: RoundedRectangle(cornerRadius: 12))
                 Spacer()
+                if isCustom, let onDelete {
+                    Button(role: .destructive) {
+                        onDelete()
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help("Delete preset")
+                }
                 Text("\(preset.items.count) setting\(preset.items.count == 1 ? "" : "s")")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -611,6 +691,7 @@ private struct PresetCard: View {
     }
 
     private var icon: String {
+        if isCustom { return "person.crop.circle" }
         switch preset.name {
         case _ where preset.name.contains("Developer"): return "chevron.left.forwardslash.chevron.right"
         case _ where preset.name.contains("Screenshot"): return "camera.viewfinder"
@@ -618,6 +699,44 @@ private struct PresetCard: View {
         case _ where preset.name.contains("Minimal"): return "square.split.diagonal.2x2"
         default: return "wand.and.stars"
         }
+    }
+}
+
+private struct SavePresetSheet: View {
+    let onSave: (String, String) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var description = ""
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Save preset")
+                .font(.title2).bold()
+            Text("Captures all your currently customized settings as a reusable preset deck.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            VStack(alignment: .leading, spacing: 12) {
+                TextField("Name", text: $name, prompt: Text("My Setup"))
+                    .textFieldStyle(.roundedBorder)
+                TextField("Description", text: $description, prompt: Text("A short note about this preset"))
+                    .textFieldStyle(.roundedBorder)
+            }
+
+            HStack(spacing: 12) {
+                Button("Cancel", role: .cancel) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button("Save") {
+                    onSave(name, description)
+                    dismiss()
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .padding(28)
+        .frame(width: 380)
     }
 }
 

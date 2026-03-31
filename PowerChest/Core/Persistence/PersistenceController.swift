@@ -74,6 +74,29 @@ final class PersistenceController: @unchecked Sendable {
         try? FileManager.default.removeItem(at: url)
     }
 
+    // MARK: - Custom Presets
+
+    private var customPresetsFileURL: URL {
+        appSupportURL.appendingPathComponent("custom-presets.json")
+    }
+
+    func saveCustomPresets(_ presets: [PresetDefinition]) throws {
+        let data = try encoder.encode(presets)
+        try data.write(to: customPresetsFileURL, options: .atomic)
+    }
+
+    func loadCustomPresets() -> [PresetDefinition] {
+        let url = customPresetsFileURL
+        guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+        do {
+            let data = try Data(contentsOf: url)
+            return try decoder.decode([PresetDefinition].self, from: data)
+        } catch {
+            logger.error("Failed to load custom presets: \(error.localizedDescription)")
+            return []
+        }
+    }
+
     // MARK: - Change Log
 
     private var changeLogFileURL: URL {
