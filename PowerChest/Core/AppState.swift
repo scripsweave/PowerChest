@@ -117,6 +117,49 @@ final class AppState {
         Set(customPresets.map(\.id))
     }
 
+    // MARK: - Undo
+
+    func undoLastChange() -> Bool {
+        guard let last = changeLogService.recentRecords(limit: 1).first,
+              let oldValue = last.oldValue,
+              let def = catalogService.definition(for: last.settingID) else {
+            return false
+        }
+
+        let item = ApplyItem(
+            settingID: last.settingID,
+            targetState: .explicitValue(oldValue),
+            mechanism: def.mechanism,
+            domain: def.domain,
+            keyPath: def.keyPath,
+            restartRequirement: def.restartRequirement
+        )
+        let request = ApplyRequest(source: .powerUser, items: [item])
+        let result = applyEngine.apply(request)
+        refreshAllStates()
+        enqueueRestartRequests(result.pendingRestarts)
+        return result.outcomes.contains { if case .applied = $0.result { return true }; return false }
+    }
+
+    /// The display name of the most recent change, for the Undo menu item.
+    var lastChangeDescription: String? {
+        changeLogService.recentRecords(limit: 1).first?.displayName
+    }
+
+    // MARK: - Update Check
+
+    let updateService = UpdateService()
+    var availableUpdate: AppUpdate?
+
+    func checkForUpdate() {
+        Task {
+            let update = await updateService.checkForUpdate()
+            await MainActor.run {
+                self.availableUpdate = update
+            }
+        }
+    }
+
     func dequeueRestart(_ requirement: RestartRequirement) {
         pendingRestartRequests.removeAll { $0 == requirement }
     }

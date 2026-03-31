@@ -11,5 +11,12 @@ struct PowerChestApp: App {
         }
         .defaultSize(width: 920, height: 680)
         .windowToolbarStyle(.unified)
+        .commands {
+            AppMenuCommands()
+            FileCommands()
+            EditCommands()
+            ViewCommands()
+            HelpCommands()
+        }
     }
 }

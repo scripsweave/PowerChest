@@ -58,6 +58,24 @@ struct HomeView: View {
                 applyImport(preview)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { _ in
+            createHeroSnapshot()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuRestoreSnapshot)) { _ in
+            appState.selectedSidebarItem = .snapshots
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { _ in
+            exportConfig()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { _ in
+            importConfig()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { _ in
+            showingSavePresetSheet = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { _ in
+            showingResetConfirmation = true
+        }
     }
 
     private func heroCard(metrics: HomeMetrics) -> some View {
