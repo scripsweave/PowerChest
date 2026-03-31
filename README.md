@@ -121,7 +121,7 @@ See `CLAUDE.md` for detailed architecture notes and `specifications/` for design
 
 ## License
 
-Private project. All rights reserved.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
