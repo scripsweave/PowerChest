@@ -66,32 +66,36 @@ struct MainContentView: View {
         .onChange(of: appState.pendingRestartRequests) { _ in
             restartPromptRequirement = appState.pendingRestartRequests.first
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { note in
+            guard note.object == nil else { return }
             appState.selectedSidebarItem = .home
-            // Forward to HomeView after navigation
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: .menuCreateSnapshot, object: "forwarded")
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuExportConfig)) { note in
+            guard note.object == nil else { return }
             appState.selectedSidebarItem = .home
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: .menuExportConfig, object: "forwarded")
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuImportConfig)) { note in
+            guard note.object == nil else { return }
             appState.selectedSidebarItem = .home
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: .menuImportConfig, object: "forwarded")
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuSavePreset)) { note in
+            guard note.object == nil else { return }
             appState.selectedSidebarItem = .home
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: .menuSavePreset, object: "forwarded")
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .menuResetToDefaults)) { note in
+            guard note.object == nil else { return }
             appState.selectedSidebarItem = .home
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 NotificationCenter.default.post(name: .menuResetToDefaults, object: "forwarded")
