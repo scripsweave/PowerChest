@@ -263,11 +263,9 @@ private struct SnapshotCard: View {
     let onRestore: () -> Void
     let onDelete: () -> Void
     @Environment(AppState.self) private var appState
+    @State private var changed: [SnapshotDiffItem]?
 
     var body: some View {
-        let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
-        let changed = diff.filter { $0.classification == .changed }
-
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -288,47 +286,54 @@ private struct SnapshotCard: View {
                     .foregroundStyle(kindColor)
             }
 
-            // Inline diff
-            if changed.isEmpty {
-                Label("Everything matches current state", systemImage: "checkmark.circle")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(changed.prefix(5)) { item in
-                        HStack(spacing: 8) {
-                            Text(item.displayName)
-                                .font(.caption)
-                                .lineLimit(1)
-                            Spacer()
-                            Text(item.snapshotValue?.displayString ?? "default")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Image(systemName: "arrow.right")
+            // Inline diff (loaded asynchronously)
+            if let changed {
+                if changed.isEmpty {
+                    Label("Everything matches current state", systemImage: "checkmark.circle")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(changed.prefix(5)) { item in
+                            HStack(spacing: 8) {
+                                Text(item.displayName)
+                                    .font(.caption)
+                                    .lineLimit(1)
+                                Spacer()
+                                Text(item.snapshotValue?.displayString ?? "default")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Image(systemName: "arrow.right")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                                Text(item.currentValue?.displayString ?? "default")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                            }
+                            .padding(.vertical, 4)
+                            if item.id != changed.prefix(5).last?.id {
+                                Divider()
+                            }
+                        }
+                        if changed.count > 5 {
+                            Text("+ \(changed.count - 5) more change\(changed.count - 5 == 1 ? "" : "s")")
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
-                            Text(item.currentValue?.displayString ?? "default")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                        }
-                        .padding(.vertical, 4)
-                        if item.id != changed.prefix(5).last?.id {
-                            Divider()
+                                .padding(.top, 4)
                         }
                     }
-                    if changed.count > 5 {
-                        Text("+ \(changed.count - 5) more change\(changed.count - 5 == 1 ? "" : "s")")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                            .padding(.top, 4)
-                    }
+                    .padding(12)
+                    .background(Color(nsColor: .controlBackgroundColor).opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
                 }
-                .padding(12)
-                .background(Color(nsColor: .controlBackgroundColor).opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+            } else {
+                ProgressView()
+                    .controlSize(.small)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 4)
             }
 
             HStack(spacing: 14) {
-                if !changed.isEmpty {
+                if let changed, !changed.isEmpty {
                     Button("Full diff", action: onCompare)
                 }
                 Button("Restore", action: onRestore)
@@ -345,6 +350,14 @@ private struct SnapshotCard: View {
                 .fill(Color(nsColor: .textBackgroundColor))
         )
         .shadow(color: .black.opacity(0.08), radius: 14, y: 6)
+        .task(id: snapshot.id) {
+            let service = appState.snapshotService
+            let snap = snapshot
+            let diff = await Task.detached {
+                service.diffSnapshotToCurrent(snapshot: snap)
+            }.value
+            changed = diff.filter { $0.classification == .changed }
+        }
     }
 
     private var kindColor: Color {
