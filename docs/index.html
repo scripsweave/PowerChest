@@ -136,6 +136,14 @@
             text-align: center;
         }
 
+        .hero-icon {
+            width: 128px;
+            height: 128px;
+            border-radius: 28px;
+            margin-bottom: 28px;
+            filter: drop-shadow(0 8px 32px rgba(167, 139, 250, 0.3));
+        }
+
         .hero-badge {
             display: inline-block;
             padding: 6px 14px;
@@ -722,6 +730,7 @@
 <!-- Hero -->
 <section class="hero">
     <div class="container">
+        <img src="pics/icon.png" alt="PowerChest icon" class="hero-icon">
         <div class="hero-badge">Native macOS app. SwiftUI. No Electron.</div>
         <h1>The <span class="gradient">defaults write</span> GUI<br>that macOS never shipped.</h1>
         <p class="hero-sub">
