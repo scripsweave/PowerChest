@@ -167,12 +167,6 @@ struct AppMenuCommands: Commands {
                 }
             }
 
-            Button("Settings...") {
-                appState.selectedSidebarItem = .appSettings
-                NSApp.activate(ignoringOtherApps: true)
-            }
-            .keyboardShortcut(",", modifiers: .command)
-
             Divider()
         }
     }

@@ -142,7 +142,6 @@ struct MainContentView: View {
     private var navigationSubtitle: String {
         switch appState.selectedSidebarItem {
         case .home: return ""
-        case .appSettings: return ""
         default: return appState.userMode == .powerUser ? "Power User" : "Propellerhead"
         }
     }
@@ -156,8 +155,6 @@ struct MainContentView: View {
             SnapshotsView()
         case .changes:
             ChangesView()
-        case .appSettings:
-            AppSettingsView()
         case let item? where item.settingCategory != nil:
             CategoryPaneView(category: item.settingCategory!)
         default:

@@ -21,10 +21,6 @@ struct SidebarView: View {
                     sidebarRow(item)
                 }
             }
-
-            Section {
-                sidebarRow(.appSettings)
-            }
         }
         .listStyle(.sidebar)
         .searchable(text: $searchQuery, placement: .sidebar, prompt: "Search")
