@@ -66,8 +66,8 @@ struct CategoryPaneView: View {
                 appState.refreshStates(for: category)
                 viewModel = CategoryPaneViewModel(category: category, appState: appState)
             }
-            .onChange(of: vm.applyResultMessage) { newValue in
-                if newValue != nil {
+            .onChange(of: vm.applyResultMessage) {
+                if vm.applyResultMessage != nil {
                     triggerConfetti()
                 }
             }

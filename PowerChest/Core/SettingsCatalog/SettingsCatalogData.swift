@@ -5,7 +5,7 @@ import Foundation
 /// Static catalog data for PowerChest Settings Catalog v1.
 /// Generated from specification 02 — powerchest_settings_catalog_v_1.md
 ///
-/// Contains 81 settings (S001-S083, minus S067/S068 duplicates), 50 grouped controls,
+/// Contains 87 settings (S001-S089, minus S067/S068 duplicates), 56 grouped controls,
 /// and 5 presets (P001-P005).
 enum SettingsCatalogData {
 
@@ -475,6 +475,57 @@ enum SettingsCatalogData {
             powerUserGrouping: nil,
             searchAliases: ["finder view", "list view", "column view"],
             notes: "icnv=Icon, Nlsv=List, clmv=Column, glyv=Gallery. Include only after QA confirms consistency."
+        ),
+
+        // S084
+        SettingDefinition(
+            id: "finder.columnAutoSizing",
+            displayName: "Finder column auto-sizing",
+            technicalName: "_FXEnableColumnAutoSizing",
+            powerUserLabel: "Auto-resize Finder columns to fit filenames",
+            powerUserDescription: "Finder's column view automatically widens columns so long filenames aren't cut off. Fixes the Tahoe bug where the horizontal scrollbar covers the column resize handles.",
+            propellerheadDescription: "Forces Finder to dynamically resize columns in Column View to fit the longest filename. Workaround for the Liquid Glass scrollbar occlusion bug.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "_FXEnableColumnAutoSizing",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 26, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G054",
+            searchAliases: ["column view", "auto size", "column width", "truncated filenames", "liquid glass bug"],
+            notes: "Tahoe-specific. Works around the scrollbar-over-resize-handle bug in Column View."
+        ),
+
+        // S085
+        SettingDefinition(
+            id: "finder.createDesktop",
+            displayName: "Show desktop icons",
+            technicalName: "CreateDesktop",
+            powerUserLabel: "Hide all desktop icons",
+            powerUserDescription: "Stops Finder from drawing anything on the desktop. No more accidentally dismissing all your windows when you click an empty spot. Your files are still in ~/Desktop — they just won't clutter the screen.",
+            propellerheadDescription: "Prevents Finder from rendering desktop icons. Files remain in ~/Desktop but are not displayed. Also prevents the click-to-reveal-desktop behavior.",
+            category: .finder,
+            risk: .advanced,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "CreateDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G055",
+            searchAliases: ["desktop icons", "hide desktop", "clean desktop", "click wallpaper", "reveal desktop"],
+            notes: "Raw value false = desktop hidden. Power User toggle is inverted: ON = hide desktop = write false.",
+            isInvertedInPowerUserMode: true
         ),
 
         // ---------------------------------------------------------------
@@ -1147,6 +1198,32 @@ enum SettingsCatalogData {
             notes: "-1 = raw/no acceleration. 0 = linear. 1-3 = increasing acceleration. Changes take effect immediately."
         ),
 
+        // S087
+        SettingDefinition(
+            id: "global.autoFillHeuristic",
+            displayName: "Autofill heuristic controller",
+            technicalName: "NSAutoFillHeuristicControllerEnabled",
+            powerUserLabel: "Disable the autofill heuristic",
+            powerUserDescription: "macOS Tahoe's autofill engine scans every text field in the background. On Electron apps like VS Code, Slack, and Discord, this causes severe input lag. Disabling it fixes the lag but turns off system-wide autofill prompts.",
+            propellerheadDescription: "Disables NSAutoFillHeuristicController, which polls active text fields for autofill opportunities. Known to cause keystroke latency in Chromium/Electron apps on macOS 26.",
+            category: .keyboardInput,
+            risk: .advanced,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSAutoFillHeuristicControllerEnabled",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 26, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G057",
+            searchAliases: ["autofill", "input lag", "typing delay", "electron", "vs code", "slack", "keystroke latency"],
+            notes: "Tahoe-specific. Disabling removes autofill prompts as a trade-off for fixing input lag in Electron apps.",
+            isInvertedInPowerUserMode: true
+        ),
+
         // ---------------------------------------------------------------
         // MARK: 5.4 Windows and Spaces
         // Ordered by popularity: fixed Spaces → group by app
@@ -1255,6 +1332,31 @@ enum SettingsCatalogData {
             searchAliases: ["separate spaces", "multi monitor spaces", "display spaces", "spans displays"],
             notes: "Hold: spans-displays key no longer exists in any defaults domain on macOS 26. Spaces config uses SpacesDisplayConfiguration structure now.",
             isInvertedInPowerUserMode: true
+        ),
+
+        // S086
+        SettingDefinition(
+            id: "windowManager.animationSpeed",
+            displayName: "Stage Manager animation speed",
+            technicalName: "AnimationSpeed",
+            powerUserLabel: "Speed up Stage Manager animations",
+            powerUserDescription: "Stage Manager's window-switching animations are slow and sweeping by default. Lower values make them snappier. Set to near-zero for instant transitions.",
+            propellerheadDescription: "Controls the transition speed of Stage Manager window groupings. Lower float values produce faster animations.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "AnimationSpeed",
+            valueType: .double,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G056",
+            searchAliases: ["stage manager", "window animation", "stage manager speed", "window switching"],
+            notes: "Default is about 1.0. Lower is faster. 0.1 is near-instant. Delete key to restore default."
         ),
 
         // ---------------------------------------------------------------
@@ -1645,6 +1747,57 @@ enum SettingsCatalogData {
             powerUserGrouping: "G052",
             searchAliases: ["font smoothing", "subpixel", "antialiasing", "blurry text", "thin text", "non-retina", "external monitor"],
             notes: "Only matters on non-Retina displays. Requires sign-out to take effect.",
+            isInvertedInPowerUserMode: true
+        ),
+
+        // S088
+        SettingDefinition(
+            id: "global.disableSolarium",
+            displayName: "Disable Liquid Glass",
+            technicalName: "com.apple.SwiftUI.DisableSolarium",
+            powerUserLabel: "Disable Liquid Glass",
+            powerUserDescription: "Turns off Tahoe's translucent Liquid Glass rendering across all SwiftUI apps. Reverts to solid, opaque backgrounds like Sequoia. Requires a reboot. Note: may cause minor visual glitches in some menu bar items.",
+            propellerheadDescription: "Disables the Solarium rendering framework (Apple's internal name for Liquid Glass). Forces all SwiftUI apps to render with opaque, pre-Tahoe backgrounds. Apple may remove this flag in future updates.",
+            category: .accessibilityVisual,
+            risk: .advanced,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "com.apple.SwiftUI.DisableSolarium",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 26, max: nil),
+            restartRequirement: .reboot,
+            powerUserGrouping: "G058",
+            searchAliases: ["liquid glass", "solarium", "transparency", "tahoe", "opaque", "glass effect", "blur"],
+            notes: "The headline Tahoe tweak. May cause minor menu bar visual glitches. Apple may patch this out in future updates."
+        ),
+
+        // S089
+        SettingDefinition(
+            id: "global.menuActionImages",
+            displayName: "Menu bar action images",
+            technicalName: "NSMenuEnableActionImages",
+            powerUserLabel: "Hide icons in menu bar dropdowns",
+            powerUserDescription: "Tahoe added icons next to every menu item in dropdown menus. If you find them distracting, this strips them out and restores the clean, text-only menus from Sequoia.",
+            propellerheadDescription: "Suppresses the inline glyph icons that macOS 26 renders in standard AppKit menu bar dropdowns. Takes effect on next app launch.",
+            category: .accessibilityVisual,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSMenuEnableActionImages",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 26, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G059",
+            searchAliases: ["menu icons", "menu images", "menu bar clutter", "action images", "menu glyphs"],
+            notes: "Takes effect immediately on next app launch. System icons (zoom, resize) are preserved.",
             isInvertedInPowerUserMode: true
         ),
 
@@ -2324,6 +2477,28 @@ enum SettingsCatalogData {
             ]
         ),
 
+        // G054 — Finder column auto-sizing (simple toggle)
+        GroupedControlDefinition(
+            id: "G054",
+            title: "Auto-resize Finder columns",
+            subtitle: "Columns in Finder's Column View automatically widen to fit long filenames. Fixes the Tahoe scrollbar-over-resize-handle bug.",
+            category: .finder,
+            kind: .toggle,
+            backingSettingIDs: ["finder.columnAutoSizing"],
+            options: nil
+        ),
+
+        // G055 — Hide desktop icons (simple toggle)
+        GroupedControlDefinition(
+            id: "G055",
+            title: "Hide desktop icons",
+            subtitle: "Stops Finder from drawing anything on the desktop. No more accidental window dismissals when you click empty space. Files stay in ~/Desktop.",
+            category: .finder,
+            kind: .toggle,
+            backingSettingIDs: ["finder.createDesktop"],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Interface (most popular first)
         // ---------------------------------------------------------------
@@ -2684,6 +2859,17 @@ enum SettingsCatalogData {
             options: nil
         ),
 
+        // G057 — Disable autofill heuristic (simple toggle)
+        GroupedControlDefinition(
+            id: "G057",
+            title: "Disable the autofill heuristic",
+            subtitle: "Tahoe's autofill engine scans every text field in the background, causing severe input lag in VS Code, Slack, and other Electron apps. Disabling it fixes the lag but turns off system autofill prompts.",
+            category: .keyboardInput,
+            kind: .toggle,
+            backingSettingIDs: ["global.autoFillHeuristic"],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Windows & Spaces (most popular first)
         // ---------------------------------------------------------------
@@ -2741,6 +2927,36 @@ enum SettingsCatalogData {
         ),
 
         // G036 removed — spans-displays no longer works on macOS 26
+
+        // G056 — Stage Manager speed (discrete choice)
+        GroupedControlDefinition(
+            id: "G056",
+            title: "Speed up Stage Manager",
+            subtitle: "Stage Manager's window-switching animations are slow by default. Make them snappier or near-instant.",
+            category: .windowsSpaces,
+            kind: .discreteChoice,
+            backingSettingIDs: ["windowManager.animationSpeed"],
+            options: [
+                MappingOption(
+                    label: "Default",
+                    settingValues: [
+                        "windowManager.animationSpeed": .systemDefault,
+                    ]
+                ),
+                MappingOption(
+                    label: "Faster",
+                    settingValues: [
+                        "windowManager.animationSpeed": .explicitValue(.double(0.3)),
+                    ]
+                ),
+                MappingOption(
+                    label: "Instant",
+                    settingValues: [
+                        "windowManager.animationSpeed": .explicitValue(.double(0.1)),
+                    ]
+                ),
+            ]
+        ),
 
         // ---------------------------------------------------------------
         // MARK: Screenshots
@@ -2828,6 +3044,28 @@ enum SettingsCatalogData {
             category: .accessibilityVisual,
             kind: .toggle,
             backingSettingIDs: ["display.fontSmoothing"],
+            options: nil
+        ),
+
+        // G058 — Disable Liquid Glass (simple toggle)
+        GroupedControlDefinition(
+            id: "G058",
+            title: "Disable Liquid Glass",
+            subtitle: "Turns off Tahoe's translucent glass rendering and reverts to solid, opaque backgrounds like Sequoia. Requires a reboot. Apple may remove this option in future updates.",
+            category: .accessibilityVisual,
+            kind: .toggle,
+            backingSettingIDs: ["global.disableSolarium"],
+            options: nil
+        ),
+
+        // G059 — Hide menu bar icons (simple toggle)
+        GroupedControlDefinition(
+            id: "G059",
+            title: "Hide icons in menu dropdowns",
+            subtitle: "Tahoe added icons next to every item in dropdown menus. This strips them out for a cleaner, text-only look like Sequoia.",
+            category: .accessibilityVisual,
+            kind: .toggle,
+            backingSettingIDs: ["global.menuActionImages"],
             options: nil
         ),
 

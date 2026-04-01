@@ -354,11 +354,7 @@ private struct SnapshotCard: View {
         )
         .shadow(color: .black.opacity(0.08), radius: 14, y: 6)
         .task(id: snapshot.id) {
-            let service = appState.snapshotService
-            let snap = snapshot
-            let diff = await Task.detached {
-                service.diffSnapshotToCurrent(snapshot: snap)
-            }.value
+            let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
             changed = diff.filter { $0.classification == .changed }
         }
     }
@@ -474,11 +470,7 @@ private struct SnapshotDetailSheet: View {
         .padding(24)
         .frame(width: 580, height: 450)
         .task {
-            let service = appState.snapshotService
-            let snap = snapshot
-            let diff = await Task.detached {
-                service.diffSnapshotToCurrent(snapshot: snap)
-            }.value
+            let diff = appState.snapshotService.diffSnapshotToCurrent(snapshot: snapshot)
             changed = diff.filter { $0.classification == .changed }
             unchangedCount = diff.filter { $0.classification == .unchanged }.count
         }

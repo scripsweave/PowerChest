@@ -9,6 +9,8 @@ struct MainContentView: View {
     @State private var settingSpotlightTask: DispatchWorkItem?
     @State private var restartPromptRequirement: RestartRequirement?
     @State private var searchIndex = SearchIndex()
+    @AppStorage("lastWarningVersion") private var lastWarningVersion = ""
+    @State private var showFirstRunWarning = false
 
     var body: some View {
         @Bindable var state = appState
@@ -59,11 +61,22 @@ struct MainContentView: View {
             if searchIndex.isEmpty {
                 rebuildSearchIndex()
             }
+            let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+            if lastWarningVersion != currentVersion {
+                showFirstRunWarning = true
+            }
         }
-        .onChange(of: appState.toast?.id) { _ in
+        .alert("⚠️ Warning", isPresented: $showFirstRunWarning) {
+            Button("I understand") {
+                lastWarningVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+            }
+        } message: {
+            Text("This tool changes core system settings. Use may result in confusion, regret, and a sudden interest in IT support tickets. Use at your own risk.")
+        }
+        .onChange(of: appState.toast?.id) {
             scheduleToastDismissal()
         }
-        .onChange(of: appState.pendingRestartRequests) { _ in
+        .onChange(of: appState.pendingRestartRequests) {
             restartPromptRequirement = appState.pendingRestartRequests.first
         }
         .onReceive(NotificationCenter.default.publisher(for: .menuCreateSnapshot)) { note in
