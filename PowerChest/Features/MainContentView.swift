@@ -61,14 +61,13 @@ struct MainContentView: View {
             if searchIndex.isEmpty {
                 rebuildSearchIndex()
             }
-            let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-            if lastWarningVersion != currentVersion {
+            if lastWarningVersion != appVersion {
                 showFirstRunWarning = true
             }
         }
         .alert("⚠️ Warning", isPresented: $showFirstRunWarning) {
             Button("I understand") {
-                lastWarningVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+                lastWarningVersion = appVersion
             }
         } message: {
             Text("This tool changes core system settings. Use may result in confusion, regret, and a sudden interest in IT support tickets. Use at your own risk.")
@@ -134,6 +133,10 @@ struct MainContentView: View {
         } message: { requirement in
             Text(restartPromptMessage(for: requirement))
         }
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     }
 
     private var navigationSubtitle: String {
