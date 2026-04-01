@@ -5,7 +5,7 @@ import Foundation
 /// Static catalog data for PowerChest Settings Catalog v1.
 /// Generated from specification 02 — powerchest_settings_catalog_v_1.md
 ///
-/// Contains all 80 settings (S001-S080), 50 grouped controls (G001-G050),
+/// Contains 81 settings (S001-S083, minus S067/S068 duplicates), 50 grouped controls,
 /// and 5 presets (P001-P005).
 enum SettingsCatalogData {
 
@@ -468,13 +468,13 @@ enum SettingsCatalogData {
             domain: "com.apple.finder",
             keyPath: "FXPreferredViewStyle",
             valueType: .enum,
-            allowedValues: [.string("icon"), .string("list"), .string("column"), .string("gallery")],
+            allowedValues: [.string("icnv"), .string("Nlsv"), .string("clmv"), .string("glyv")],
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
             restartRequirement: .finder,
             powerUserGrouping: nil,
             searchAliases: ["finder view", "list view", "column view"],
-            notes: "Include only after QA confirms consistency."
+            notes: "icnv=Icon, Nlsv=List, clmv=Column, glyv=Gallery. Include only after QA confirms consistency."
         ),
 
         // ---------------------------------------------------------------
@@ -507,7 +507,8 @@ enum SettingsCatalogData {
             restartRequirement: .dock,
             powerUserGrouping: "G030",
             searchAliases: ["dock size", "icon size", "dock icons", "dock tile"],
-            notes: "Typical range is 16–128. System default is around 48–64."
+            notes: "Typical range is 16–128. System default is around 48–64.",
+            macOSDefaultValue: .int(48)
         ),
 
         // S055
@@ -532,7 +533,8 @@ enum SettingsCatalogData {
             restartRequirement: .dock,
             powerUserGrouping: "G031",
             searchAliases: ["dock position", "dock left", "dock right", "dock bottom", "move dock"],
-            notes: nil
+            notes: nil,
+            macOSDefaultValue: .string("bottom")
         ),
 
         // S010
@@ -633,7 +635,8 @@ enum SettingsCatalogData {
             restartRequirement: .dock,
             powerUserGrouping: "G032",
             searchAliases: ["minimize effect", "genie", "scale", "minimize animation"],
-            notes: nil
+            notes: nil,
+            macOSDefaultValue: .string("genie")
         ),
 
         // S012
@@ -1173,7 +1176,8 @@ enum SettingsCatalogData {
             powerUserGrouping: "G012",
             searchAliases: ["spaces order", "mru spaces", "desktops order"],
             notes: "In Power User UI present this as the inverse behavior.",
-            isInvertedInPowerUserMode: true
+            isInvertedInPowerUserMode: true,
+            macOSDefaultValue: .bool(true)
         ),
 
         // S059
@@ -1198,7 +1202,8 @@ enum SettingsCatalogData {
             restartRequirement: .dock,
             powerUserGrouping: "G035",
             searchAliases: ["group windows", "mission control grouping", "expose group"],
-            notes: nil
+            notes: nil,
+            macOSDefaultValue: .bool(false)
         ),
 
         // S026
@@ -1237,7 +1242,7 @@ enum SettingsCatalogData {
             category: .windowsSpaces,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.spaces",
             keyPath: "spans-displays",
@@ -1246,9 +1251,9 @@ enum SettingsCatalogData {
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
             restartRequirement: .signOut,
-            powerUserGrouping: "G036",
+            powerUserGrouping: nil,
             searchAliases: ["separate spaces", "multi monitor spaces", "display spaces", "spans displays"],
-            notes: "Raw false = separate spaces per display. Raw true = spaces span all displays. Power User toggle is inverted: ON = separate = write false. Requires sign out.",
+            notes: "Hold: spans-displays key no longer exists in any defaults domain on macOS 26. Spaces config uses SpacesDisplayConfiguration structure now.",
             isInvertedInPowerUserMode: true
         ),
 
@@ -1528,7 +1533,7 @@ enum SettingsCatalogData {
             category: .accessibilityVisual,
             risk: .safe,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.universalaccess",
             keyPath: "reduceTransparency",
@@ -1539,14 +1544,14 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: "G016",
             searchAliases: ["transparency", "blur", "frosted glass", "glass look"],
-            notes: "Main supported lever for the glass look. Verify defaults write takes effect without logout."
+            notes: "Hold: com.apple.universalaccess is read-only on macOS 26 and reduceTransparency key no longer exists in any defaults domain."
         ),
 
         // S035
         SettingDefinition(
             id: "accessibility.increaseContrast",
             displayName: "Increase contrast",
-            technicalName: "increaseContrast",
+            technicalName: "EnhancedBackgroundContrastEnabled",
             powerUserLabel: "Make outlines and separation stronger",
             powerUserDescription: "Makes interface elements stand out more clearly.",
             propellerheadDescription: "Controls the system accessibility setting for increased contrast.",
@@ -1555,8 +1560,8 @@ enum SettingsCatalogData {
             interest: .common,
             supportLevel: .shipping,
             mechanism: .defaults,
-            domain: "com.apple.universalaccess",
-            keyPath: "increaseContrast",
+            domain: "com.apple.Accessibility",
+            keyPath: "EnhancedBackgroundContrastEnabled",
             valueType: .bool,
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .readCurrentState,
@@ -1571,7 +1576,7 @@ enum SettingsCatalogData {
         SettingDefinition(
             id: "accessibility.reduceMotion",
             displayName: "Reduce motion",
-            technicalName: "reduceMotion",
+            technicalName: "ReduceMotionEnabled",
             powerUserLabel: "Use less motion in the interface",
             powerUserDescription: "Cuts certain movement-heavy animations.",
             propellerheadDescription: "Controls the system accessibility setting for reduced motion.",
@@ -1580,8 +1585,8 @@ enum SettingsCatalogData {
             interest: .common,
             supportLevel: .shipping,
             mechanism: .defaults,
-            domain: "com.apple.universalaccess",
-            keyPath: "reduceMotion",
+            domain: "com.apple.Accessibility",
+            keyPath: "ReduceMotionEnabled",
             valueType: .bool,
             allowedValues: [.bool(true), .bool(false)],
             defaultValueStrategy: .readCurrentState,
@@ -1603,7 +1608,7 @@ enum SettingsCatalogData {
             category: .accessibilityVisual,
             risk: .safe,
             interest: .obscure,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.universalaccess",
             keyPath: "mouseDriverCursorSize",
@@ -1614,7 +1619,7 @@ enum SettingsCatalogData {
             restartRequirement: .none,
             powerUserGrouping: nil,
             searchAliases: ["cursor size", "pointer size"],
-            notes: "Nice but peripheral for initial release."
+            notes: "Hold: mouseDriverCursorSize no longer exists in any defaults domain on macOS 26. Cursor size is now managed through accessibility APIs."
         ),
 
         // S082
@@ -1887,55 +1892,7 @@ enum SettingsCatalogData {
             macOSDefaultValue: .bool(false)
         ),
 
-        // S067
-        SettingDefinition(
-            id: "finder.dontWriteNetworkDSStore",
-            displayName: "Disable .DS_Store on network volumes",
-            technicalName: "DSDontWriteNetworkStores",
-            powerUserLabel: "No .DS_Store on network drives",
-            powerUserDescription: "macOS drops invisible .DS_Store files on every folder you open — including network shares. This clutters shared drives and annoys everyone on the network. Turn this on to stop it.",
-            propellerheadDescription: "Prevents Finder from writing .DS_Store metadata files on SMB, AFP, and NFS network volumes.",
-            category: .networkConnectivity,
-            risk: .safe,
-            interest: .common,
-            supportLevel: .shipping,
-            mechanism: .defaults,
-            domain: "com.apple.desktopservices",
-            keyPath: "DSDontWriteNetworkStores",
-            valueType: .bool,
-            allowedValues: nil,
-            defaultValueStrategy: .assumeAbsentIsFalse,
-            supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .none,
-            powerUserGrouping: "G043",
-            searchAliases: ["ds_store", "network share", "smb", "nas", "ds store"],
-            notes: nil
-        ),
-
-        // S068
-        SettingDefinition(
-            id: "finder.dontWriteUSBDSStore",
-            displayName: "Disable .DS_Store on USB volumes",
-            technicalName: "DSDontWriteUSBStores",
-            powerUserLabel: "No .DS_Store on USB drives",
-            powerUserDescription: "Same as the network version, but for USB drives and SD cards. Stops macOS from leaving .DS_Store breadcrumbs on every external drive you plug in.",
-            propellerheadDescription: "Prevents Finder from writing .DS_Store metadata files on USB and external volumes.",
-            category: .networkConnectivity,
-            risk: .safe,
-            interest: .common,
-            supportLevel: .shipping,
-            mechanism: .defaults,
-            domain: "com.apple.desktopservices",
-            keyPath: "DSDontWriteUSBStores",
-            valueType: .bool,
-            allowedValues: nil,
-            defaultValueStrategy: .assumeAbsentIsFalse,
-            supportedOS: OSRange(min: 14, max: nil),
-            restartRequirement: .none,
-            powerUserGrouping: "G043",
-            searchAliases: ["ds_store", "usb", "thumb drive", "external drive"],
-            notes: nil
-        ),
+        // S067/S068 removed — duplicates of S046/S047 (same domain/key in Finder category)
 
         // S070
         SettingDefinition(
@@ -2077,7 +2034,7 @@ enum SettingsCatalogData {
             category: .networkConnectivity,
             risk: .advanced,
             interest: .common,
-            supportLevel: .shipping,
+            supportLevel: .hold,
             mechanism: .defaults,
             domain: "com.apple.BluetoothAudioAgent",
             keyPath: "Apple Bitpool Min (editable)",
@@ -2086,9 +2043,9 @@ enum SettingsCatalogData {
             defaultValueStrategy: .readCurrentState,
             supportedOS: OSRange(min: 14, max: nil),
             restartRequirement: .none,
-            powerUserGrouping: "G046",
+            powerUserGrouping: nil,
             searchAliases: ["bluetooth", "airpods", "audio quality", "aac", "bitpool", "headphones"],
-            notes: "Default is around 2. Setting to 40-80 improves quality. Restart Bluetooth after changing."
+            notes: "Hold: com.apple.BluetoothAudioAgent domain does not exist on macOS 26. Bluetooth audio quality is likely managed differently."
         ),
 
         // S078
@@ -2783,16 +2740,7 @@ enum SettingsCatalogData {
             ]
         ),
 
-        // G036 — Separate Spaces per display (simple toggle)
-        GroupedControlDefinition(
-            id: "G036",
-            title: "Separate Spaces for each display",
-            subtitle: "Each monitor gets its own independent set of desktop Spaces. Switching on one screen does not affect the other. Requires sign out.",
-            category: .windowsSpaces,
-            kind: .toggle,
-            backingSettingIDs: ["spaces.spansDisplays"],
-            options: nil
-        ),
+        // G036 removed — spans-displays no longer works on macOS 26
 
         // ---------------------------------------------------------------
         // MARK: Screenshots
@@ -2859,40 +2807,17 @@ enum SettingsCatalogData {
         // MARK: Accessibility & Visual
         // ---------------------------------------------------------------
 
-        // G016 — Cleaner visuals (enum with mapping)
+        // G016 — Increase contrast (simple toggle, was discrete choice before reduceTransparency was removed)
         GroupedControlDefinition(
             id: "G016",
-            title: "Make the interface more solid",
-            subtitle: "Reduces transparency and increases contrast for a flatter, clearer look.",
+            title: "Increase contrast",
+            subtitle: "Makes interface outlines and separators stronger for a crisper, clearer look.",
             category: .accessibilityVisual,
-            kind: .discreteChoice,
+            kind: .toggle,
             backingSettingIDs: [
-                "accessibility.reduceTransparency",
                 "accessibility.increaseContrast",
             ],
-            options: [
-                MappingOption(
-                    label: "Default",
-                    settingValues: [
-                        "accessibility.reduceTransparency": .explicitValue(.bool(false)),
-                        "accessibility.increaseContrast": .explicitValue(.bool(false)),
-                    ]
-                ),
-                MappingOption(
-                    label: "More solid",
-                    settingValues: [
-                        "accessibility.reduceTransparency": .explicitValue(.bool(true)),
-                        "accessibility.increaseContrast": .explicitValue(.bool(false)),
-                    ]
-                ),
-                MappingOption(
-                    label: "Higher contrast",
-                    settingValues: [
-                        "accessibility.reduceTransparency": .explicitValue(.bool(true)),
-                        "accessibility.increaseContrast": .explicitValue(.bool(true)),
-                    ]
-                ),
-            ]
+            options: nil
         ),
 
         // G052 — Font smoothing (simple toggle)
@@ -3024,16 +2949,7 @@ enum SettingsCatalogData {
             options: nil
         ),
 
-        // G043 — .DS_Store control (multi-toggle)
-        GroupedControlDefinition(
-            id: "G043",
-            title: ".DS_Store Control",
-            subtitle: "Stop macOS from littering .DS_Store files on external and network drives. Every developer and sysadmin wants this.",
-            category: .networkConnectivity,
-            kind: .multiToggle,
-            backingSettingIDs: ["finder.dontWriteNetworkDSStore", "finder.dontWriteUSBDSStore"],
-            options: nil
-        ),
+        // G043 removed — backed S067/S068 which were duplicates of S046/S047
 
         // G045 — Safari Network Privacy (multi-toggle)
         GroupedControlDefinition(
@@ -3068,16 +2984,7 @@ enum SettingsCatalogData {
             options: nil
         ),
 
-        // G046 — Bluetooth Audio Quality (multi-control)
-        GroupedControlDefinition(
-            id: "G046",
-            title: "Bluetooth Audio Quality",
-            subtitle: "macOS defaults to the lowest Bluetooth audio quality. Drag the slider up to get richer, fuller sound from AirPods and Bluetooth headphones. Restart Bluetooth after changing.",
-            category: .networkConnectivity,
-            kind: .multiControl,
-            backingSettingIDs: ["bluetooth.audioQuality"],
-            options: nil
-        ),
+        // G046 removed — BluetoothAudioAgent domain doesn't exist on macOS 26
 
         // G049 — Remote Access & Protocols (multi-toggle)
         GroupedControlDefinition(
@@ -3166,9 +3073,8 @@ enum SettingsCatalogData {
         PresetDefinition(
             id: "P004",
             name: "Solid UI",
-            description: "Flatten visual noise and reduce the glass effect.",
+            description: "Sharpen interface outlines and increase contrast for a crisper look.",
             items: [
-                PresetItem(settingID: "accessibility.reduceTransparency", targetState: .explicitValue(.bool(true))),
                 PresetItem(settingID: "accessibility.increaseContrast", targetState: .explicitValue(.bool(true))),
             ],
             riskSummary: .safe

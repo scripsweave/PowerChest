@@ -86,7 +86,8 @@ final class PrivilegedAdapter: Sendable {
 
         case "network.firewallStealth":
             let result = runUnprivileged("/usr/libexec/ApplicationFirewall/socketfilterfw", arguments: ["--getstealthmode"])
-            return .bool(result.output.contains("enabled"))
+            // Output is "Firewall stealth mode is on/off" (not "enabled/disabled")
+            return .bool(result.output.contains("enabled") || result.output.contains("is on"))
 
         case "network.firewallBlockAll":
             let result = runUnprivileged("/usr/libexec/ApplicationFirewall/socketfilterfw", arguments: ["--getblockall"])
@@ -94,6 +95,12 @@ final class PrivilegedAdapter: Sendable {
 
         case "network.remoteLogin":
             let result = runUnprivileged("/usr/sbin/systemsetup", arguments: ["-getremotelogin"])
+            if result.output.contains("administrator access") {
+                // macOS 26+: systemsetup requires admin even for reads.
+                // Fall back to checking if the SSH daemon is loaded.
+                let launchctl = runUnprivileged("/bin/launchctl", arguments: ["print", "system/com.openssh.sshd"])
+                return .bool(launchctl.exitCode == 0)
+            }
             return .bool(result.output.lowercased().contains(": on"))
 
         case "network.ipv6Wi-Fi":
