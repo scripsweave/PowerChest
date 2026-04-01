@@ -16,7 +16,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
     case keyboardAndInput
     case windowsAndSpaces
     case screenshots
-    case browserAndDeveloper
     case visualsAndAccessibility
     case menuBar
     case safetyAndSecurity
@@ -35,7 +34,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return "Keyboard & Input"
         case .windowsAndSpaces: return "Windows & Spaces"
         case .screenshots: return "Screenshots"
-        case .browserAndDeveloper: return "Browser & Developer"
         case .visualsAndAccessibility: return "Visuals & Accessibility"
         case .menuBar: return "Menu Bar"
         case .safetyAndSecurity: return "Safety & Security"
@@ -54,7 +52,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return "keyboard.fill"
         case .windowsAndSpaces: return "rectangle.on.rectangle"
         case .screenshots: return "camera.viewfinder"
-        case .browserAndDeveloper: return "safari.fill"
         case .visualsAndAccessibility: return "eye.fill"
         case .menuBar: return "menubar.rectangle"
         case .safetyAndSecurity: return "shield.fill"
@@ -73,7 +70,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return .gray
         case .windowsAndSpaces: return .purple
         case .screenshots: return .pink
-        case .browserAndDeveloper: return .cyan
         case .visualsAndAccessibility: return .teal
         case .menuBar: return .mint
         case .safetyAndSecurity: return .red
@@ -88,7 +84,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         switch self {
         case .home: return .home
         case .dockAndInterface, .finderAndFiles, .keyboardAndInput, .windowsAndSpaces,
-             .screenshots, .browserAndDeveloper, .visualsAndAccessibility, .menuBar,
+             .screenshots, .visualsAndAccessibility, .menuBar,
              .safetyAndSecurity, .networkAndConnectivity:
             return .settings
         case .snapshots, .changes: return .utilities
@@ -103,7 +99,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return .keyboardInput
         case .windowsAndSpaces: return .windowsSpaces
         case .screenshots: return .screenshots
-        case .browserAndDeveloper: return .safariDeveloper
         case .visualsAndAccessibility: return .accessibilityVisual
         case .menuBar: return .menuBarStatus
         case .safetyAndSecurity: return .securityPrivacy
@@ -127,7 +122,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return "Key repeat, accents, autocorrect, and typing shortcuts."
         case .windowsAndSpaces: return "Mission Control speed and desktop space ordering."
         case .screenshots: return "Screenshot format, location, and window shadows."
-        case .browserAndDeveloper: return "Safari address bar and developer tools."
         case .visualsAndAccessibility: return "Transparency, contrast, motion, and pointer size."
         case .menuBar: return "Battery percentage, clock separators, and status items."
         case .safetyAndSecurity: return "Quarantine behavior and security prompts."
