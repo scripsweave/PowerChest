@@ -629,6 +629,15 @@ private struct StatCard: View {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
                 )
+                .overlay(alignment: .top) {
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 18, bottomLeadingRadius: 0,
+                        bottomTrailingRadius: 0, topTrailingRadius: 18,
+                        style: .continuous
+                    )
+                    .fill(accent.gradient)
+                    .frame(height: 3)
+                }
         )
     }
 }
