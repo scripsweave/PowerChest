@@ -33,7 +33,7 @@ struct SnapshotsView: View {
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .fill(Color(nsColor: .textBackgroundColor))
+                            .fill(.ultraThinMaterial)
                     )
                     .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
                 } else {
@@ -54,7 +54,7 @@ struct SnapshotsView: View {
             .padding(.horizontal, 28)
             .padding(.vertical, 32)
         }
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(.clear)
         .onAppear { refresh() }
         .onChange(of: appState.lastApplyResult?.requestID) {
             refresh()
@@ -247,16 +247,23 @@ private struct SnapshotHeroCard: View {
         .padding(28)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            ZStack {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(LinearGradient(colors: [.blue.opacity(0.7), .purple.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+            }
         )
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(alignment: .bottomTrailing) {
             Image(systemName: "lifepreserver")
                 .font(.system(size: 60))
                 .foregroundStyle(.white.opacity(0.25))
                 .padding(20)
         }
-        .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+        .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
     }
 }
 
@@ -350,7 +357,7 @@ private struct SnapshotCard: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(Color(nsColor: .textBackgroundColor))
+                .fill(.ultraThinMaterial)
         )
         .shadow(color: .black.opacity(0.08), radius: 14, y: 6)
         .task(id: snapshot.id) {

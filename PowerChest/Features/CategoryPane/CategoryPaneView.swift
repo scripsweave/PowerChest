@@ -380,11 +380,11 @@ private struct ControlCard<Content: View>: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(nsColor: .textBackgroundColor))
-                .shadow(color: .black.opacity(0.08), radius: 10, y: 6)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
                 .overlay(alignment: .topLeading) {
-                    RoundedRectangle(cornerRadius: 22)
-                        .stroke(accent.opacity(0.25), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(accent.opacity(0.2), lineWidth: 0.5)
                 }
         )
     }
@@ -1006,10 +1006,17 @@ private struct ApplyBar: View {
         .padding(.vertical, 14)
         .background(
             Capsule()
-                .fill(LinearGradient(colors: [.blue.opacity(0.85), .purple.opacity(0.85)], startPoint: .leading, endPoint: .trailing))
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    Capsule()
+                        .fill(LinearGradient(colors: [.blue.opacity(0.25), .purple.opacity(0.25)], startPoint: .leading, endPoint: .trailing))
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                )
         )
-        .foregroundStyle(.white)
-        .shadow(color: .black.opacity(0.2), radius: 12, y: 4)
+        .shadow(color: .black.opacity(0.15), radius: 16, y: 6)
     }
 
     private struct AvatarStack: View {
@@ -1073,9 +1080,17 @@ struct ApplyResultBanner: View {
         .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(LinearGradient(colors: [.green, .mint], startPoint: .leading, endPoint: .trailing))
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(LinearGradient(colors: [.green.opacity(0.3), .mint.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                )
         )
-        .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
     }
 }
 

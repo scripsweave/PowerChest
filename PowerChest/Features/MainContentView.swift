@@ -477,7 +477,7 @@ private struct SearchResultsOverlay: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding(10)
-                .background(Color(nsColor: .textBackgroundColor).opacity(0.8), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
         }
@@ -545,9 +545,17 @@ private struct ToastView: View {
         .padding(.vertical, 10)
         .background(
             Capsule()
-                .fill(LinearGradient(colors: [.indigo, .purple], startPoint: .leading, endPoint: .trailing))
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    Capsule()
+                        .fill(LinearGradient(colors: [.indigo.opacity(0.35), .purple.opacity(0.35)], startPoint: .leading, endPoint: .trailing))
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                )
         )
-        .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+        .shadow(color: .black.opacity(0.15), radius: 12, y: 5)
     }
 }
 
@@ -583,9 +591,17 @@ private struct RestartPromptView: View {
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing))
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(LinearGradient(colors: [.purple.opacity(0.35), .blue.opacity(0.35)], startPoint: .leading, endPoint: .trailing))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                )
         )
-        .shadow(color: .black.opacity(0.25), radius: 14, y: 6)
+        .shadow(color: .black.opacity(0.15), radius: 16, y: 6)
     }
 
     private var promptTitle: String {
@@ -632,9 +648,13 @@ private struct ApplyProgressOverlay: View {
             .frame(width: 380)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.regularMaterial)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                    )
             )
-            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+            .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
         }
     }
 }
