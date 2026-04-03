@@ -5,8 +5,7 @@ import Foundation
 /// Static catalog data for PowerChest Settings Catalog v1.
 /// Generated from specification 02 — powerchest_settings_catalog_v_1.md
 ///
-/// Contains 87 settings (S001-S089, minus S067/S068 duplicates), 56 grouped controls,
-/// and 5 presets (P001-P005).
+/// Contains 159 settings, 75 grouped controls, and 5 presets (P001-P005).
 enum SettingsCatalogData {
 
     static let catalogVersion = 1
@@ -528,6 +527,181 @@ enum SettingsCatalogData {
             isInvertedInPowerUserMode: true
         ),
 
+        // S136
+        SettingDefinition(
+            id: "finder.autoRemoveOldTrash",
+            displayName: "Auto-remove old Trash items",
+            technicalName: "FXRemoveOldTrashItems",
+            powerUserLabel: "Auto-empty Trash after 30 days",
+            powerUserDescription: "Automatically deletes items that have been in the Trash for more than 30 days.",
+            propellerheadDescription: "Enables automatic removal of Trash items older than 30 days.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "FXRemoveOldTrashItems",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G072",
+            searchAliases: ["auto empty trash", "old trash", "30 day trash", "auto delete"],
+            notes: "Absent = false."
+        ),
+
+        // S137
+        SettingDefinition(
+            id: "finder.showExternalDrives",
+            displayName: "Show external drives on desktop",
+            technicalName: "ShowExternalHardDrivesOnDesktop",
+            powerUserLabel: "External drives on desktop",
+            powerUserDescription: "Shows icons for external hard drives on the desktop.",
+            propellerheadDescription: "Controls whether external hard drive icons appear on the desktop.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "ShowExternalHardDrivesOnDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G073",
+            searchAliases: ["external drives", "desktop drives", "hard drives desktop"],
+            notes: nil
+        ),
+
+        // S138
+        SettingDefinition(
+            id: "finder.showInternalDrives",
+            displayName: "Show hard drives on desktop",
+            technicalName: "ShowHardDrivesOnDesktop",
+            powerUserLabel: "Internal drives on desktop",
+            powerUserDescription: "Shows icons for internal hard drives (Macintosh HD) on the desktop.",
+            propellerheadDescription: "Controls whether internal hard drive icons appear on the desktop.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "ShowHardDrivesOnDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G073",
+            searchAliases: ["hard drives", "internal drives", "macintosh hd desktop"],
+            notes: nil
+        ),
+
+        // S139
+        SettingDefinition(
+            id: "finder.showServers",
+            displayName: "Show servers on desktop",
+            technicalName: "ShowMountedServersOnDesktop",
+            powerUserLabel: "Network servers on desktop",
+            powerUserDescription: "Shows icons for mounted network servers on the desktop.",
+            propellerheadDescription: "Controls whether mounted server icons appear on the desktop.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "ShowMountedServersOnDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G073",
+            searchAliases: ["servers", "network drives", "mounted servers desktop"],
+            notes: "Absent = false."
+        ),
+
+        // S140
+        SettingDefinition(
+            id: "finder.showRemovableMedia",
+            displayName: "Show removable media on desktop",
+            technicalName: "ShowRemovableMediaOnDesktop",
+            powerUserLabel: "Removable media on desktop",
+            powerUserDescription: "Shows icons for USB drives, SD cards, and other removable media on the desktop.",
+            propellerheadDescription: "Controls whether removable media icons appear on the desktop.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "ShowRemovableMediaOnDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G073",
+            searchAliases: ["removable media", "usb drives", "sd card desktop"],
+            notes: nil
+        ),
+
+        // S148
+        SettingDefinition(
+            id: "finder.openFoldersInTabs",
+            displayName: "Open folders in tabs",
+            technicalName: "FinderSpawnTab",
+            powerUserLabel: "Open folders in tabs",
+            powerUserDescription: "When you Cmd-double-click a folder, it opens as a new tab instead of a new window.",
+            propellerheadDescription: "Controls whether Cmd-double-clicking a folder opens a new tab or a new window in Finder.",
+            category: .finder,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.finder",
+            keyPath: "FinderSpawnTab",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G004",
+            searchAliases: ["finder tabs", "open in tab", "folder tab", "new tab"],
+            notes: "Absent = true (tabs). False = new window."
+        ),
+
+        // S149
+        SettingDefinition(
+            id: "global.toolbarTitleRolloverDelay",
+            displayName: "Toolbar title rollover delay",
+            technicalName: "NSToolbarTitleViewRolloverDelay",
+            powerUserLabel: "Toolbar icon rollover delay",
+            powerUserDescription: "How long you need to hover over a Finder window title before the folder icon appears. Set to 0 for instant.",
+            propellerheadDescription: "Controls the delay before the document-proxy icon appears when hovering over a toolbar title.",
+            category: .finder,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSToolbarTitleViewRolloverDelay",
+            valueType: .double,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: nil,
+            searchAliases: ["toolbar rollover", "proxy icon", "title bar icon delay", "folder icon delay"],
+            notes: "Default 0.5 seconds. 0 = instant. Delete key to restore default."
+        ),
+
         // ---------------------------------------------------------------
         // MARK: 5.2 Dock and interface
         // Ordered by popularity: Dock size → position → Dock speed
@@ -840,6 +1014,206 @@ enum SettingsCatalogData {
             notes: "Nice niche setting; default surface in Power User is optional."
         ),
 
+        // S110
+        SettingDefinition(
+            id: "dock.magnification",
+            displayName: "Dock magnification",
+            technicalName: "magnification",
+            powerUserLabel: "Magnify Dock icons on hover",
+            powerUserDescription: "Icons in the Dock grow larger when you hover over them.",
+            propellerheadDescription: "Enables the Dock icon magnification effect on hover.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "magnification",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G066",
+            searchAliases: ["magnification", "dock hover", "dock enlarge", "dock zoom"],
+            notes: "Pair with largesize for the magnified size."
+        ),
+
+        // S111
+        SettingDefinition(
+            id: "dock.largeSize",
+            displayName: "Dock magnification size",
+            technicalName: "largesize",
+            powerUserLabel: "Magnified icon size",
+            powerUserDescription: "How large Dock icons grow when magnification is on.",
+            propellerheadDescription: "Sets the magnified Dock icon size in pixels. Ranges from 16 to 128.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "largesize",
+            valueType: .int,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G066",
+            searchAliases: ["magnification size", "large icon size", "dock hover size"],
+            notes: "Range 16-128. Only relevant when magnification is enabled."
+        ),
+
+        // S112
+        SettingDefinition(
+            id: "dock.launchAnimation",
+            displayName: "Dock launch animation",
+            technicalName: "launchanim",
+            powerUserLabel: "Bouncing launch animation",
+            powerUserDescription: "The bouncing icon animation when you open an app from the Dock.",
+            propellerheadDescription: "Controls whether Dock icons bounce when launching applications.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "launchanim",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G066",
+            searchAliases: ["launch animation", "bouncing icon", "dock bounce", "app launch"],
+            notes: "Absent = true. Set to false to disable bouncing."
+        ),
+
+        // S113
+        SettingDefinition(
+            id: "dock.showProcessIndicators",
+            displayName: "Show process indicator dots",
+            technicalName: "show-process-indicators",
+            powerUserLabel: "Show dots under open apps",
+            powerUserDescription: "Small dots under Dock icons show which apps are currently running.",
+            propellerheadDescription: "Controls whether running application indicator dots are shown in the Dock.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "show-process-indicators",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G066",
+            searchAliases: ["process indicators", "running dots", "dock dots", "open app dots"],
+            notes: "Absent = true."
+        ),
+
+        // S114
+        SettingDefinition(
+            id: "dock.showHidden",
+            displayName: "Translucent hidden apps",
+            technicalName: "showhidden",
+            powerUserLabel: "Make hidden app icons translucent",
+            powerUserDescription: "Apps you've hidden (Cmd+H) appear semi-transparent in the Dock so you can tell them apart.",
+            propellerheadDescription: "Controls whether hidden application icons are rendered translucent in the Dock.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "showhidden",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G066",
+            searchAliases: ["hidden apps", "translucent", "hidden app icon", "cmd h"],
+            notes: "Absent = false. Set to true to show translucency."
+        ),
+
+        // S115
+        SettingDefinition(
+            id: "dock.springLoadAll",
+            displayName: "Spring loading for all Dock items",
+            technicalName: "enable-spring-load-actions-on-all-items",
+            powerUserLabel: "Spring-load all Dock items",
+            powerUserDescription: "Drag a file onto any Dock icon and hold to spring-load it (open the app or folder).",
+            propellerheadDescription: "Enables spring-load actions on all Dock items, not just folders.",
+            category: .interface,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "enable-spring-load-actions-on-all-items",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: nil,
+            searchAliases: ["spring loading", "drag to dock", "spring load"],
+            notes: "Absent = false."
+        ),
+
+        // S116
+        SettingDefinition(
+            id: "dock.appSwitcherAllDisplays",
+            displayName: "App Switcher on all displays",
+            technicalName: "appswitcher-all-displays",
+            powerUserLabel: "Show App Switcher on all displays",
+            powerUserDescription: "The Cmd+Tab app switcher appears on every connected display instead of just the active one.",
+            propellerheadDescription: "Controls whether the application switcher is displayed on all connected monitors.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "appswitcher-all-displays",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G067",
+            searchAliases: ["app switcher", "cmd tab", "multi monitor", "all displays"],
+            notes: "Absent = false. Great for multi-monitor setups."
+        ),
+
+        // S117
+        SettingDefinition(
+            id: "dock.scrollToOpen",
+            displayName: "Scroll on Dock icon to show windows",
+            technicalName: "scroll-to-open",
+            powerUserLabel: "Scroll to show app windows",
+            powerUserDescription: "Scroll up on a Dock icon to see all that app's open windows, or open a Dock stack.",
+            propellerheadDescription: "Enables scroll gesture on Dock icons to show all windows or open stacks.",
+            category: .interface,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "scroll-to-open",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G067",
+            searchAliases: ["scroll to open", "dock scroll", "show windows", "dock stack"],
+            notes: "Absent = false."
+        ),
+
         // S048
         SettingDefinition(
             id: "textEdit.plainTextDefault",
@@ -939,6 +1313,231 @@ enum SettingsCatalogData {
             powerUserGrouping: "G053",
             searchAliases: ["app nap", "background apps", "throttle", "energy", "suspend", "performance"],
             notes: "Disabling may increase energy usage. Apps will no longer be paused when in the background."
+        ),
+
+        // S127
+        SettingDefinition(
+            id: "global.windowTabbingMode",
+            displayName: "Window tabbing mode",
+            technicalName: "AppleWindowTabbingMode",
+            powerUserLabel: "Window tabbing mode",
+            powerUserDescription: "Controls whether new windows open as tabs. \"Always\" merges windows into tabs, \"Manual\" keeps them separate, \"Fullscreen\" only tabs in full screen.",
+            propellerheadDescription: "Sets the system-wide preference for opening new documents as tabs vs separate windows.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "AppleWindowTabbingMode",
+            valueType: .string,
+            allowedValues: [.string("manual"), .string("always"), .string("fullscreen")],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G070",
+            searchAliases: ["window tabs", "tabbing mode", "tabs vs windows", "merge windows"],
+            notes: "Absent = fullscreen (system default). Values: manual, always, fullscreen."
+        ),
+
+        // S128
+        SettingDefinition(
+            id: "global.dragWindowFromAnywhere",
+            displayName: "Drag windows from anywhere",
+            technicalName: "NSWindowShouldDragOnGesture",
+            powerUserLabel: "Drag windows from anywhere",
+            powerUserDescription: "Hold Ctrl+Cmd and drag anywhere in a window to move it — no need to aim for the title bar. A Linux classic that works on macOS too.",
+            propellerheadDescription: "Enables Ctrl+Cmd drag gesture to move windows from any position within the window.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSWindowShouldDragOnGesture",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G070",
+            searchAliases: ["drag window", "move window", "ctrl cmd drag", "window drag anywhere"],
+            notes: "Absent = false. Very popular with Linux converts."
+        ),
+
+        // S129
+        SettingDefinition(
+            id: "global.sidebarIconSize",
+            displayName: "Sidebar icon size",
+            technicalName: "NSTableViewDefaultSizeMode",
+            powerUserLabel: "Sidebar icon size",
+            powerUserDescription: "Changes the size of icons in Finder and app sidebars. Small, medium, or large.",
+            propellerheadDescription: "Sets the default table/sidebar icon size. 1 = small, 2 = medium, 3 = large.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSTableViewDefaultSizeMode",
+            valueType: .int,
+            allowedValues: [.int(1), .int(2), .int(3)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .finder,
+            powerUserGrouping: "G070",
+            searchAliases: ["sidebar icon size", "finder sidebar", "small icons", "large icons"],
+            notes: "1 = small, 2 = medium (default), 3 = large."
+        ),
+
+        // S130
+        SettingDefinition(
+            id: "global.scrollbarClickBehavior",
+            displayName: "Scroll bar click behavior",
+            technicalName: "AppleScrollerPagingBehavior",
+            powerUserLabel: "Click scroll bar to jump to spot",
+            powerUserDescription: "Clicking in the scroll bar track jumps directly to that position instead of scrolling one page.",
+            propellerheadDescription: "Controls whether clicking in the scroll bar track jumps to the clicked position (true) or scrolls by one page (false).",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "AppleScrollerPagingBehavior",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G070",
+            searchAliases: ["scroll bar click", "scrollbar jump", "scroll bar page", "scrollbar behavior"],
+            notes: "Absent = false (page by page). True = jump to spot."
+        ),
+
+        // S131
+        SettingDefinition(
+            id: "global.preventAutoTermination",
+            displayName: "Prevent automatic app termination",
+            technicalName: "NSDisableAutomaticTermination",
+            powerUserLabel: "Stop macOS from quitting idle apps",
+            powerUserDescription: "macOS silently quits apps it thinks you're not using. This prevents that.",
+            propellerheadDescription: "Disables automatic termination of apps marked as terminable by the system.",
+            category: .interface,
+            risk: .advanced,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSDisableAutomaticTermination",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: nil,
+            searchAliases: ["auto quit", "auto terminate", "kill idle apps", "app termination"],
+            notes: "Absent = false (apps can be auto-terminated)."
+        ),
+
+        // S106
+        SettingDefinition(
+            id: "dock.hotCornerTopLeft",
+            displayName: "Hot corner: top left",
+            technicalName: "wvous-tl-corner",
+            powerUserLabel: "Top-left hot corner",
+            powerUserDescription: "Action triggered when you move the pointer to the top-left corner of the screen.",
+            propellerheadDescription: "Sets the action for the top-left hot corner. Integer action codes.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "wvous-tl-corner",
+            valueType: .int,
+            allowedValues: [.int(0), .int(2), .int(3), .int(4), .int(5), .int(6), .int(10), .int(11), .int(12), .int(13), .int(14)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G065",
+            searchAliases: ["hot corner", "screen corner", "top left"],
+            notes: "0=None, 2=Mission Control, 3=App Windows, 4=Desktop, 5=Start Screensaver, 6=Disable Screensaver, 10=Sleep Display, 11=Launchpad, 12=Notification Center, 13=Lock Screen, 14=Quick Note"
+        ),
+
+        // S107
+        SettingDefinition(
+            id: "dock.hotCornerTopRight",
+            displayName: "Hot corner: top right",
+            technicalName: "wvous-tr-corner",
+            powerUserLabel: "Top-right hot corner",
+            powerUserDescription: "Action triggered when you move the pointer to the top-right corner of the screen.",
+            propellerheadDescription: "Sets the action for the top-right hot corner. Integer action codes.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "wvous-tr-corner",
+            valueType: .int,
+            allowedValues: [.int(0), .int(2), .int(3), .int(4), .int(5), .int(6), .int(10), .int(11), .int(12), .int(13), .int(14)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G065",
+            searchAliases: ["hot corner", "screen corner", "top right"],
+            notes: "Same action codes as top-left."
+        ),
+
+        // S108
+        SettingDefinition(
+            id: "dock.hotCornerBottomLeft",
+            displayName: "Hot corner: bottom left",
+            technicalName: "wvous-bl-corner",
+            powerUserLabel: "Bottom-left hot corner",
+            powerUserDescription: "Action triggered when you move the pointer to the bottom-left corner of the screen.",
+            propellerheadDescription: "Sets the action for the bottom-left hot corner. Integer action codes.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "wvous-bl-corner",
+            valueType: .int,
+            allowedValues: [.int(0), .int(2), .int(3), .int(4), .int(5), .int(6), .int(10), .int(11), .int(12), .int(13), .int(14)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G065",
+            searchAliases: ["hot corner", "screen corner", "bottom left"],
+            notes: "Same action codes as top-left."
+        ),
+
+        // S109
+        SettingDefinition(
+            id: "dock.hotCornerBottomRight",
+            displayName: "Hot corner: bottom right",
+            technicalName: "wvous-br-corner",
+            powerUserLabel: "Bottom-right hot corner",
+            powerUserDescription: "Action triggered when you move the pointer to the bottom-right corner of the screen.",
+            propellerheadDescription: "Sets the action for the bottom-right hot corner. Integer action codes.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dock",
+            keyPath: "wvous-br-corner",
+            valueType: .int,
+            allowedValues: [.int(0), .int(2), .int(3), .int(4), .int(5), .int(6), .int(10), .int(11), .int(12), .int(13), .int(14)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G065",
+            searchAliases: ["hot corner", "screen corner", "bottom right"],
+            notes: "Same action codes as top-left. Quick Note (14) is the macOS default for bottom-right."
         ),
 
         // ---------------------------------------------------------------
@@ -1224,6 +1823,281 @@ enum SettingsCatalogData {
             isInvertedInPowerUserMode: true
         ),
 
+        // S132
+        SettingDefinition(
+            id: "global.inlinePrediction",
+            displayName: "Inline predictive text",
+            technicalName: "NSAutomaticInlinePredictionEnabled",
+            powerUserLabel: "Inline predictive text",
+            powerUserDescription: "Shows text predictions inline as you type. Disable if the suggestions get in the way.",
+            propellerheadDescription: "Controls whether inline predictive text completions appear while typing.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSAutomaticInlinePredictionEnabled",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G011",
+            searchAliases: ["predictive text", "inline prediction", "auto suggest", "text prediction"],
+            notes: "Absent = true. Added in macOS 15. Fits well in the typing helpers group."
+        ),
+
+        // S155
+        SettingDefinition(
+            id: "keyboard.fnKeyAction",
+            displayName: "Fn/Globe key action",
+            technicalName: "AppleFnUsageType",
+            powerUserLabel: "Fn key action",
+            powerUserDescription: "What happens when you press the Fn (globe) key: nothing, switch input language, open emoji picker, or start dictation.",
+            propellerheadDescription: "Sets the action for the Fn/globe key. 0 = nothing, 1 = change input source, 2 = emoji, 3 = dictation.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.HIToolbox",
+            keyPath: "AppleFnUsageType",
+            valueType: .int,
+            allowedValues: [.int(0), .int(1), .int(2), .int(3)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .reboot,
+            powerUserGrouping: "G077",
+            searchAliases: ["fn key", "globe key", "function key", "emoji key", "dictation key"],
+            notes: "0 = Do Nothing, 1 = Change Input Source, 2 = Show Emoji & Symbols, 3 = Start Dictation. Restart required."
+        ),
+
+        // S156
+        SettingDefinition(
+            id: "keyboard.fnKeysStandard",
+            displayName: "Use F1-F12 as standard function keys",
+            technicalName: "com.apple.keyboard.fnState",
+            powerUserLabel: "F1-F12 as function keys",
+            powerUserDescription: "F1-F12 keys behave as standard function keys instead of their special features (brightness, volume, etc). Hold Fn for the special features instead.",
+            propellerheadDescription: "Controls whether F1-F12 keys act as standard function keys by default.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "com.apple.keyboard.fnState",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .reboot,
+            powerUserGrouping: "G077",
+            searchAliases: ["function keys", "f1 f2 f3", "standard function keys", "media keys"],
+            notes: "Absent = false (special features). True = standard F-keys. Restart required."
+        ),
+
+        // S157
+        SettingDefinition(
+            id: "keyboard.languageIndicator",
+            displayName: "Language input indicator",
+            technicalName: "TSMLanguageIndicatorEnabled",
+            powerUserLabel: "Show language indicator when switching",
+            powerUserDescription: "Briefly shows which input language is active when you switch. Disable for a cleaner look.",
+            propellerheadDescription: "Controls whether a language indicator popup appears when switching input sources.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "TSMLanguageIndicatorEnabled",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: nil,
+            searchAliases: ["language indicator", "input source", "keyboard language", "input method"],
+            notes: "Absent = true. Only visible when 2+ input sources are configured."
+        ),
+
+        // S090
+        SettingDefinition(
+            id: "trackpad.tapToClick",
+            displayName: "Tap to click",
+            technicalName: "Clicking",
+            powerUserLabel: "Tap to click",
+            powerUserDescription: "Lets you tap the trackpad instead of pressing it down to click.",
+            propellerheadDescription: "Enables tap-to-click on the built-in trackpad.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "Clicking",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G060",
+            searchAliases: ["tap to click", "trackpad tap", "click", "trackpad"],
+            notes: "Maps int 1/0 to bool. Takes effect immediately."
+        ),
+
+        // S091
+        SettingDefinition(
+            id: "trackpad.threeFingerDrag",
+            displayName: "Three-finger drag",
+            technicalName: "TrackpadThreeFingerDrag",
+            powerUserLabel: "Three-finger drag",
+            powerUserDescription: "Lets you drag windows and select text by swiping with three fingers. A beloved accessibility feature buried deep in settings.",
+            propellerheadDescription: "Enables three-finger drag gesture on the built-in trackpad.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "TrackpadThreeFingerDrag",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G060",
+            searchAliases: ["three finger drag", "3 finger drag", "trackpad drag", "accessibility drag"],
+            notes: "One of the most requested hidden settings. Takes effect immediately."
+        ),
+
+        // S092
+        SettingDefinition(
+            id: "trackpad.forceClick",
+            displayName: "Force click suppressed",
+            technicalName: "ForceSuppressed",
+            powerUserLabel: "Disable force click",
+            powerUserDescription: "Turns off the firm-press force click gesture on the trackpad.",
+            propellerheadDescription: "Suppresses force click (deep press) detection on the built-in trackpad.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "ForceSuppressed",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G060",
+            searchAliases: ["force click", "force touch", "deep press", "firm click"],
+            notes: "1 = force click disabled, 0 = enabled. Takes effect immediately."
+        ),
+
+        // S093
+        SettingDefinition(
+            id: "trackpad.silentClicking",
+            displayName: "Haptic feedback",
+            technicalName: "ActuateDetents",
+            powerUserLabel: "Haptic feedback",
+            powerUserDescription: "Controls the click feedback you feel when pressing the trackpad.",
+            propellerheadDescription: "Enables or disables haptic actuator detent feedback on Force Touch trackpads.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "ActuateDetents",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G060",
+            searchAliases: ["haptic", "silent clicking", "click feedback", "vibration"],
+            notes: "0 = silent clicking (no haptic), 1 = normal haptic feedback."
+        ),
+
+        // S094
+        SettingDefinition(
+            id: "trackpad.clickPressure",
+            displayName: "Click pressure threshold",
+            technicalName: "FirstClickThreshold",
+            powerUserLabel: "Click pressure",
+            powerUserDescription: "How hard you need to press to register a normal click. Light, medium, or firm.",
+            propellerheadDescription: "Sets the first click threshold. 0 = light, 1 = medium, 2 = firm.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "FirstClickThreshold",
+            valueType: .int,
+            allowedValues: [.int(0), .int(1), .int(2)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G061",
+            searchAliases: ["click pressure", "click force", "trackpad pressure", "light click", "firm click"],
+            notes: "0 = light, 1 = medium (default), 2 = firm."
+        ),
+
+        // S095
+        SettingDefinition(
+            id: "trackpad.forceClickPressure",
+            displayName: "Force click pressure threshold",
+            technicalName: "SecondClickThreshold",
+            powerUserLabel: "Force click pressure",
+            powerUserDescription: "How hard you need to press for a force click. Light, medium, or firm.",
+            propellerheadDescription: "Sets the second (force) click threshold. 0 = light, 1 = medium, 2 = firm.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.AppleMultitouchTrackpad",
+            keyPath: "SecondClickThreshold",
+            valueType: .int,
+            allowedValues: [.int(0), .int(1), .int(2)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G061",
+            searchAliases: ["force click pressure", "deep press force", "second click"],
+            notes: "0 = light, 1 = medium (default), 2 = firm."
+        ),
+
+        // S096
+        SettingDefinition(
+            id: "trackpad.trackingSpeed",
+            displayName: "Trackpad tracking speed",
+            technicalName: "com.apple.trackpad.scaling",
+            powerUserLabel: "Tracking speed",
+            powerUserDescription: "How fast the pointer moves when you swipe the trackpad.",
+            propellerheadDescription: "Controls trackpad pointer acceleration scaling. Range 0–3.",
+            category: .keyboardInput,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "com.apple.trackpad.scaling",
+            valueType: .double,
+            allowedValues: nil,
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G061",
+            searchAliases: ["tracking speed", "pointer speed", "trackpad speed", "cursor speed"],
+            notes: "Range 0-3. Default varies by user. Takes effect immediately."
+        ),
+
         // ---------------------------------------------------------------
         // MARK: 5.4 Windows and Spaces
         // Ordered by popularity: fixed Spaces → group by app
@@ -1359,6 +2233,257 @@ enum SettingsCatalogData {
             notes: "Default is about 1.0. Lower is faster. 0.1 is near-instant. Delete key to restore default."
         ),
 
+        // S097
+        SettingDefinition(
+            id: "windowManager.stageManager",
+            displayName: "Stage Manager",
+            technicalName: "GloballyEnabled",
+            powerUserLabel: "Enable Stage Manager",
+            powerUserDescription: "Organizes your recent windows into a strip on the left side of the screen for less clutter.",
+            propellerheadDescription: "Enables or disables Stage Manager globally.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "GloballyEnabled",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G062",
+            searchAliases: ["stage manager", "window organizer", "window strip"],
+            notes: "Absent = off. Takes effect immediately."
+        ),
+
+        // S098
+        SettingDefinition(
+            id: "windowManager.autoHideStrip",
+            displayName: "Auto-hide Stage Manager strip",
+            technicalName: "AutoHide",
+            powerUserLabel: "Auto-hide the Stage Manager strip",
+            powerUserDescription: "Hides the strip of recent apps on the left until you hover near the edge.",
+            propellerheadDescription: "Controls whether the Stage Manager strip auto-hides.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "AutoHide",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G062",
+            searchAliases: ["stage manager hide", "auto hide strip", "hide recent apps"],
+            notes: "Only relevant when Stage Manager is enabled."
+        ),
+
+        // S099
+        SettingDefinition(
+            id: "windowManager.clickToShowDesktop",
+            displayName: "Click wallpaper to show desktop",
+            technicalName: "EnableStandardClickToShowDesktop",
+            powerUserLabel: "Click wallpaper to show desktop",
+            powerUserDescription: "Clicking the wallpaper moves all windows aside to reveal the desktop. This changed in macOS Sonoma and annoyed a lot of people.",
+            propellerheadDescription: "Controls whether clicking the desktop background hides all windows. Introduced in macOS 14.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "EnableStandardClickToShowDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G063",
+            searchAliases: ["click desktop", "show desktop", "click wallpaper", "hide windows"],
+            notes: "Absent = true (Apple default since Sonoma). Set to false to disable."
+        ),
+
+        // S100
+        SettingDefinition(
+            id: "windowManager.tilingByEdgeDrag",
+            displayName: "Snap windows by dragging to edges",
+            technicalName: "EnableTilingByEdgeDrag",
+            powerUserLabel: "Snap windows to edges",
+            powerUserDescription: "Drag a window to the left or right edge of the screen to tile it to that half.",
+            propellerheadDescription: "Enables window tiling by dragging windows to screen edges. Introduced in macOS 15.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "EnableTilingByEdgeDrag",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G063",
+            searchAliases: ["tiling", "snap windows", "edge drag", "split screen", "window snapping"],
+            notes: "Absent = true. Set to false to disable edge-drag tiling."
+        ),
+
+        // S101
+        SettingDefinition(
+            id: "windowManager.tilingOptionKey",
+            displayName: "Hold Option to tile windows",
+            technicalName: "EnableTilingOptionAccelerator",
+            powerUserLabel: "Hold Option to tile windows",
+            powerUserDescription: "Hold the Option key while dragging a window to snap it into a tiled position.",
+            propellerheadDescription: "Enables the Option key as a tiling accelerator when dragging windows.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "EnableTilingOptionAccelerator",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G063",
+            searchAliases: ["option key tiling", "alt tiling", "window tiling shortcut"],
+            notes: "Absent = true. Set to false to disable."
+        ),
+
+        // S102
+        SettingDefinition(
+            id: "windowManager.topEdgeTiling",
+            displayName: "Drag to menu bar to fill screen",
+            technicalName: "EnableTopTilingByEdgeDrag",
+            powerUserLabel: "Drag to top to fill screen",
+            powerUserDescription: "Drag a window to the top edge (menu bar) to make it fill the screen.",
+            propellerheadDescription: "Enables window fill-screen behavior when dragged to the top edge.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "EnableTopTilingByEdgeDrag",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G063",
+            searchAliases: ["top edge tiling", "fill screen drag", "maximize drag"],
+            notes: "Absent = true. Set to false to disable."
+        ),
+
+        // S103
+        SettingDefinition(
+            id: "windowManager.tiledWindowMargins",
+            displayName: "Margins between tiled windows",
+            technicalName: "EnableTiledWindowMargins",
+            powerUserLabel: "Gaps between tiled windows",
+            powerUserDescription: "Adds small gaps between tiled windows so they don't touch.",
+            propellerheadDescription: "Controls whether tiled windows have margins between them.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "EnableTiledWindowMargins",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G063",
+            searchAliases: ["tiling margins", "window gaps", "tiled window spacing"],
+            notes: "0 = no margins (flush), 1 = margins."
+        ),
+
+        // S104
+        SettingDefinition(
+            id: "windowManager.hideDesktopItems",
+            displayName: "Hide desktop items (Stage Manager)",
+            technicalName: "HideDesktop",
+            powerUserLabel: "Hide desktop icons in Stage Manager",
+            powerUserDescription: "Hides all files and folders on your desktop when Stage Manager is active.",
+            propellerheadDescription: "Controls whether desktop items are hidden in Stage Manager mode.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "HideDesktop",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G062",
+            searchAliases: ["hide desktop", "stage manager desktop", "clean desktop"],
+            notes: "Only applies when Stage Manager is on."
+        ),
+
+        // S105
+        SettingDefinition(
+            id: "windowManager.hideDesktopIcons",
+            displayName: "Hide desktop icons (standard)",
+            technicalName: "StandardHideDesktopIcons",
+            powerUserLabel: "Hide all desktop icons",
+            powerUserDescription: "Hides all files and folders on the desktop in normal (non-Stage Manager) mode. Your files are still in ~/Desktop, just not shown.",
+            propellerheadDescription: "Controls whether desktop icons are hidden when not using Stage Manager.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.WindowManager",
+            keyPath: "StandardHideDesktopIcons",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G064",
+            searchAliases: ["hide desktop icons", "clean desktop", "no desktop files"],
+            notes: "Absent = false. Files still exist in ~/Desktop."
+        ),
+
+        // S158
+        SettingDefinition(
+            id: "global.switchSpaceOnActivate",
+            displayName: "Switch Space when activating app",
+            technicalName: "AppleSpacesSwitchOnActivate",
+            powerUserLabel: "Switch to app's Space when activating",
+            powerUserDescription: "When you click an app in the Dock or Cmd+Tab to it, macOS jumps to the Space where that app's windows are. Disable to stay on the current Space.",
+            propellerheadDescription: "Controls whether activating an application switches to the Space containing its windows.",
+            category: .windowsSpaces,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "AppleSpacesSwitchOnActivate",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .dock,
+            powerUserGrouping: "G012",
+            searchAliases: ["switch space", "spaces auto switch", "activate app space", "jump to space"],
+            notes: "Absent = true. Set to false to stop jumping between Spaces.",
+            isInvertedInPowerUserMode: true
+        ),
+
         // ---------------------------------------------------------------
         // MARK: 5.5 Screenshots
         // ---------------------------------------------------------------
@@ -1486,6 +2611,56 @@ enum SettingsCatalogData {
             powerUserGrouping: "G014",
             searchAliases: ["screenshot name", "screenshot prefix", "screenshot filename"],
             notes: "Default is \"Screenshot\". Pairs with the existing screenshot group."
+        ),
+
+        // S141
+        SettingDefinition(
+            id: "screencapture.includeDate",
+            displayName: "Include date in screenshot filenames",
+            technicalName: "include-date",
+            powerUserLabel: "Date in screenshot filenames",
+            powerUserDescription: "Includes the date and time in screenshot file names. Turn off for cleaner names.",
+            propellerheadDescription: "Controls whether screenshot filenames include the capture date and time.",
+            category: .screenshots,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.screencapture",
+            keyPath: "include-date",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .systemUIServer,
+            powerUserGrouping: "G014",
+            searchAliases: ["screenshot date", "filename date", "screenshot timestamp"],
+            notes: "Absent = true."
+        ),
+
+        // S142
+        SettingDefinition(
+            id: "screencapture.rememberSelection",
+            displayName: "Remember screenshot selection",
+            technicalName: "save-selections",
+            powerUserLabel: "Remember last screenshot area",
+            powerUserDescription: "When taking area screenshots, remembers the last selection rectangle so you can quickly re-capture the same region.",
+            propellerheadDescription: "Controls whether the screenshot tool remembers the previous selection window.",
+            category: .screenshots,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.screencapture",
+            keyPath: "save-selections",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .systemUIServer,
+            powerUserGrouping: "G014",
+            searchAliases: ["remember selection", "screenshot area", "save selection"],
+            notes: "Absent = false."
         ),
 
         // ---------------------------------------------------------------
@@ -1618,6 +2793,56 @@ enum SettingsCatalogData {
             powerUserGrouping: nil,
             searchAliases: ["webkit extras", "inspect element in web view"],
             notes: "Keep out of v1 unless validated and clearly useful."
+        ),
+
+        // S159
+        SettingDefinition(
+            id: "xcode.showBuildDuration",
+            displayName: "Show build duration in Xcode",
+            technicalName: "ShowBuildOperationDuration",
+            powerUserLabel: "Show build duration in Xcode toolbar",
+            powerUserDescription: "Shows how long each build takes in Xcode's activity viewer. Essential for optimizing build times.",
+            propellerheadDescription: "Controls whether build duration is displayed in the Xcode toolbar activity viewer.",
+            category: .safariDeveloper,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.dt.Xcode",
+            keyPath: "ShowBuildOperationDuration",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.dt.Xcode"),
+            powerUserGrouping: "G078",
+            searchAliases: ["xcode build time", "build duration", "compile time", "xcode toolbar"],
+            notes: "Absent = false. Restart Xcode to take effect."
+        ),
+
+        // S160
+        SettingDefinition(
+            id: "terminal.focusFollowsMouse",
+            displayName: "Terminal focus follows mouse",
+            technicalName: "FocusFollowsMouse",
+            powerUserLabel: "Terminal focus follows mouse",
+            powerUserDescription: "Terminal windows gain focus automatically when you hover over them — no click needed. A classic X11 behavior.",
+            propellerheadDescription: "Enables focus-follows-mouse behavior between Terminal windows.",
+            category: .safariDeveloper,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.Terminal",
+            keyPath: "FocusFollowsMouse",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.Terminal"),
+            powerUserGrouping: "G078",
+            searchAliases: ["focus follows mouse", "terminal hover", "x11 focus", "sloppy focus"],
+            notes: "Absent = false. Only works between Terminal windows, not all apps."
         ),
 
         // ---------------------------------------------------------------
@@ -1906,6 +3131,306 @@ enum SettingsCatalogData {
             notes: "0 = when space allows, 1 = always, 2 = never. Group with 24-hour clock in G039."
         ),
 
+        // S118
+        SettingDefinition(
+            id: "menu.clockShowAMPM",
+            displayName: "Show AM/PM in menu bar clock",
+            technicalName: "ShowAMPM",
+            powerUserLabel: "Show AM/PM",
+            powerUserDescription: "Shows AM or PM next to the time in 12-hour mode.",
+            propellerheadDescription: "Controls whether the AM/PM label is shown in the menu bar clock.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.menuextra.clock",
+            keyPath: "ShowAMPM",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G068",
+            searchAliases: ["am pm", "12 hour", "clock am pm"],
+            notes: "Only relevant when using 12-hour time."
+        ),
+
+        // S119
+        SettingDefinition(
+            id: "menu.clockShowSeconds",
+            displayName: "Show seconds in menu bar clock",
+            technicalName: "ShowSeconds",
+            powerUserLabel: "Show seconds in the clock",
+            powerUserDescription: "Adds seconds to the menu bar clock for precision timekeeping.",
+            propellerheadDescription: "Controls whether the menu bar clock displays seconds.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.menuextra.clock",
+            keyPath: "ShowSeconds",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G068",
+            searchAliases: ["show seconds", "clock seconds", "precise time"],
+            notes: "Absent = false."
+        ),
+
+        // S120
+        SettingDefinition(
+            id: "menu.clockShowDayOfWeek",
+            displayName: "Show day of week in menu bar clock",
+            technicalName: "ShowDayOfWeek",
+            powerUserLabel: "Show day of week",
+            powerUserDescription: "Shows the day name (Mon, Tue, etc.) next to the clock.",
+            propellerheadDescription: "Controls whether the day of the week appears in the menu bar clock.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.menuextra.clock",
+            keyPath: "ShowDayOfWeek",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G068",
+            searchAliases: ["day of week", "weekday", "show day"],
+            notes: nil
+        ),
+
+        // S121
+        SettingDefinition(
+            id: "menu.clockAnalog",
+            displayName: "Analog clock in menu bar",
+            technicalName: "IsAnalog",
+            powerUserLabel: "Analog clock",
+            powerUserDescription: "Replaces the digital clock in the menu bar with a tiny analog clock face.",
+            propellerheadDescription: "Controls whether the menu bar clock is displayed as analog.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.menuextra.clock",
+            keyPath: "IsAnalog",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G068",
+            searchAliases: ["analog clock", "clock face", "round clock"],
+            notes: "Absent = false (digital)."
+        ),
+
+        // S133
+        SettingDefinition(
+            id: "menu.autoHideMenuBar",
+            displayName: "Auto-hide menu bar",
+            technicalName: "_HIHideMenuBar",
+            powerUserLabel: "Auto-hide the menu bar",
+            powerUserDescription: "Hides the menu bar until you move the pointer to the top of the screen.",
+            propellerheadDescription: "Controls whether the menu bar is automatically hidden.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "_HIHideMenuBar",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G071",
+            searchAliases: ["auto hide menu bar", "hide menu bar", "menu bar visibility"],
+            notes: "Absent = false. Takes effect immediately."
+        ),
+
+        // S134
+        SettingDefinition(
+            id: "menu.statusItemSpacing",
+            displayName: "Menu bar icon spacing",
+            technicalName: "NSStatusItemSpacing",
+            powerUserLabel: "Menu bar icon spacing",
+            powerUserDescription: "How much space between icons in the menu bar. Lower values pack more icons in.",
+            propellerheadDescription: "Controls the pixel spacing between NSStatusItems in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSStatusItemSpacing",
+            valueType: .int,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G071",
+            searchAliases: ["menu bar spacing", "status item spacing", "icon spacing", "menu bar density"],
+            notes: "Default is around 12. Lower = tighter. Delete key to restore default."
+        ),
+
+        // S135
+        SettingDefinition(
+            id: "menu.statusItemPadding",
+            displayName: "Menu bar icon padding",
+            technicalName: "NSStatusItemSelectionPadding",
+            powerUserLabel: "Menu bar icon padding",
+            powerUserDescription: "Padding around each menu bar icon's click target. Lower values make icons sit closer together.",
+            propellerheadDescription: "Controls the selection padding (hit area) for NSStatusItems in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSStatusItemSelectionPadding",
+            valueType: .int,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G071",
+            searchAliases: ["menu bar padding", "icon padding", "status item padding", "bartender"],
+            notes: "Default is around 8. Lower = tighter. Delete key to restore default."
+        ),
+
+        // S122
+        SettingDefinition(
+            id: "menu.ccBluetooth",
+            displayName: "Show Bluetooth in menu bar",
+            technicalName: "NSStatusItem Visible Bluetooth",
+            powerUserLabel: "Bluetooth in menu bar",
+            powerUserDescription: "Shows the Bluetooth icon in the menu bar for quick access.",
+            propellerheadDescription: "Controls visibility of the Bluetooth status item in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.controlcenter",
+            keyPath: "NSStatusItem Visible Bluetooth",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G069",
+            searchAliases: ["bluetooth menu bar", "bluetooth icon", "bluetooth status"],
+            notes: "Absent = false (hidden)."
+        ),
+
+        // S123
+        SettingDefinition(
+            id: "menu.ccSound",
+            displayName: "Show Sound in menu bar",
+            technicalName: "NSStatusItem Visible Sound",
+            powerUserLabel: "Sound in menu bar",
+            powerUserDescription: "Shows the volume/sound icon in the menu bar.",
+            propellerheadDescription: "Controls visibility of the Sound status item in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.controlcenter",
+            keyPath: "NSStatusItem Visible Sound",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G069",
+            searchAliases: ["sound menu bar", "volume icon", "audio menu bar"],
+            notes: nil
+        ),
+
+        // S124
+        SettingDefinition(
+            id: "menu.ccNowPlaying",
+            displayName: "Show Now Playing in menu bar",
+            technicalName: "NSStatusItem Visible NowPlaying",
+            powerUserLabel: "Now Playing in menu bar",
+            powerUserDescription: "Shows the currently playing media in the menu bar.",
+            propellerheadDescription: "Controls visibility of the Now Playing status item in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.controlcenter",
+            keyPath: "NSStatusItem Visible NowPlaying",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G069",
+            searchAliases: ["now playing", "music menu bar", "media menu bar"],
+            notes: "Absent = false."
+        ),
+
+        // S125
+        SettingDefinition(
+            id: "menu.ccFocusModes",
+            displayName: "Show Focus in menu bar",
+            technicalName: "NSStatusItem Visible FocusModes",
+            powerUserLabel: "Focus in menu bar",
+            powerUserDescription: "Shows the Focus (Do Not Disturb) icon in the menu bar.",
+            propellerheadDescription: "Controls visibility of the Focus Modes status item in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.controlcenter",
+            keyPath: "NSStatusItem Visible FocusModes",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G069",
+            searchAliases: ["focus", "do not disturb", "dnd menu bar", "focus modes"],
+            notes: "Absent = false."
+        ),
+
+        // S126
+        SettingDefinition(
+            id: "menu.ccDisplay",
+            displayName: "Show Brightness in menu bar",
+            technicalName: "NSStatusItem Visible Display",
+            powerUserLabel: "Brightness in menu bar",
+            powerUserDescription: "Shows the display brightness control in the menu bar.",
+            propellerheadDescription: "Controls visibility of the Display brightness status item in the menu bar.",
+            category: .menuBarStatus,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.controlcenter",
+            keyPath: "NSStatusItem Visible Display",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .controlCenter,
+            powerUserGrouping: "G069",
+            searchAliases: ["brightness", "display menu bar", "screen brightness"],
+            notes: "Absent = false."
+        ),
+
         // ---------------------------------------------------------------
         // MARK: 5.9 Security and privacy
         // Ordered by popularity: quarantine → crash reporter
@@ -1959,6 +3484,282 @@ enum SettingsCatalogData {
             powerUserGrouping: "G040",
             searchAliases: ["crash reporter", "crash dialog", "crash details", "app crashed"],
             notes: "crashreport = basic dialog, developer = shows full report, server = silent, none = no dialog."
+        ),
+
+        // S143
+        SettingDefinition(
+            id: "screensaver.askForPassword",
+            displayName: "Require password after screensaver",
+            technicalName: "askForPassword",
+            powerUserLabel: "Lock screen after screensaver",
+            powerUserDescription: "Requires your password when the screensaver is dismissed or stopped.",
+            propellerheadDescription: "Controls whether a password is required to unlock the screen after the screensaver activates.",
+            category: .securityPrivacy,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.screensaver",
+            keyPath: "askForPassword",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G074",
+            searchAliases: ["screensaver password", "lock screen", "screen lock", "require password"],
+            notes: "Maps int 1/0 to bool. Absent = false."
+        ),
+
+        // S144
+        SettingDefinition(
+            id: "screensaver.askForPasswordDelay",
+            displayName: "Screensaver password delay",
+            technicalName: "askForPasswordDelay",
+            powerUserLabel: "Password delay (seconds)",
+            powerUserDescription: "How many seconds after the screensaver starts before the password is required. Set to 0 to require it immediately.",
+            propellerheadDescription: "Sets the delay in seconds before a password is required after the screensaver activates.",
+            category: .securityPrivacy,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.screensaver",
+            keyPath: "askForPasswordDelay",
+            valueType: .int,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G074",
+            searchAliases: ["password delay", "lock delay", "screensaver delay"],
+            notes: "In seconds. 0 = immediate. Only relevant when askForPassword is enabled."
+        ),
+
+        // S145
+        SettingDefinition(
+            id: "loginwindow.text",
+            displayName: "Login window message",
+            technicalName: "LoginwindowText",
+            powerUserLabel: "Custom login screen message",
+            powerUserDescription: "Shows a custom message on the login screen. Useful for contact info if your Mac is lost, or for a bit of personality.",
+            propellerheadDescription: "Sets custom text displayed on the macOS login window.",
+            category: .securityPrivacy,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.loginwindow",
+            keyPath: "LoginwindowText",
+            valueType: .string,
+            allowedValues: nil,
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: nil,
+            searchAliases: ["login message", "login text", "lock screen message", "lost mac"],
+            notes: "Empty/absent = no message. Great for 'If found, call...' messages."
+        ),
+
+        // S161
+        SettingDefinition(
+            id: "appleIntelligence.enabled",
+            displayName: "Apple Intelligence",
+            technicalName: "545129924",
+            powerUserLabel: "Apple Intelligence",
+            powerUserDescription: "Apple Intelligence is activated by default on Apple Silicon Macs since macOS 15.3. Disable it here if you don't want on-device AI features.",
+            propellerheadDescription: "Controls whether Apple Intelligence features are enabled. Uses CloudSubscriptionFeatures opt-in key 545129924.",
+            category: .securityPrivacy,
+            risk: .advanced,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.CloudSubscriptionFeatures.optIn",
+            keyPath: "545129924",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 15, max: nil),
+            restartRequirement: .reboot,
+            powerUserGrouping: nil,
+            searchAliases: ["apple intelligence", "ai", "siri ai", "on device ai", "machine learning"],
+            notes: "Absent = true (enabled on Apple Silicon). Restart required. Only applicable to Apple Silicon Macs."
+        ),
+
+        // S146
+        SettingDefinition(
+            id: "activityMonitor.iconType",
+            displayName: "Activity Monitor dock icon",
+            technicalName: "IconType",
+            powerUserLabel: "Activity Monitor dock icon style",
+            powerUserDescription: "Changes what Activity Monitor shows in the Dock: the plain app icon, a CPU graph, or network activity.",
+            propellerheadDescription: "Controls the Activity Monitor dock icon. 0 = app icon, 2 = network usage, 3 = disk activity, 5 = CPU usage, 6 = CPU history.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.ActivityMonitor",
+            keyPath: "IconType",
+            valueType: .int,
+            allowedValues: [.int(0), .int(2), .int(3), .int(5), .int(6)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.ActivityMonitor"),
+            powerUserGrouping: "G075",
+            searchAliases: ["activity monitor", "cpu graph", "dock icon", "network graph"],
+            notes: "0=App Icon, 2=Network, 3=Disk, 5=CPU Usage, 6=CPU History. Restart Activity Monitor to take effect."
+        ),
+
+        // S147
+        SettingDefinition(
+            id: "activityMonitor.showCategory",
+            displayName: "Activity Monitor default filter",
+            technicalName: "ShowCategory",
+            powerUserLabel: "Default process filter",
+            powerUserDescription: "Which processes Activity Monitor shows when it opens.",
+            propellerheadDescription: "Sets the default process filter. 100 = All Processes, 101 = Hierarchical, 102 = My Processes.",
+            category: .interface,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.ActivityMonitor",
+            keyPath: "ShowCategory",
+            valueType: .int,
+            allowedValues: [.int(100), .int(101), .int(102)],
+            defaultValueStrategy: .readCurrentState,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.ActivityMonitor"),
+            powerUserGrouping: "G075",
+            searchAliases: ["activity monitor filter", "show all processes", "process list"],
+            notes: "100 = All Processes, 101 = Hierarchical, 102 = My Processes."
+        ),
+
+        // S150
+        SettingDefinition(
+            id: "activityMonitor.updatePeriod",
+            displayName: "Activity Monitor update frequency",
+            technicalName: "UpdatePeriod",
+            powerUserLabel: "Update frequency",
+            powerUserDescription: "How often Activity Monitor refreshes its data. More frequent updates give a real-time feel but use more CPU.",
+            propellerheadDescription: "Controls the Activity Monitor data refresh interval in seconds.",
+            category: .interface,
+            risk: .safe,
+            interest: .obscure,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.ActivityMonitor",
+            keyPath: "UpdatePeriod",
+            valueType: .int,
+            allowedValues: [.int(1), .int(2), .int(5)],
+            defaultValueStrategy: .absentIsSystemDefault,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.ActivityMonitor"),
+            powerUserGrouping: "G075",
+            searchAliases: ["activity monitor refresh", "update frequency", "refresh rate"],
+            notes: "1 = every second, 2 = every 2 seconds, 5 = every 5 seconds (default)."
+        ),
+
+        // S151
+        SettingDefinition(
+            id: "global.keepWindowsOnQuit",
+            displayName: "Keep windows when quitting apps",
+            technicalName: "NSQuitAlwaysKeepsWindow",
+            powerUserLabel: "Restore windows when reopening apps",
+            powerUserDescription: "When you quit and reopen an app, your open documents and windows come back automatically.",
+            propellerheadDescription: "Controls whether application windows and documents are restored on relaunch.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSQuitAlwaysKeepsWindow",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .signOut,
+            powerUserGrouping: "G076",
+            searchAliases: ["keep windows", "restore windows", "resume", "reopen windows"],
+            notes: "Absent = true. Requires sign out to take effect."
+        ),
+
+        // S152
+        SettingDefinition(
+            id: "global.closeConfirmsChanges",
+            displayName: "Ask to save on close",
+            technicalName: "NSCloseAlwaysConfirmsChanges",
+            powerUserLabel: "Ask to save changes when closing",
+            powerUserDescription: "When you close a document, you get a save prompt instead of changes being auto-saved silently.",
+            propellerheadDescription: "Controls whether closing a document prompts to save instead of auto-saving.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "NSGlobalDomain",
+            keyPath: "NSCloseAlwaysConfirmsChanges",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: "G076",
+            searchAliases: ["save prompt", "close confirm", "auto save", "unsaved changes"],
+            notes: "Absent = true (auto-saves). False = prompts before closing.",
+            isInvertedInPowerUserMode: true
+        ),
+
+        // S153
+        SettingDefinition(
+            id: "music.songNotifications",
+            displayName: "Music song notifications",
+            technicalName: "userWantsPlaybackNotifications",
+            powerUserLabel: "Music now-playing notifications",
+            powerUserDescription: "Shows a notification when a new song starts playing in the Music app.",
+            propellerheadDescription: "Controls whether the Music app displays notifications for new song playback.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.Music",
+            keyPath: "userWantsPlaybackNotifications",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsTrue,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .app(bundleID: "com.apple.Music"),
+            powerUserGrouping: nil,
+            searchAliases: ["music notifications", "now playing", "song notification", "music app"],
+            notes: "Absent = true. Restart Music to take effect."
+        ),
+
+        // S154
+        SettingDefinition(
+            id: "timeMachine.dontOfferNewDisks",
+            displayName: "Don't offer new disks for backup",
+            technicalName: "DoNotOfferNewDisksForBackup",
+            powerUserLabel: "Stop Time Machine disk prompts",
+            powerUserDescription: "Stops macOS from asking if you want to use every new disk you plug in as a Time Machine backup.",
+            propellerheadDescription: "Prevents Time Machine from prompting to use newly connected volumes as backup destinations.",
+            category: .interface,
+            risk: .safe,
+            interest: .common,
+            supportLevel: .shipping,
+            mechanism: .defaults,
+            domain: "com.apple.TimeMachine",
+            keyPath: "DoNotOfferNewDisksForBackup",
+            valueType: .bool,
+            allowedValues: [.bool(true), .bool(false)],
+            defaultValueStrategy: .assumeAbsentIsFalse,
+            supportedOS: OSRange(min: 14, max: nil),
+            restartRequirement: .none,
+            powerUserGrouping: nil,
+            searchAliases: ["time machine", "backup prompt", "new disk", "time machine popup"],
+            notes: "Absent = false (prompts you). Set to true to silence."
         ),
 
         // ---------------------------------------------------------------
@@ -2499,6 +4300,33 @@ enum SettingsCatalogData {
             options: nil
         ),
 
+        // G072 — Auto-empty Trash (simple toggle)
+        GroupedControlDefinition(
+            id: "G072",
+            title: "Auto-empty Trash after 30 days",
+            subtitle: "Items that have been in the Trash for more than 30 days are automatically deleted.",
+            category: .finder,
+            kind: .toggle,
+            backingSettingIDs: ["finder.autoRemoveOldTrash"],
+            options: nil
+        ),
+
+        // G073 — Desktop drive icons (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G073",
+            title: "Desktop drive icons",
+            subtitle: "Choose which types of drives and volumes show icons on the desktop.",
+            category: .finder,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "finder.showExternalDrives",
+                "finder.showInternalDrives",
+                "finder.showServers",
+                "finder.showRemovableMedia",
+            ],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Interface (most popular first)
         // ---------------------------------------------------------------
@@ -2769,6 +4597,96 @@ enum SettingsCatalogData {
             options: nil
         ),
 
+        // G076 — Window persistence (multi-toggle)
+        GroupedControlDefinition(
+            id: "G076",
+            title: "Window persistence",
+            subtitle: "Control whether apps restore their windows when reopened, and whether closing prompts you to save.",
+            category: .interface,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "global.keepWindowsOnQuit",
+                "global.closeConfirmsChanges",
+            ],
+            options: nil
+        ),
+
+        // G075 — Activity Monitor (multi-control card)
+        GroupedControlDefinition(
+            id: "G075",
+            title: "Activity Monitor",
+            subtitle: "Change Activity Monitor's dock icon to show live CPU or network stats, and set which processes are shown by default.",
+            category: .interface,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "activityMonitor.iconType",
+                "activityMonitor.showCategory",
+            ],
+            options: nil
+        ),
+
+        // G070 — Window behavior (multi-control card)
+        GroupedControlDefinition(
+            id: "G070",
+            title: "Window behavior",
+            subtitle: "Control window tabbing, drag-from-anywhere, sidebar icon size, and scroll bar click behavior.",
+            category: .interface,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "global.windowTabbingMode",
+                "global.dragWindowFromAnywhere",
+                "global.sidebarIconSize",
+                "global.scrollbarClickBehavior",
+            ],
+            options: nil
+        ),
+
+        // G066 — Dock extras (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G066",
+            title: "Dock extras",
+            subtitle: "Magnification, launch animation, process indicators, and hidden app translucency.",
+            category: .interface,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "dock.magnification",
+                "dock.launchAnimation",
+                "dock.showProcessIndicators",
+                "dock.showHidden",
+            ],
+            options: nil
+        ),
+
+        // G067 — Dock multi-monitor & scroll (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G067",
+            title: "Dock multi-monitor & scroll",
+            subtitle: "Show the App Switcher on every display and scroll on Dock icons to see windows.",
+            category: .interface,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "dock.appSwitcherAllDisplays",
+                "dock.scrollToOpen",
+            ],
+            options: nil
+        ),
+
+        // G065 — Hot corners (multi-control card)
+        GroupedControlDefinition(
+            id: "G065",
+            title: "Hot corners",
+            subtitle: "Trigger actions by moving the pointer to a screen corner. Set each corner to Mission Control, Desktop, Lock Screen, and more — or leave it off.",
+            category: .interface,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "dock.hotCornerTopLeft",
+                "dock.hotCornerTopRight",
+                "dock.hotCornerBottomLeft",
+                "dock.hotCornerBottomRight",
+            ],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Keyboard & Input (most popular first)
         // ---------------------------------------------------------------
@@ -2824,7 +4742,7 @@ enum SettingsCatalogData {
         GroupedControlDefinition(
             id: "G011",
             title: "Turn off typing helpers you do not want",
-            subtitle: "Disables automatic quote changes, dash changes, capitalization, spelling correction, and period shortcuts.",
+            subtitle: "Disables automatic quote changes, dash changes, capitalization, spelling correction, period shortcuts, and inline predictions.",
             category: .keyboardInput,
             kind: .multiToggle,
             backingSettingIDs: [
@@ -2833,6 +4751,7 @@ enum SettingsCatalogData {
                 "global.autoCapitalization",
                 "global.autoSpellingCorrection",
                 "global.periodSubstitution",
+                "global.inlinePrediction",
             ],
             options: nil
         ),
@@ -2870,18 +4789,66 @@ enum SettingsCatalogData {
             options: nil
         ),
 
+        // G077 — Fn/Globe key (multi-control card)
+        GroupedControlDefinition(
+            id: "G077",
+            title: "Fn/Globe key & function keys",
+            subtitle: "Choose what the Fn key does, and whether F1-F12 act as standard function keys or media controls.",
+            category: .keyboardInput,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "keyboard.fnKeyAction",
+                "keyboard.fnKeysStandard",
+            ],
+            options: nil
+        ),
+
+        // G060 — Trackpad gestures (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G060",
+            title: "Trackpad gestures",
+            subtitle: "Customise tap, drag, and click behavior on the built-in trackpad.",
+            category: .keyboardInput,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "trackpad.tapToClick",
+                "trackpad.threeFingerDrag",
+                "trackpad.forceClick",
+                "trackpad.silentClicking",
+            ],
+            options: nil
+        ),
+
+        // G061 — Trackpad click pressure (discrete choice)
+        GroupedControlDefinition(
+            id: "G061",
+            title: "Trackpad click & tracking",
+            subtitle: "Set how hard you need to press to click, and how fast the pointer moves.",
+            category: .keyboardInput,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "trackpad.clickPressure",
+                "trackpad.forceClickPressure",
+                "trackpad.trackingSpeed",
+            ],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Windows & Spaces (most popular first)
         // ---------------------------------------------------------------
 
-        // G012 — Keep Spaces in a fixed order (simple toggle)
+        // G012 — Spaces behavior (multi-toggle)
         GroupedControlDefinition(
             id: "G012",
-            title: "Keep Spaces in a fixed order",
-            subtitle: "Stops macOS from reordering desktop spaces based on recent use.",
+            title: "Spaces behavior",
+            subtitle: "Control Space reordering and whether activating an app jumps you to its Space.",
             category: .windowsSpaces,
-            kind: .toggle,
-            backingSettingIDs: ["dock.mruSpaces"],
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "dock.mruSpaces",
+                "global.switchSpaceOnActivate",
+            ],
             options: nil
         ),
 
@@ -2958,6 +4925,49 @@ enum SettingsCatalogData {
             ]
         ),
 
+        // G062 — Stage Manager controls (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G062",
+            title: "Stage Manager",
+            subtitle: "Organizes your windows into a strip on the left. Control whether it's on, whether the strip auto-hides, and whether desktop items are hidden.",
+            category: .windowsSpaces,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "windowManager.stageManager",
+                "windowManager.autoHideStrip",
+                "windowManager.hideDesktopItems",
+            ],
+            options: nil
+        ),
+
+        // G063 — Window tiling controls (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G063",
+            title: "Window tiling",
+            subtitle: "Control how windows snap to edges, whether the Option key helps, and whether tiled windows have gaps.",
+            category: .windowsSpaces,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "windowManager.clickToShowDesktop",
+                "windowManager.tilingByEdgeDrag",
+                "windowManager.tilingOptionKey",
+                "windowManager.topEdgeTiling",
+                "windowManager.tiledWindowMargins",
+            ],
+            options: nil
+        ),
+
+        // G064 — Hide desktop icons (simple toggle)
+        GroupedControlDefinition(
+            id: "G064",
+            title: "Hide all desktop icons",
+            subtitle: "Hides all files and folders from the desktop. They're still in ~/Desktop, just invisible. Great for a clean look.",
+            category: .windowsSpaces,
+            kind: .toggle,
+            backingSettingIDs: ["windowManager.hideDesktopIcons"],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Screenshots
         // ---------------------------------------------------------------
@@ -2975,6 +4985,8 @@ enum SettingsCatalogData {
                 "screencapture.disableShadow",
                 "screencapture.showThumbnail",
                 "screencapture.name",
+                "screencapture.includeDate",
+                "screencapture.rememberSelection",
             ],
             options: nil
         ),
@@ -3016,6 +5028,20 @@ enum SettingsCatalogData {
             category: .safariDeveloper,
             kind: .toggle,
             backingSettingIDs: ["safari.showStatusBar"],
+            options: nil
+        ),
+
+        // G078 — Developer tools (multi-toggle)
+        GroupedControlDefinition(
+            id: "G078",
+            title: "Developer tools",
+            subtitle: "Show build durations in Xcode and enable focus-follows-mouse in Terminal.",
+            category: .safariDeveloper,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "xcode.showBuildDuration",
+                "terminal.focusFollowsMouse",
+            ],
             options: nil
         ),
 
@@ -3127,6 +5153,54 @@ enum SettingsCatalogData {
             ]
         ),
 
+        // G068 — Clock display extras (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G068",
+            title: "Clock display options",
+            subtitle: "Control what appears in the menu bar clock — seconds, day of week, AM/PM, and analog mode.",
+            category: .menuBarStatus,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "menu.clockShowAMPM",
+                "menu.clockShowSeconds",
+                "menu.clockShowDayOfWeek",
+                "menu.clockAnalog",
+            ],
+            options: nil
+        ),
+
+        // G071 — Menu bar density (multi-control card)
+        GroupedControlDefinition(
+            id: "G071",
+            title: "Menu bar density",
+            subtitle: "Auto-hide the menu bar and control how tightly icons are packed. Lower spacing values fit more icons — great if you use a lot of menu bar apps.",
+            category: .menuBarStatus,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "menu.autoHideMenuBar",
+                "menu.statusItemSpacing",
+                "menu.statusItemPadding",
+            ],
+            options: nil
+        ),
+
+        // G069 — Control Center menu bar items (multi-toggle card)
+        GroupedControlDefinition(
+            id: "G069",
+            title: "Control Center items in the menu bar",
+            subtitle: "Choose which Control Center items get their own permanent icon in the menu bar.",
+            category: .menuBarStatus,
+            kind: .multiToggle,
+            backingSettingIDs: [
+                "menu.ccBluetooth",
+                "menu.ccSound",
+                "menu.ccNowPlaying",
+                "menu.ccFocusModes",
+                "menu.ccDisplay",
+            ],
+            options: nil
+        ),
+
         // ---------------------------------------------------------------
         // MARK: Security & Privacy (most popular first)
         // ---------------------------------------------------------------
@@ -3170,6 +5244,20 @@ enum SettingsCatalogData {
                     ]
                 ),
             ]
+        ),
+
+        // G074 — Screensaver lock (multi-control card)
+        GroupedControlDefinition(
+            id: "G074",
+            title: "Screen lock",
+            subtitle: "Require a password when the screensaver is dismissed, and how long to wait before requiring it.",
+            category: .securityPrivacy,
+            kind: .multiControl,
+            backingSettingIDs: [
+                "screensaver.askForPassword",
+                "screensaver.askForPasswordDelay",
+            ],
+            options: nil
         ),
 
         // ---------------------------------------------------------------

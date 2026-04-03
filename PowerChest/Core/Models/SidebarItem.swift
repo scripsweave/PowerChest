@@ -117,14 +117,14 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 
     var categoryDescription: String? {
         switch self {
-        case .dockAndInterface: return "Dock timing, window behavior, and dialog defaults."
-        case .finderAndFiles: return "Hidden files, path bars, extensions, and folder sorting."
-        case .keyboardAndInput: return "Key repeat, accents, autocorrect, and typing shortcuts."
-        case .windowsAndSpaces: return "Mission Control speed and desktop space ordering."
-        case .screenshots: return "Screenshot format, location, and window shadows."
+        case .dockAndInterface: return "Dock size, magnification, hot corners, window behavior, and dialog defaults."
+        case .finderAndFiles: return "Hidden files, path bars, extensions, desktop drives, and folder sorting."
+        case .keyboardAndInput: return "Key repeat, accents, autocorrect, trackpad gestures, and typing shortcuts."
+        case .windowsAndSpaces: return "Mission Control, Stage Manager, window tiling, and desktop spaces."
+        case .screenshots: return "Screenshot format, location, shadows, and filename options."
         case .visualsAndAccessibility: return "Transparency, contrast, motion, and pointer size."
-        case .menuBar: return "Battery percentage, clock separators, and status items."
-        case .safetyAndSecurity: return "Quarantine behavior and security prompts."
+        case .menuBar: return "Clock display, Control Center items, menu bar density, and status items."
+        case .safetyAndSecurity: return "Quarantine, crash reports, screen lock, and login window."
         case .networkAndConnectivity: return "Firewall, DNS, AirDrop, .DS_Store, and network privacy."
         default: return nil
         }
