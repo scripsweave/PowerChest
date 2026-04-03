@@ -505,17 +505,17 @@ struct HomeView: View {
         }
     }
 
-    private func presetHighlights(for preset: PresetDefinition) -> [String] {
+    private func presetHighlights(for preset: PresetDefinition) -> [PresetHighlight] {
         var seen = Set<String>()
-        var highlights: [String] = []
+        var highlights: [PresetHighlight] = []
 
         for item in preset.items {
             guard let def = appState.catalogService.definition(for: item.settingID) else { continue }
-            let base = def.powerUserLabel ?? def.displayName
-            let short = shortHighlightLabel(base)
-            let key = short.lowercased()
+            let icon = presetSettingIcon(for: def)
+            let label = shortHighlightLabel(def.powerUserLabel ?? def.displayName)
+            let key = label.lowercased()
             if seen.insert(key).inserted {
-                highlights.append(short)
+                highlights.append(PresetHighlight(icon: icon, label: label))
             }
             if highlights.count == 3 { break }
         }
@@ -523,10 +523,25 @@ struct HomeView: View {
         return highlights
     }
 
+    private func presetSettingIcon(for def: SettingDefinition) -> String {
+        switch def.category {
+        case .finder: return "folder.fill"
+        case .interface: return "dock.rectangle"
+        case .keyboardInput: return "keyboard.fill"
+        case .windowsSpaces: return "rectangle.on.rectangle"
+        case .screenshots: return "camera.viewfinder"
+        case .safariDeveloper: return "globe"
+        case .menuBarStatus: return "menubar.rectangle"
+        case .accessibilityVisual: return "eye.fill"
+        case .securityPrivacy: return "lock.fill"
+        case .networkConnectivity: return "network"
+        }
+    }
+
     private func shortHighlightLabel(_ text: String) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.count <= 32 { return trimmed }
-        return trimmed.prefix(29) + "…"
+        if trimmed.count <= 20 { return trimmed }
+        return trimmed.prefix(17) + "\u{2026}"
     }
 
     private var customizedListPopover: some View {
@@ -679,9 +694,14 @@ private struct SavePresetCard: View {
     }
 }
 
+struct PresetHighlight: Hashable {
+    let icon: String
+    let label: String
+}
+
 private struct PresetCard: View {
     let preset: PresetDefinition
-    let highlights: [String]
+    let highlights: [PresetHighlight]
     let isHighlighted: Bool
     var isCustom: Bool = false
     let onApply: () -> Void
@@ -719,11 +739,19 @@ private struct PresetCard: View {
                 .foregroundStyle(.secondary)
 
             if !highlights.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(highlights, id: \.self) { highlight in
-                        Label(highlight, systemImage: "checkmark.seal.fill")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    ForEach(highlights, id: \.icon) { highlight in
+                        HStack(spacing: 4) {
+                            Image(systemName: highlight.icon)
+                                .font(.caption2)
+                            Text(highlight.label)
+                                .font(.caption2)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(Capsule().strokeBorder(.white.opacity(0.15), lineWidth: 0.5))
                     }
                 }
             }
