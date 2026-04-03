@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PowerChest — The defaults write GUI that macOS should have shipped with</title>
-    <meta name="description" content="A native macOS utility that surfaces 87 hidden system settings through a System Settings-style interface. Disable Liquid Glass, fix Tahoe input lag, and more. No terminal required.">
+    <meta name="description" content="A native macOS utility that surfaces 159 hidden system settings through a System Settings-style interface. Disable Liquid Glass, fix Tahoe input lag, and more. No terminal required.">
     <link rel="icon" type="image/png" href="pics/icon.png">
     <meta property="og:title" content="PowerChest — Hidden macOS Settings GUI">
-    <meta property="og:description" content="87 hidden macOS settings in a native System Settings-style app. Firewall, Dock, Finder, network, mouse acceleration — all reversible. No terminal required.">
+    <meta property="og:description" content="159 hidden macOS settings in a native System Settings-style app. Firewall, Dock, Finder, network, mouse acceleration — all reversible. No terminal required.">
     <meta property="og:image" content="https://powerchest.app/pics/Snapshots.png">
     <meta property="og:url" content="https://powerchest.app">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PowerChest — Hidden macOS Settings GUI">
-    <meta name="twitter:description" content="87 hidden macOS settings in a native System Settings-style app. No terminal required.">
+    <meta name="twitter:description" content="159 hidden macOS settings in a native System Settings-style app. No terminal required.">
     <meta name="twitter:image" content="https://powerchest.app/pics/Snapshots.png">
-    <meta name="keywords" content="macOS settings, defaults write, macOS tweaks, mac hidden settings, dock speed, finder hidden files, firewall stealth mode, mac customization, system preferences, macos utility, power user, ds_store, mouse acceleration, mac app, swiftui, macos tahoe, liquid glass, disable solarium, stage manager speed, macos 26">
+    <meta name="keywords" content="macOS settings, defaults write, macOS tweaks, mac hidden settings, dock speed, finder hidden files, firewall stealth mode, mac customization, system preferences, macos utility, power user, ds_store, mouse acceleration, mac app, swiftui, macos tahoe, liquid glass, disable solarium, stage manager speed, macos 26, trackpad settings, hot corners, stage manager, window tiling, apple intelligence, control center, activity monitor">
     <style>
         :root {
             --bg: #0c0c0e;
@@ -732,11 +732,11 @@
 <section class="hero">
     <div class="container">
         <img src="pics/icon.png" alt="PowerChest icon" class="hero-icon">
-        <div class="hero-badge">Updated for macOS 26 Tahoe. Native SwiftUI. No Electron.</div>
+        <div class="hero-badge">v1.3.1 — 159 settings for macOS 26 Tahoe. Liquid Glass UI. Native SwiftUI.</div>
         <h1>The <span class="gradient">defaults write</span> GUI<br>that macOS never shipped.</h1>
         <p class="hero-sub">
-            87 hidden macOS settings surfaced in a System Settings-style interface.
-            Firewall, Dock, Finder, screenshots, network, mouse acceleration &mdash;
+            159 hidden macOS settings surfaced in a Liquid Glass-style interface.
+            Trackpad, hot corners, Stage Manager, Apple Intelligence, Dock, Finder, firewall &mdash;
             all reversible, all logged, no terminal required.
         </p>
         <div class="hero-cta">
@@ -751,7 +751,7 @@
         </div>
 
         <div class="hero-screenshot fade-in">
-            <img src="pics/Snapshots.png" alt="PowerChest home screen showing 87 managed settings, presets, and snapshot count">
+            <img src="pics/Snapshots.png" alt="PowerChest home screen showing 159 managed settings, presets, and snapshot count">
         </div>
     </div>
 </section>
@@ -801,8 +801,8 @@
         <div class="feature-grid">
             <div class="feature-card fade-in">
                 <div class="feature-icon" style="background: rgba(167,139,250,0.12); color: var(--accent);">&#9881;</div>
-                <h3>87 curated settings</h3>
-                <p>Dock timing, Finder tweaks, firewall controls, screenshot behavior, mouse acceleration, network privacy, and more. Every setting is hand-verified on current macOS.</p>
+                <h3>159 curated settings</h3>
+                <p>Dock, Finder, trackpad gestures, hot corners, Stage Manager, window tiling, Apple Intelligence, menu bar, Control Center, Activity Monitor, Xcode, Terminal, and more. Every setting hand-verified on macOS 26.</p>
             </div>
             <div class="feature-card fade-in">
                 <div class="feature-icon" style="background: rgba(52,211,153,0.12); color: var(--green);">&#8634;</div>
@@ -946,6 +946,34 @@
                     <p>Tahoe added icons to every menu item. Strip them out for the clean, text-only look from Sequoia.</p>
                 </div>
             </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--orange);"></div>
+                <div>
+                    <h4>Toggle Apple Intelligence</h4>
+                    <p>Disable Apple Intelligence entirely from the command line. One toggle, requires reboot.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--accent);"></div>
+                <div>
+                    <h4>Three-finger trackpad drag</h4>
+                    <p>The beloved accessibility feature buried 5 menus deep. One toggle to enable it.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--pink);"></div>
+                <div>
+                    <h4>Hot corners</h4>
+                    <p>Assign any screen corner to Mission Control, Desktop, Lock Screen, Launchpad, Quick Note, and more.</p>
+                </div>
+            </div>
+            <div class="setting-item fade-in">
+                <div class="setting-dot" style="background: var(--blue);"></div>
+                <div>
+                    <h4>Window tiling controls</h4>
+                    <p>Enable or disable Sequoia/Tahoe's edge-drag tiling, Option-key tiling, and top-edge fill.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -980,7 +1008,7 @@
 <section class="full-catalog" id="catalog">
     <div class="container">
         <h2 class="fade-in">Every setting in the catalog.</h2>
-        <p class="section-sub fade-in">87 macOS settings across 9 categories. Every one tested on macOS 26 Tahoe, documented, and reversible.</p>
+        <p class="section-sub fade-in">159 macOS settings across 11 categories. Every one tested on macOS 26 Tahoe, documented, and reversible.</p>
 
         <div class="catalog-category fade-in">
             <h3><span class="cat-icon" style="background: rgba(96,165,250,0.15); color: var(--blue);">&#128269;</span> Finder & Files</h3>
@@ -1005,6 +1033,13 @@
                 <span class="catalog-tag">Preferred view style</span>
                 <span class="catalog-tag">Auto-resize columns in Column View</span>
                 <span class="catalog-tag">Hide desktop icons</span>
+                <span class="catalog-tag">Auto-empty Trash after 30 days</span>
+                <span class="catalog-tag">External drives on desktop</span>
+                <span class="catalog-tag">Internal drives on desktop</span>
+                <span class="catalog-tag">Network servers on desktop</span>
+                <span class="catalog-tag">Removable media on desktop</span>
+                <span class="catalog-tag">Open folders in tabs</span>
+                <span class="catalog-tag">Toolbar icon rollover delay</span>
             </div>
         </div>
 
@@ -1024,9 +1059,16 @@
                 <span class="catalog-tag">Scroll bar visibility</span>
                 <span class="catalog-tag">Expand Save dialogs by default</span>
                 <span class="catalog-tag">Expand Print dialogs by default</span>
-                <span class="catalog-tag">Plain text TextEdit by default</span>
-                <span class="catalog-tag">Stop Help windows from floating</span>
-                <span class="catalog-tag">Disable App Nap</span>
+                <span class="catalog-tag">Dock magnification</span>
+                <span class="catalog-tag">Dock magnified size</span>
+                <span class="catalog-tag">Bouncing launch animation</span>
+                <span class="catalog-tag">Process indicator dots</span>
+                <span class="catalog-tag">Hidden app translucency</span>
+                <span class="catalog-tag">Spring-load all Dock items</span>
+                <span class="catalog-tag">App Switcher on all displays</span>
+                <span class="catalog-tag">Scroll to show app windows</span>
+                <span class="catalog-tag">Sidebar icon size</span>
+                <span class="catalog-tag">Scroll bar click behavior</span>
             </div>
         </div>
 
@@ -1046,6 +1088,17 @@
                 <span class="catalog-tag">Disable mouse acceleration</span>
                 <span class="catalog-tag">Mouse acceleration curve (-1 to 3)</span>
                 <span class="catalog-tag">Disable autofill heuristic (fix Electron lag)</span>
+                <span class="catalog-tag">Inline predictive text</span>
+                <span class="catalog-tag">Fn/Globe key action</span>
+                <span class="catalog-tag">F1-F12 as function keys</span>
+                <span class="catalog-tag">Language indicator</span>
+                <span class="catalog-tag">Tap to click</span>
+                <span class="catalog-tag">Three-finger drag</span>
+                <span class="catalog-tag">Disable force click</span>
+                <span class="catalog-tag">Haptic feedback</span>
+                <span class="catalog-tag">Click pressure</span>
+                <span class="catalog-tag">Force click pressure</span>
+                <span class="catalog-tag">Tracking speed</span>
             </div>
         </div>
 
@@ -1057,6 +1110,24 @@
                 <span class="catalog-tag">Group windows by app in Mission Control</span>
                 <span class="catalog-tag">Mission Control animation speed</span>
                 <span class="catalog-tag">Stage Manager animation speed</span>
+                <span class="catalog-tag">Enable Stage Manager</span>
+                <span class="catalog-tag">Auto-hide Stage Manager strip</span>
+                <span class="catalog-tag">Click wallpaper to show desktop</span>
+                <span class="catalog-tag">Snap windows to edges</span>
+                <span class="catalog-tag">Option-key tiling</span>
+                <span class="catalog-tag">Drag to top to fill screen</span>
+                <span class="catalog-tag">Tiled window margins</span>
+                <span class="catalog-tag">Hide desktop icons (Stage Manager)</span>
+                <span class="catalog-tag">Hide all desktop icons</span>
+                <span class="catalog-tag">Switch Space on activate</span>
+                <span class="catalog-tag">Window tabbing mode</span>
+                <span class="catalog-tag">Drag windows from anywhere</span>
+                <span class="catalog-tag">Keep windows on quit</span>
+                <span class="catalog-tag">Save prompt on close</span>
+                <span class="catalog-tag">Hot corner: top-left</span>
+                <span class="catalog-tag">Hot corner: top-right</span>
+                <span class="catalog-tag">Hot corner: bottom-left</span>
+                <span class="catalog-tag">Hot corner: bottom-right</span>
             </div>
         </div>
 
@@ -1069,6 +1140,8 @@
                 <span class="catalog-tag">Disable window shadow in screenshots</span>
                 <span class="catalog-tag">Disable floating thumbnail</span>
                 <span class="catalog-tag">Custom filename prefix</span>
+                <span class="catalog-tag">Date in filenames</span>
+                <span class="catalog-tag">Remember last selection</span>
             </div>
         </div>
 
@@ -1081,6 +1154,7 @@
                 <span class="catalog-tag">Increase contrast</span>
                 <span class="catalog-tag">Reduce motion</span>
                 <span class="catalog-tag">Font smoothing for non-Retina displays</span>
+                <span class="catalog-tag">Window animations</span>
             </div>
         </div>
 
@@ -1091,6 +1165,19 @@
                 <span class="catalog-tag">24-hour clock</span>
                 <span class="catalog-tag">Flash time separators</span>
                 <span class="catalog-tag">Show/hide date in menu bar</span>
+                <span class="catalog-tag">Show AM/PM</span>
+                <span class="catalog-tag">Show seconds</span>
+                <span class="catalog-tag">Show day of week</span>
+                <span class="catalog-tag">Analog clock</span>
+                <span class="catalog-tag">Auto-hide menu bar</span>
+                <span class="catalog-tag">Menu bar icon spacing</span>
+                <span class="catalog-tag">Menu bar icon padding</span>
+                <span class="catalog-tag">Bluetooth in menu bar</span>
+                <span class="catalog-tag">Sound in menu bar</span>
+                <span class="catalog-tag">Now Playing in menu bar</span>
+                <span class="catalog-tag">Focus in menu bar</span>
+                <span class="catalog-tag">Brightness in menu bar</span>
+                <span class="catalog-tag">Music now-playing notifications</span>
             </div>
         </div>
 
@@ -1100,6 +1187,11 @@
             <div class="catalog-tags">
                 <span class="catalog-tag">Skip Gatekeeper quarantine prompts</span>
                 <span class="catalog-tag">Crash reporter detail level</span>
+                <span class="catalog-tag">Screen lock after screensaver</span>
+                <span class="catalog-tag">Password delay</span>
+                <span class="catalog-tag">Custom login screen message</span>
+                <span class="catalog-tag">Toggle Apple Intelligence</span>
+                <span class="catalog-tag">Stop Time Machine disk prompts</span>
             </div>
         </div>
 
@@ -1119,6 +1211,33 @@
                 <span class="catalog-tag admin">Remote Login (SSH)</span>
                 <span class="catalog-tag admin">IPv6 on Wi-Fi</span>
                 <span class="catalog-tag admin">MAC address spoofing</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(251,146,60,0.15); color: var(--orange);">&#128187;</span> Apps & Developer</h3>
+            <p>TextEdit, Help Viewer, Activity Monitor, Xcode, Terminal, and Safari developer tools.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">TextEdit plain text mode</span>
+                <span class="catalog-tag">Help Viewer non-floating</span>
+                <span class="catalog-tag">Activity Monitor dock icon</span>
+                <span class="catalog-tag">Activity Monitor process filter</span>
+                <span class="catalog-tag">Activity Monitor update frequency</span>
+                <span class="catalog-tag">Xcode build duration</span>
+                <span class="catalog-tag">Terminal focus follows mouse</span>
+                <span class="catalog-tag">Safari full URL</span>
+                <span class="catalog-tag">Safari developer menu</span>
+                <span class="catalog-tag">Stop auto-opening downloads</span>
+                <span class="catalog-tag">Show link URLs in Safari</span>
+            </div>
+        </div>
+
+        <div class="catalog-category fade-in">
+            <h3><span class="cat-icon" style="background: rgba(156,163,175,0.15); color: #9ca3af;">&#9881;</span> Internals</h3>
+            <p>Low-level process behavior and system resource management.</p>
+            <div class="catalog-tags">
+                <span class="catalog-tag">Disable App Nap</span>
+                <span class="catalog-tag">Stop auto-terminating idle apps</span>
             </div>
         </div>
 
@@ -1142,7 +1261,7 @@
 <section class="bottom-cta">
     <div class="container">
         <h2 class="fade-in">Stop Googling <code style="background: var(--bg-card); padding: 4px 12px; border-radius: 6px; font-size: 28px;">defaults write</code></h2>
-        <p class="fade-in">macOS 14+ &middot; Free &middot; No account required &middot; No telemetry</p>
+        <p class="fade-in">macOS 26+ &middot; Free &middot; No account required &middot; No telemetry</p>
         <div class="hero-cta fade-in">
             <a href="https://github.com/scripsweave/PowerChest/releases/latest" class="btn-primary">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
@@ -1155,7 +1274,7 @@
         </div>
         <div class="tech-badges fade-in">
             <span class="tech-badge">SwiftUI</span>
-            <span class="tech-badge">macOS 14+</span>
+            <span class="tech-badge">macOS 26+</span>
             <span class="tech-badge">No Electron</span>
             <span class="tech-badge">No telemetry</span>
             <span class="tech-badge">No account</span>
