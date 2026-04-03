@@ -741,7 +741,7 @@ private struct PresetCard: View {
 
             if !highlights.isEmpty {
                 HStack(spacing: 6) {
-                    ForEach(highlights, id: \.icon) { highlight in
+                    ForEach(Array(highlights.enumerated()), id: \.offset) { _, highlight in
                         HStack(spacing: 4) {
                             Image(systemName: highlight.icon)
                                 .font(.caption2)

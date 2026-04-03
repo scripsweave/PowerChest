@@ -517,8 +517,9 @@ struct SettingValueRow: View {
         case .int:
             if let labels = intValueLabels(for: definition) {
                 // Discrete labeled picker for enum-like ints
+                let fallback = labels.first?.value ?? 0
                 Picker(definition.powerUserLabel ?? definition.displayName, selection: Binding(
-                    get: { currentValue?.asInt ?? 0 },
+                    get: { currentValue?.asInt ?? fallback },
                     set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
                 )) {
                     ForEach(labels, id: \.value) { item in
@@ -642,7 +643,7 @@ struct SettingValueRow: View {
         case .enum:
             if let allowed = definition.allowedValues {
                 Picker(definition.powerUserLabel ?? definition.displayName, selection: Binding(
-                    get: { currentValue ?? .string("") },
+                    get: { currentValue ?? allowed.first ?? .string("") },
                     set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue($0)) }
                 )) {
                     ForEach(allowed, id: \.self) { val in
@@ -975,8 +976,9 @@ struct PropellerheadSettingRow: View {
 
         case .int:
             if let labels = intValueLabels(for: definition) {
+                let fallback = labels.first?.value ?? 0
                 Picker(definition.displayName, selection: Binding(
-                    get: { currentValue?.asInt ?? 0 },
+                    get: { currentValue?.asInt ?? fallback },
                     set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
                 )) {
                     ForEach(labels, id: \.value) { item in
@@ -1067,7 +1069,7 @@ struct PropellerheadSettingRow: View {
         case .enum:
             if let allowed = definition.allowedValues {
                 Picker(definition.displayName, selection: Binding(
-                    get: { currentValue ?? .string("") },
+                    get: { currentValue ?? allowed.first ?? .string("") },
                     set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue($0)) }
                 )) {
                     ForEach(allowed, id: \.self) { val in
