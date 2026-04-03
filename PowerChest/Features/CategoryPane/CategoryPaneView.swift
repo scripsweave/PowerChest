@@ -531,9 +531,12 @@ struct SettingValueRow: View {
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                         Text("\(currentValue?.asInt ?? range.lowerBound)")
-                            .frame(width: 32, alignment: .trailing)
+                            .font(.caption)
                             .fontDesign(.monospaced)
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                     }
                 }
             } else {
@@ -562,9 +565,12 @@ struct SettingValueRow: View {
                             step: (range.upperBound - range.lowerBound) > 10 ? 0.1 : 0.01
                         )
                         Text(String(format: "%.2f", currentValue?.asDouble ?? range.lowerBound))
-                            .frame(width: 36, alignment: .trailing)
+                            .font(.caption)
                             .fontDesign(.monospaced)
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                     }
                 }
             } else {
@@ -885,13 +891,17 @@ struct PropellerheadSettingRow: View {
                     Text(domain)
                         .font(.caption)
                         .fontDesign(.monospaced)
-                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
                 LabeledContent("Key") {
                     Text(tech)
                         .font(.caption)
                         .fontDesign(.monospaced)
-                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
             }
 
@@ -913,8 +923,13 @@ struct PropellerheadSettingRow: View {
 
                 // Current value chip
                 Text(currentDisplayValue)
-                    .font(.callout)
+                    .font(.caption)
+                    .fontDesign(.monospaced)
+                    .fontWeight(.medium)
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
 
                 if definition.requiresAdmin {
                     AdminBadgeView()
@@ -958,9 +973,12 @@ struct PropellerheadSettingRow: View {
                         step: 1
                     )
                     Text("\(currentValue?.asInt ?? intRange.lowerBound)")
-                        .frame(width: 32, alignment: .trailing)
+                        .font(.caption)
                         .fontDesign(.monospaced)
-                        .foregroundStyle(.secondary)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
             }
 
@@ -977,9 +995,12 @@ struct PropellerheadSettingRow: View {
                         step: (dblRange.upperBound - dblRange.lowerBound) > 10 ? 0.1 : 0.01
                     )
                     Text(String(format: "%.2f", currentValue?.asDouble ?? dblRange.lowerBound))
-                        .frame(width: 36, alignment: .trailing)
+                        .font(.caption)
                         .fontDesign(.monospaced)
-                        .foregroundStyle(.secondary)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
             }
 
