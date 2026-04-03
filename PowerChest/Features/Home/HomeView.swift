@@ -535,6 +535,7 @@ struct HomeView: View {
         case .accessibilityVisual: return "eye.fill"
         case .securityPrivacy: return "lock.fill"
         case .networkConnectivity: return "network"
+        case .internals: return "gearshape.2.fill"
         }
     }
 

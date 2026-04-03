@@ -414,6 +414,9 @@ struct InteractiveGroupedControl: View {
         case "G049": return "terminal.fill"                    // Remote Access & Protocols
         case "G050": return "network"                          // MAC Address Spoofing
 
+        // ── Windows (new) ──
+        case "G079": return "macwindow"                        // Window tabbing & drag
+
         default: return "gearshape.fill"
         }
     }
@@ -1527,6 +1530,7 @@ private func settingIcon(for def: SettingDefinition) -> String {
         case .accessibilityVisual:  return "eye.fill"
         case .securityPrivacy:      return "lock.fill"
         case .networkConnectivity:  return "network"
+        case .internals:            return "gearshape.2.fill"
         }
     }
 }

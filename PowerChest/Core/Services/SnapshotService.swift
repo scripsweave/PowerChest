@@ -200,6 +200,7 @@ final class SnapshotService {
         case .accessibilityVisual: return "Accessibility"
         case .securityPrivacy: return "Security"
         case .networkConnectivity: return "Network"
+        case .internals: return "Internals"
         }
     }
 

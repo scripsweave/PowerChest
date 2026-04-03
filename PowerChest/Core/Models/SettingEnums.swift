@@ -51,6 +51,7 @@ enum SettingCategory: String, Codable, CaseIterable, Sendable {
     case accessibilityVisual
     case securityPrivacy
     case networkConnectivity
+    case internals
 }
 
 enum RestartRequirement: Equatable, Hashable, Sendable {

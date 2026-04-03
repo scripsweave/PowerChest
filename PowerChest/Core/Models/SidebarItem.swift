@@ -16,8 +16,10 @@ enum SidebarItem: String, CaseIterable, Identifiable {
     case keyboardAndInput
     case windowsAndSpaces
     case screenshots
+    case appsAndDeveloper
     case visualsAndAccessibility
     case menuBar
+    case internals
     case safetyAndSecurity
     case networkAndConnectivity
     case snapshots
@@ -34,8 +36,10 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return "Keyboard & Input"
         case .windowsAndSpaces: return "Windows & Spaces"
         case .screenshots: return "Screenshots"
+        case .appsAndDeveloper: return "Apps & Developer"
         case .visualsAndAccessibility: return "Visuals & Accessibility"
         case .menuBar: return "Menu Bar"
+        case .internals: return "Internals"
         case .safetyAndSecurity: return "Safety & Security"
         case .networkAndConnectivity: return "Network & Connectivity"
         case .snapshots: return "Time Machine"
@@ -52,8 +56,10 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return "keyboard.fill"
         case .windowsAndSpaces: return "rectangle.on.rectangle"
         case .screenshots: return "camera.viewfinder"
+        case .appsAndDeveloper: return "wrench.and.screwdriver.fill"
         case .visualsAndAccessibility: return "eye.fill"
         case .menuBar: return "menubar.rectangle"
+        case .internals: return "gearshape.2.fill"
         case .safetyAndSecurity: return "shield.fill"
         case .networkAndConnectivity: return "network"
         case .snapshots: return "clock.arrow.circlepath"
@@ -70,8 +76,10 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return .gray
         case .windowsAndSpaces: return .purple
         case .screenshots: return .pink
+        case .appsAndDeveloper: return .cyan
         case .visualsAndAccessibility: return .teal
         case .menuBar: return .mint
+        case .internals: return .brown
         case .safetyAndSecurity: return .red
         case .networkAndConnectivity: return .blue
         case .snapshots: return .orange
@@ -84,8 +92,8 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         switch self {
         case .home: return .home
         case .dockAndInterface, .finderAndFiles, .keyboardAndInput, .windowsAndSpaces,
-             .screenshots, .visualsAndAccessibility, .menuBar,
-             .safetyAndSecurity, .networkAndConnectivity:
+             .screenshots, .appsAndDeveloper, .visualsAndAccessibility, .menuBar,
+             .internals, .safetyAndSecurity, .networkAndConnectivity:
             return .settings
         case .snapshots, .changes: return .utilities
         case .appSettings: return .app
@@ -99,8 +107,10 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .keyboardAndInput: return .keyboardInput
         case .windowsAndSpaces: return .windowsSpaces
         case .screenshots: return .screenshots
+        case .appsAndDeveloper: return .safariDeveloper
         case .visualsAndAccessibility: return .accessibilityVisual
         case .menuBar: return .menuBarStatus
+        case .internals: return .internals
         case .safetyAndSecurity: return .securityPrivacy
         case .networkAndConnectivity: return .networkConnectivity
         default: return nil
@@ -117,15 +127,17 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 
     var categoryDescription: String? {
         switch self {
-        case .dockAndInterface: return "Dock size, magnification, hot corners, window behavior, and dialog defaults."
+        case .dockAndInterface: return "Dock size, magnification, scroll bars, dialogs, and interface behavior."
         case .finderAndFiles: return "Hidden files, path bars, extensions, desktop drives, and folder sorting."
         case .keyboardAndInput: return "Key repeat, accents, autocorrect, trackpad gestures, and typing shortcuts."
-        case .windowsAndSpaces: return "Mission Control, Stage Manager, window tiling, and desktop spaces."
+        case .windowsAndSpaces: return "Window tiling, hot corners, Stage Manager, Mission Control, and Spaces."
         case .screenshots: return "Screenshot format, location, shadows, and filename options."
-        case .visualsAndAccessibility: return "Transparency, contrast, motion, and pointer size."
-        case .menuBar: return "Clock display, Control Center items, menu bar density, and status items."
-        case .safetyAndSecurity: return "Quarantine, crash reports, screen lock, and login window."
-        case .networkAndConnectivity: return "Firewall, DNS, AirDrop, .DS_Store, and network privacy."
+        case .appsAndDeveloper: return "TextEdit, Activity Monitor, Help Viewer, Xcode, Terminal, and Safari."
+        case .visualsAndAccessibility: return "Transparency, contrast, motion, animations, and pointer size."
+        case .menuBar: return "Clock display, Control Center items, menu bar density, and notifications."
+        case .internals: return "Under-the-hood system behaviors most people never need to touch."
+        case .safetyAndSecurity: return "Quarantine, crash reports, screen lock, login window, and AI."
+        case .networkAndConnectivity: return "Firewall, DNS, AirDrop, remote access, and network privacy."
         default: return nil
         }
     }
