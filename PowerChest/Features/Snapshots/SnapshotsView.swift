@@ -24,9 +24,9 @@ struct SnapshotsView: View {
                     VStack(spacing: 16) {
                         FloatingEmptyIcon(systemImage: "clock.arrow.circlepath", tint: .blue)
                         ContentUnavailableView(
-                            "No Snapshots Yet",
+                            "Nothing to roll back to",
                             systemImage: "clock.arrow.circlepath",
-                            description: Text("Make a change or create one manually. Snapshots are your safety net.")
+                            description: Text("Go change something reckless. We'll quietly save a restore point before you do.")
                         )
                     }
                     .frame(maxWidth: .infinity)
@@ -441,9 +441,9 @@ private struct SnapshotDetailSheet: View {
             if let changed {
                 if changed.isEmpty {
                     ContentUnavailableView(
-                        "Everything Matches",
+                        "Identical",
                         systemImage: "checkmark.circle",
-                        description: Text("The current state matches this snapshot exactly.")
+                        description: Text("Your current setup matches this snapshot exactly. Nothing to restore.")
                     )
                 } else {
                     Text("\(changed.count) difference\(changed.count == 1 ? "" : "s"), \(unchangedCount) unchanged")

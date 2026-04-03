@@ -17,9 +17,9 @@ struct ChangesView: View {
                     VStack(spacing: 16) {
                         FloatingEmptyIcon(systemImage: "list.bullet.rectangle", tint: .orange)
                         ContentUnavailableView(
-                            "No Changes Yet",
+                            "Suspiciously clean record",
                             systemImage: "list.bullet.clipboard",
-                            description: Text("Go tweak something. Every change PowerChest makes will show up here.")
+                            description: Text("You haven't changed anything yet. Every tweak you make gets logged here — who, what, when, and why you can blame us.")
                         )
                     }
                     .frame(maxWidth: .infinity)

@@ -104,9 +104,9 @@ private struct PowerUserContent: View {
         if groupedControls.isEmpty {
             Section {
                 ContentUnavailableView(
-                    "No Controls Yet",
-                    systemImage: "slider.horizontal.3",
-                    description: Text("Power User controls for this category are coming soon.")
+                    "Still under construction",
+                    systemImage: "wrench.and.screwdriver",
+                    description: Text("Power User controls for this category are on the way. Check back soon.")
                 )
             }
         } else {
@@ -135,9 +135,9 @@ private struct PropellerheadContent: View {
         if definitions.isEmpty {
             Section {
                 ContentUnavailableView(
-                    "No Settings",
+                    "Nothing here yet",
                     systemImage: "gearshape",
-                    description: Text("No settings in this category.")
+                    description: Text("This category is empty for now. More settings are always being added.")
                 )
             }
         } else {
