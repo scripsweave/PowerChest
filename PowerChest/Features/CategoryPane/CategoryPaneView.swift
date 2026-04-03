@@ -311,12 +311,103 @@ struct InteractiveGroupedControl: View {
     }
 
     private var iconName: String {
-        switch groupedControl.kind {
-        case .toggle: return "switch.2"
-        case .multiToggle: return "slider.horizontal.3"
-        case .multiControl: return "dial.low.fill"
-        case .discreteChoice: return "rectangle.inset.filled.and.person.filled"
-        default: return "wand.and.stars"
+        switch groupedControl.id {
+        // ── Finder ──
+        case "G001": return "eye.fill"                         // Show hidden files
+        case "G002": return "doc.text"                         // Always show file extensions
+        case "G003": return "character.cursor.ibeam"           // Show full path in title
+        case "G004": return "rectangle.bottomhalf.inset.filled" // Show more Finder details
+        case "G019": return "folder.badge.gearshape"           // Show ~/Library
+        case "G020": return "internaldrive.fill"               // Save to this Mac
+        case "G021": return "pencil"                           // Skip extension warning
+        case "G024": return "trash.slash"                      // Stop .DS_Store clutter
+        case "G026": return "cursorarrow.rays"                 // Spring-loading speed
+        case "G027": return "power"                            // Allow quitting Finder
+        case "G028": return "trash.fill"                       // Skip empty Trash warning
+        case "G029": return "macwindow.badge.plus"             // New Finder window target
+        case "G054": return "rectangle.split.3x1"              // Column auto-sizing
+        case "G055": return "desktopcomputer"                  // Hide desktop icons (Finder)
+        case "G072": return "trash.fill"                       // Auto-empty Trash
+        case "G073": return "externaldrive.fill"               // Desktop drive icons
+
+        // ── Dock & Interface ──
+        case "G005": return "hare.fill"                        // Make Dock feel faster
+        case "G006": return "arrow.down.to.line"               // Minimize into app icon
+        case "G007": return "circle.dotted"                    // Show only open apps
+        case "G008": return "rectangle.expand.vertical"        // Expanded Save/Print dialogs
+        case "G022": return "clock.arrow.circlepath"           // Show recent apps in Dock
+        case "G023": return "scroll.fill"                      // Scroll bar visibility
+        case "G025": return "doc.plaintext"                    // TextEdit plain text
+        case "G030": return "slider.horizontal.below.rectangle" // Dock icon size
+        case "G031": return "dock.rectangle"                   // Dock position
+        case "G032": return "arrow.down.right.and.arrow.up.left" // Minimize animation
+        case "G033": return "cursorarrow.click.2"              // Title bar double-click
+        case "G041": return "questionmark.circle.fill"         // Help viewer non-floating
+        case "G053": return "moon.fill"                        // Disable App Nap
+        case "G065": return "rectangle.inset.topleft.filled"   // Hot corners
+        case "G066": return "plus.magnifyingglass"             // Dock extras (magnification etc.)
+        case "G067": return "display.2"                        // Dock multi-monitor & scroll
+        case "G070": return "macwindow"                        // Window behavior
+        case "G075": return "gauge.with.needle.fill"           // Activity Monitor
+        case "G076": return "macwindow.on.rectangle"           // Window persistence
+
+        // ── Keyboard & Input ──
+        case "G009": return "repeat"                           // Key repeat speed
+        case "G010": return "character.textbox"                // Key repeat vs accent popup
+        case "G011": return "textformat.abc.dottedunderline"   // Typing helpers
+        case "G034": return "rectangle.and.hand.point.up.left.fill" // Full keyboard access
+        case "G051": return "cursorarrow.motionlines"          // Mouse acceleration
+        case "G057": return "rectangle.and.pencil.and.ellipsis" // Autofill heuristic
+        case "G060": return "hand.tap.fill"                    // Trackpad gestures
+        case "G061": return "hand.point.up.fill"               // Trackpad click & tracking
+        case "G077": return "fn"                               // Fn/Globe key
+
+        // ── Windows & Spaces ──
+        case "G012": return "square.grid.3x3.square"           // Spaces behavior
+        case "G013": return "hare.fill"                        // Mission Control speed
+        case "G035": return "rectangle.3.group"                // Group windows by app
+        case "G056": return "hare.fill"                        // Stage Manager speed
+        case "G062": return "mosaic.fill"                      // Stage Manager
+        case "G063": return "rectangle.split.2x1.fill"         // Window tiling
+        case "G064": return "eye.slash"                        // Hide desktop icons (standard)
+
+        // ── Screenshots ──
+        case "G014": return "camera.viewfinder"                // Tidy up screenshots
+        case "G015": return "wrench.and.screwdriver.fill"      // Safari dev basics
+        case "G037": return "arrow.down.circle.fill"           // Stop auto-opening downloads
+        case "G038": return "link"                             // Show link URLs
+
+        // ── Developer ──
+        case "G078": return "terminal.fill"                    // Developer tools
+
+        // ── Accessibility & Visual ──
+        case "G016": return "circle.lefthalf.filled"           // Increase contrast
+        case "G052": return "figure.walk"                      // Reduce motion
+        case "G058": return "cube.transparent"                 // Disable Liquid Glass
+        case "G059": return "filemenu.and.selection"           // Hide menu dropdown icons
+
+        // ── Menu Bar ──
+        case "G017": return "sparkle"                          // Clock flash separators
+        case "G039": return "clock.fill"                       // 24-hour clock
+        case "G042": return "calendar"                         // Date in menu bar
+        case "G068": return "clock.badge"                      // Clock display extras
+        case "G069": return "switch.2"                         // Control Center items
+        case "G071": return "menubar.arrow.up.rectangle"       // Menu bar density
+
+        // ── Security & Privacy ──
+        case "G018": return "shield.fill"                      // Skip quarantine
+        case "G040": return "exclamationmark.triangle.fill"    // Crash reporter
+        case "G074": return "lock.fill"                        // Screen lock
+
+        // ── Network & Connectivity ──
+        case "G044": return "wifi.slash"                       // AirDrop
+        case "G045": return "hand.raised.fill"                 // Safari Network Privacy
+        case "G047": return "wifi"                             // Captive Portal
+        case "G048": return "flame.fill"                       // Firewall
+        case "G049": return "terminal.fill"                    // Remote Access & Protocols
+        case "G050": return "network"                          // MAC Address Spoofing
+
+        default: return "gearshape.fill"
         }
     }
 
@@ -405,10 +496,13 @@ struct SettingValueRow: View {
         let row = Group {
             switch definition.valueType {
             case .bool:
-            Toggle(definition.powerUserLabel ?? definition.displayName, isOn: Binding(
+            Toggle(isOn: Binding(
                 get: { currentValue?.asBool ?? false },
                 set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.bool($0))) }
-            ))
+            )) {
+                Label(definition.powerUserLabel ?? definition.displayName,
+                      systemImage: settingIcon(for: definition))
+            }
 
         case .int:
             if let range = intSliderRange(for: definition) {
@@ -735,7 +829,7 @@ private struct ToggleRow: View {
     }
 
     var body: some View {
-        Toggle(definition.powerUserLabel ?? definition.displayName, isOn: Binding(
+        Toggle(isOn: Binding(
             get: { displayValue },
             set: { newVal in
                 let effectiveVal = isInverted ? !newVal : newVal
@@ -746,7 +840,10 @@ private struct ToggleRow: View {
                     viewModel.stageChange(settingID: settingID, target: .explicitValue(.bool(effectiveVal)))
                 }
             }
-        ))
+        )) {
+            Label(definition.powerUserLabel ?? definition.displayName,
+                  systemImage: settingIcon(for: definition))
+        }
     }
 
     private var effectiveValue: CodableValue? {
@@ -1093,6 +1190,210 @@ struct ApplyResultBanner: View {
         .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
     }
 }
+
+// swiftlint:disable cyclomatic_complexity function_body_length
+private func settingIcon(for def: SettingDefinition) -> String {
+    switch def.id {
+    // ── Finder ──
+    case "finder.showHiddenFiles":              return "eye.fill"
+    case "global.showAllExtensions":            return "doc.text"
+    case "finder.showPathBar":                  return "rectangle.bottomhalf.inset.filled"
+    case "finder.showStatusBar":                return "rectangle.bottomthird.inset.filled"
+    case "finder.keepFoldersOnTopInWindow":     return "folder.fill"
+    case "finder.keepFoldersOnTopOnDesktop":    return "folder.fill"
+    case "finder.newWindowTarget":              return "macwindow.badge.plus"
+    case "finder.showPosixPathInTitle":         return "character.cursor.ibeam"
+    case "finder.showLibraryFolder":            return "folder.badge.gearshape"
+    case "finder.warnOnEmptyTrash":             return "trash.slash"
+    case "finder.disableExtensionChangeWarning": return "pencil"
+    case "global.saveToLocalDisk":              return "internaldrive.fill"
+    case "finder.quitMenuItem":                 return "power"
+    case "desktopservices.dontWriteNetworkDS":  return "network"
+    case "desktopservices.dontWriteUSBDS":      return "externaldrive.fill"
+    case "finder.springLoadingDelay":           return "cursorarrow.rays"
+    case "finder.defaultSearchScope":           return "magnifyingglass"
+    case "finder.preferredViewStyle":           return "rectangle.grid.1x2.fill"
+    case "finder.columnAutoSizing":             return "rectangle.split.3x1"
+    case "finder.createDesktop":                return "desktopcomputer"
+    case "finder.autoRemoveOldTrash":           return "trash.fill"
+    case "finder.showExternalDrives":           return "externaldrive.fill"
+    case "finder.showInternalDrives":           return "internaldrive.fill"
+    case "finder.showServers":                  return "server.rack"
+    case "finder.showRemovableMedia":           return "sdcard.fill"
+    case "finder.openFoldersInTabs":            return "rectangle.split.3x1.fill"
+    case "global.toolbarTitleRolloverDelay":    return "cursorarrow.click"
+
+    // ── Dock & Interface ──
+    case "dock.tileSize":                       return "slider.horizontal.below.rectangle"
+    case "dock.orientation":                    return "dock.rectangle"
+    case "dock.autohideDelay":                  return "clock.fill"
+    case "dock.autohideAnimationSpeed":         return "hare.fill"
+    case "dock.showRecents":                    return "clock.arrow.circlepath"
+    case "dock.mineffect":                      return "arrow.down.right.and.arrow.up.left"
+    case "dock.minimizeToApplication":          return "arrow.down.to.line"
+    case "global.showScrollBars":               return "scroll.fill"
+    case "global.titleBarDoubleClick":          return "cursorarrow.click.2"
+    case "global.savePanelExpanded":            return "rectangle.expand.vertical"
+    case "global.printPanelExpanded":           return "printer.fill"
+    case "dock.staticOnly":                     return "circle.dotted"
+    case "dock.magnification":                  return "plus.magnifyingglass"
+    case "dock.largeSize":                      return "arrow.up.left.and.arrow.down.right"
+    case "dock.launchAnimation":                return "arrow.up.and.down.and.sparkles"
+    case "dock.showProcessIndicators":          return "smallcircle.filled.circle.fill"
+    case "dock.showHidden":                     return "eye.slash"
+    case "dock.springLoadAll":                  return "cursorarrow.rays"
+    case "dock.appSwitcherAllDisplays":         return "display.2"
+    case "dock.scrollToOpen":                   return "scroll"
+    case "dock.hotCornerTopLeft":               return "rectangle.inset.topleft.filled"
+    case "dock.hotCornerTopRight":              return "rectangle.inset.topright.filled"
+    case "dock.hotCornerBottomLeft":            return "rectangle.inset.bottomleft.filled"
+    case "dock.hotCornerBottomRight":           return "rectangle.inset.bottomright.filled"
+    case "global.windowTabbingMode":            return "rectangle.split.3x1"
+    case "global.dragWindowFromAnywhere":       return "arrow.up.and.down.and.arrow.left.and.right"
+    case "global.sidebarIconSize":              return "sidebar.left"
+    case "global.scrollbarClickBehavior":       return "scroll"
+    case "global.preventAutoTermination":       return "bolt.slash.fill"
+    case "global.keepWindowsOnQuit":            return "macwindow.on.rectangle"
+    case "global.closeConfirmsChanges":         return "doc.badge.ellipsis"
+    case "global.windowAnimationsEnabled":      return "sparkles"
+    case "global.appNap":                       return "moon.fill"
+
+    // ── TextEdit / HelpViewer / Activity Monitor ──
+    case "textEdit.plainTextDefault":           return "doc.plaintext"
+    case "helpViewer.devMode":                  return "questionmark.circle.fill"
+    case "activityMonitor.iconType":            return "gauge.with.needle.fill"
+    case "activityMonitor.showCategory":        return "list.bullet.below.rectangle"
+    case "activityMonitor.updatePeriod":        return "clock.fill"
+    case "music.songNotifications":             return "music.note"
+    case "timeMachine.dontOfferNewDisks":       return "externaldrive.fill.badge.timemachine"
+
+    // ── Keyboard & Input ──
+    case "global.pressAndHoldEnabled":          return "character.textbox"
+    case "global.keyRepeat":                    return "repeat"
+    case "global.initialKeyRepeat":             return "clock.fill"
+    case "global.smartQuotes":                  return "textformat.abc"
+    case "global.smartDashes":                  return "minus"
+    case "global.autoCapitalization":           return "textformat.size.larger"
+    case "global.autoSpellingCorrection":       return "textformat.abc.dottedunderline"
+    case "global.periodSubstitution":           return "ellipsis"
+    case "global.fullKeyboardAccess":           return "rectangle.and.hand.point.up.left.fill"
+    case "mouse.acceleration":                  return "cursorarrow.motionlines"
+    case "global.autoFillHeuristic":            return "rectangle.and.pencil.and.ellipsis"
+    case "global.inlinePrediction":             return "text.cursor"
+    case "keyboard.fnKeyAction":                return "fn"
+    case "keyboard.fnKeysStandard":             return "fn"
+    case "keyboard.languageIndicator":          return "globe"
+
+    // ── Trackpad ──
+    case "trackpad.tapToClick":                 return "hand.tap.fill"
+    case "trackpad.threeFingerDrag":            return "hand.draw.fill"
+    case "trackpad.forceClick":                 return "hand.point.up.fill"
+    case "trackpad.silentClicking":             return "speaker.slash.fill"
+    case "trackpad.clickPressure":              return "hand.point.up.fill"
+    case "trackpad.forceClickPressure":         return "hand.point.up.fill"
+    case "trackpad.trackingSpeed":              return "cursorarrow.motionlines"
+
+    // ── Windows & Spaces ──
+    case "dock.mruSpaces":                      return "square.grid.3x3.square"
+    case "dock.exposeGroupApps":                return "rectangle.3.group"
+    case "dock.exposeAnimationDuration":        return "hare.fill"
+    case "spaces.spansDisplays":                return "display.2"
+    case "windowManager.animationSpeed":        return "hare.fill"
+    case "windowManager.stageManager":          return "mosaic.fill"
+    case "windowManager.autoHideStrip":         return "sidebar.left"
+    case "windowManager.clickToShowDesktop":    return "cursorarrow.click"
+    case "windowManager.tilingByEdgeDrag":      return "rectangle.split.2x1.fill"
+    case "windowManager.tilingOptionKey":       return "option"
+    case "windowManager.topEdgeTiling":         return "rectangle.topthird.inset.filled"
+    case "windowManager.tiledWindowMargins":    return "square.resize"
+    case "windowManager.hideDesktopItems":      return "eye.slash"
+    case "windowManager.hideDesktopIcons":      return "eye.slash"
+    case "global.switchSpaceOnActivate":        return "arrow.left.arrow.right"
+
+    // ── Screenshots ──
+    case "screencapture.location":              return "folder.fill"
+    case "screencapture.format":                return "photo"
+    case "screencapture.disableShadow":         return "shadow"
+    case "screencapture.showThumbnail":         return "photo.on.rectangle"
+    case "screencapture.name":                  return "character.cursor.ibeam"
+    case "screencapture.includeDate":           return "calendar"
+    case "screencapture.rememberSelection":     return "rectangle.dashed"
+
+    // ── Safari & Developer ──
+    case "safari.showFullURL":                  return "link"
+    case "safari.includeDevelopMenu":           return "wrench.and.screwdriver.fill"
+    case "safari.autoOpenSafeDownloads":        return "arrow.down.circle.fill"
+    case "safari.showStatusBar":                return "rectangle.bottomthird.inset.filled"
+    case "safari.webKitDeveloperExtras":        return "hammer.fill"
+    case "safari.dnsPrefetching":               return "network"
+    case "safari.preloadTopHit":                return "bolt.fill"
+    case "safari.doNotTrack":                   return "hand.raised.fill"
+    case "xcode.showBuildDuration":             return "clock.badge"
+    case "terminal.focusFollowsMouse":          return "cursorarrow.rays"
+
+    // ── Accessibility & Visual ──
+    case "accessibility.reduceTransparency":    return "rectangle.fill"
+    case "accessibility.increaseContrast":      return "circle.lefthalf.filled"
+    case "accessibility.reduceMotion":          return "figure.walk"
+    case "accessibility.mouseDriverCursorSize": return "cursorarrow"
+    case "display.fontSmoothing":               return "textformat.size"
+    case "global.disableSolarium":              return "cube.transparent"
+    case "global.menuActionImages":             return "filemenu.and.selection"
+
+    // ── Menu Bar ──
+    case "menu.clock24Hour":                    return "clock.fill"
+    case "menu.batteryShowPercent":             return "battery.75percent"
+    case "menu.clockFlashDateSeparators":       return "sparkle"
+    case "menu.clockShowDate":                  return "calendar"
+    case "menu.clockShowAMPM":                  return "clock.fill"
+    case "menu.clockShowSeconds":               return "clock.badge"
+    case "menu.clockShowDayOfWeek":             return "calendar.day.timeline.left"
+    case "menu.clockAnalog":                    return "clock"
+    case "menu.autoHideMenuBar":                return "menubar.arrow.up.rectangle"
+    case "menu.statusItemSpacing":              return "arrow.left.and.right"
+    case "menu.statusItemPadding":              return "arrow.left.and.right"
+    case "menu.ccBluetooth":                    return "wave.3.right"
+    case "menu.ccSound":                        return "speaker.wave.2.fill"
+    case "menu.ccNowPlaying":                   return "music.note"
+    case "menu.ccFocusModes":                   return "moon.fill"
+    case "menu.ccDisplay":                      return "sun.max.fill"
+
+    // ── Security & Privacy ──
+    case "launchServices.quarantine":           return "shield.fill"
+    case "crashReporter.dialogType":            return "exclamationmark.triangle.fill"
+    case "screensaver.askForPassword":          return "lock.fill"
+    case "screensaver.askForPasswordDelay":     return "clock.fill"
+    case "loginwindow.text":                    return "text.bubble.fill"
+    case "appleIntelligence.enabled":           return "brain.head.profile"
+
+    // ── Network & Connectivity ──
+    case "network.firewallEnabled":             return "flame.fill"
+    case "network.firewallStealth":             return "eye.slash"
+    case "network.firewallBlockAll":            return "nosign"
+    case "network.captivePortal":               return "wifi"
+    case "network.disableAirDrop":              return "wifi.slash"
+    case "bluetooth.audioQuality":              return "wave.3.right"
+    case "network.remoteLogin":                 return "terminal.fill"
+    case "network.ipv6Wi-Fi":                   return "wifi"
+    case "network.macAddressEthernet":          return "network"
+
+    default:
+        // Category-based fallback
+        switch def.category {
+        case .finder:               return "folder.fill"
+        case .interface:            return "macwindow"
+        case .keyboardInput:        return "keyboard.fill"
+        case .windowsSpaces:        return "rectangle.on.rectangle"
+        case .screenshots:          return "camera.viewfinder"
+        case .safariDeveloper:      return "globe"
+        case .menuBarStatus:        return "menubar.rectangle"
+        case .accessibilityVisual:  return "eye.fill"
+        case .securityPrivacy:      return "lock.fill"
+        case .networkConnectivity:  return "network"
+        }
+    }
+}
+// swiftlint:enable cyclomatic_complexity function_body_length
 
 private func riskOrder(_ risk: RiskLevel) -> Int {
     switch risk {
