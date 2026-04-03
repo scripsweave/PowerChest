@@ -512,7 +512,17 @@ struct SettingValueRow: View {
             }
 
         case .int:
-            if let range = intSliderRange(for: definition) {
+            if let labels = intValueLabels(for: definition) {
+                // Discrete labeled picker for enum-like ints
+                Picker(definition.powerUserLabel ?? definition.displayName, selection: Binding(
+                    get: { currentValue?.asInt ?? 0 },
+                    set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
+                )) {
+                    ForEach(labels, id: \.value) { item in
+                        Text(item.label).tag(item.value)
+                    }
+                }
+            } else if let range = intSliderRange(for: definition) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(definition.powerUserLabel ?? definition.displayName)
                     HStack(spacing: 8) {
@@ -961,6 +971,16 @@ struct PropellerheadSettingRow: View {
             ))
 
         case .int:
+            if let labels = intValueLabels(for: definition) {
+                Picker(definition.displayName, selection: Binding(
+                    get: { currentValue?.asInt ?? 0 },
+                    set: { viewModel.stageChange(settingID: definition.id, target: .explicitValue(.int($0))) }
+                )) {
+                    ForEach(labels, id: \.value) { item in
+                        Text(item.label).tag(item.value)
+                    }
+                }
+            } else {
             let intRange = intSliderRange(for: definition)
             LabeledContent(definition.displayName) {
                 HStack(spacing: 8) {
@@ -980,6 +1000,7 @@ struct PropellerheadSettingRow: View {
                         .padding(.vertical, 3)
                         .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
+            }
             }
 
         case .double:
@@ -1218,6 +1239,94 @@ struct ApplyResultBanner: View {
         .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
     }
 }
+
+// MARK: - Int Value Label Mapping
+
+struct IntValueLabel {
+    let value: Int
+    let label: String
+}
+
+private let hotCornerLabels: [IntValueLabel] = [
+    IntValueLabel(value: 0, label: "Off"),
+    IntValueLabel(value: 2, label: "Mission Control"),
+    IntValueLabel(value: 3, label: "Application Windows"),
+    IntValueLabel(value: 4, label: "Desktop"),
+    IntValueLabel(value: 5, label: "Start Screen Saver"),
+    IntValueLabel(value: 6, label: "Disable Screen Saver"),
+    IntValueLabel(value: 10, label: "Put Display to Sleep"),
+    IntValueLabel(value: 11, label: "Launchpad"),
+    IntValueLabel(value: 12, label: "Notification Center"),
+    IntValueLabel(value: 13, label: "Lock Screen"),
+    IntValueLabel(value: 14, label: "Quick Note"),
+]
+
+// swiftlint:disable cyclomatic_complexity
+func intValueLabels(for def: SettingDefinition) -> [IntValueLabel]? {
+    switch def.id {
+    case "dock.hotCornerTopLeft",
+         "dock.hotCornerTopRight",
+         "dock.hotCornerBottomLeft",
+         "dock.hotCornerBottomRight":
+        return hotCornerLabels
+
+    case "keyboard.fnKeyAction":
+        return [
+            IntValueLabel(value: 0, label: "Do Nothing"),
+            IntValueLabel(value: 1, label: "Change Input Source"),
+            IntValueLabel(value: 2, label: "Show Emoji & Symbols"),
+            IntValueLabel(value: 3, label: "Start Dictation"),
+        ]
+
+    case "trackpad.clickPressure", "trackpad.forceClickPressure":
+        return [
+            IntValueLabel(value: 0, label: "Light"),
+            IntValueLabel(value: 1, label: "Medium"),
+            IntValueLabel(value: 2, label: "Firm"),
+        ]
+
+    case "global.sidebarIconSize":
+        return [
+            IntValueLabel(value: 1, label: "Small"),
+            IntValueLabel(value: 2, label: "Medium"),
+            IntValueLabel(value: 3, label: "Large"),
+        ]
+
+    case "activityMonitor.iconType":
+        return [
+            IntValueLabel(value: 0, label: "App Icon"),
+            IntValueLabel(value: 2, label: "Network Usage"),
+            IntValueLabel(value: 3, label: "Disk Activity"),
+            IntValueLabel(value: 5, label: "CPU Usage"),
+            IntValueLabel(value: 6, label: "CPU History"),
+        ]
+
+    case "activityMonitor.showCategory":
+        return [
+            IntValueLabel(value: 100, label: "All Processes"),
+            IntValueLabel(value: 101, label: "All Processes (Hierarchical)"),
+            IntValueLabel(value: 102, label: "My Processes"),
+        ]
+
+    case "activityMonitor.updatePeriod":
+        return [
+            IntValueLabel(value: 1, label: "Very Often (1s)"),
+            IntValueLabel(value: 2, label: "Often (2s)"),
+            IntValueLabel(value: 5, label: "Normal (5s)"),
+        ]
+
+    case "menu.clockShowDate":
+        return [
+            IntValueLabel(value: 0, label: "When Space Allows"),
+            IntValueLabel(value: 1, label: "Always"),
+            IntValueLabel(value: 2, label: "Never"),
+        ]
+
+    default:
+        return nil
+    }
+}
+// swiftlint:enable cyclomatic_complexity
 
 // swiftlint:disable cyclomatic_complexity function_body_length
 private func settingIcon(for def: SettingDefinition) -> String {
