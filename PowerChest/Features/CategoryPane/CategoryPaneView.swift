@@ -96,6 +96,7 @@ struct CategoryPaneView: View {
 private struct PowerUserContent: View {
     let viewModel: CategoryPaneViewModel
     @Environment(AppState.self) private var appState
+    @State private var visibleCards: Set<String> = []
 
     var body: some View {
         let groupedControls = appState.catalogService.groupedControls(for: viewModel.category)
@@ -109,8 +110,14 @@ private struct PowerUserContent: View {
                 )
             }
         } else {
-            ForEach(groupedControls) { gc in
+            ForEach(Array(groupedControls.enumerated()), id: \.element.id) { index, gc in
                 InteractiveGroupedControl(groupedControl: gc, viewModel: viewModel)
+                    .opacity(visibleCards.contains(gc.id) ? 1 : 0)
+                    .offset(y: visibleCards.contains(gc.id) ? 0 : 12)
+                    .animation(.spring(response: 0.35, dampingFraction: 0.8).delay(Double(index) * 0.05), value: visibleCards.contains(gc.id))
+                    .onAppear {
+                        visibleCards.insert(gc.id)
+                    }
             }
         }
     }
