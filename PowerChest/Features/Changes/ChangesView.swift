@@ -24,7 +24,7 @@ struct ChangesView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(RoundedRectangle(cornerRadius: 28).fill(Color(nsColor: .textBackgroundColor)))
+                    .background(RoundedRectangle(cornerRadius: 28).fill(.ultraThinMaterial))
                 } else {
                     LazyVStack(alignment: .leading, spacing: 18) {
                         ForEach(groupedRecords, id: \.title) { section in
@@ -40,7 +40,7 @@ struct ChangesView: View {
                                     }
                                 }
                                 .padding()
-                                .background(RoundedRectangle(cornerRadius: 22).fill(Color(nsColor: .textBackgroundColor)))
+                                .background(RoundedRectangle(cornerRadius: 22).fill(.ultraThinMaterial))
                                 .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
                             }
                         }
@@ -50,7 +50,7 @@ struct ChangesView: View {
             .padding(.horizontal, 28)
             .padding(.vertical, 32)
         }
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(.clear)
         .onAppear {
             records = appState.changeLogService.allRecords()
         }

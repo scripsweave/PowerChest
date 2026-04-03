@@ -24,7 +24,7 @@ struct HomeView: View {
                 .padding(.horizontal, 28)
                 .padding(.vertical, 32)
             }
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(.clear)
 
             if let msg = statusMessage {
                 ApplyResultBanner(message: msg) { withAnimation { statusMessage = nil } }
@@ -143,8 +143,18 @@ struct HomeView: View {
             }
             .padding(28)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(heroGradient)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(heroGradient.opacity(0.7))
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                }
+            )
             .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
             .overlay(alignment: .bottomTrailing) {
                 Image(systemName: appState.userMode == .powerUser ? "wand.and.stars" : "terminal.fill")
                     .font(.system(size: 60, weight: .semibold))
@@ -249,8 +259,12 @@ struct HomeView: View {
                 .padding(18)
                 .background(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color(nsColor: .textBackgroundColor))
-                        .shadow(color: .black.opacity(0.1), radius: 12, y: 6)
+                        .fill(.ultraThinMaterial)
+                        .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
+                        )
                 )
             }
         }
@@ -609,8 +623,12 @@ private struct StatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color(nsColor: .textBackgroundColor))
-                .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.04), radius: 10, y: 4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
+                )
         )
     }
 }
@@ -635,9 +653,16 @@ private struct SavePresetCard: View {
         .frame(width: 200, height: 210)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(hovering ? Color.accentColor.opacity(0.08) : Color(nsColor: .textBackgroundColor))
-                .strokeBorder(Color.secondary.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [8, 5]))
-                .shadow(color: .black.opacity(hovering ? 0.12 : 0.06), radius: hovering ? 12 : 6, y: 4)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(hovering ? Color.accentColor.opacity(0.06) : .clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .strokeBorder(Color.secondary.opacity(0.25), style: StrokeStyle(lineWidth: 1.5, dash: [8, 5]))
+                )
+                .shadow(color: .black.opacity(hovering ? 0.1 : 0.04), radius: hovering ? 14 : 8, y: 4)
         )
         .scaleEffect(hovering ? 1.01 : 1)
         .onHover { hovering = $0 }
@@ -708,12 +733,16 @@ private struct PresetCard: View {
         .frame(width: 250, height: 210)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill((hovering || isHighlighted) ? Color.accentColor.opacity(0.12) : Color(nsColor: .textBackgroundColor))
+                .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(isHighlighted ? Color.accentColor : .clear, lineWidth: 2)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill((hovering || isHighlighted) ? Color.accentColor.opacity(0.08) : .clear)
                 )
-                .shadow(color: .black.opacity(isHighlighted ? 0.25 : 0.15), radius: isHighlighted ? 18 : (hovering ? 14 : 8), y: 6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .strokeBorder(isHighlighted ? Color.accentColor.opacity(0.5) : .white.opacity(0.15), lineWidth: isHighlighted ? 1.5 : 0.5)
+                )
+                .shadow(color: .black.opacity(isHighlighted ? 0.15 : 0.06), radius: isHighlighted ? 18 : (hovering ? 14 : 8), y: 6)
         )
         .scaleEffect(isHighlighted ? 1.02 : (hovering ? 1.01 : 1))
         .onHover { hovering = $0 }

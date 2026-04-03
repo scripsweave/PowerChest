@@ -10,13 +10,25 @@ struct CategoryHeaderView: View {
     }
 
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: item.systemImage)
-                .font(.system(size: 32, weight: .medium))
-                .foregroundStyle(.white)
-                .frame(width: 60, height: 60)
-                .background(item.iconColor.gradient, in: RoundedRectangle(cornerRadius: 14))
-                .shadow(color: item.iconColor.opacity(0.3), radius: 6, y: 3)
+        VStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 64, height: 64)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(item.iconColor.gradient.opacity(0.6))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(.white.opacity(0.3), lineWidth: 0.5)
+                    )
+                    .shadow(color: item.iconColor.opacity(0.25), radius: 8, y: 4)
+
+                Image(systemName: item.systemImage)
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundStyle(.white)
+            }
 
             Text(item.displayName)
                 .font(.title2)
